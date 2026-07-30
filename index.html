@@ -2324,6 +2324,53 @@ function setBilanDraft(e, year, siam, engage, numeroBilan){
   e.bilanDrafts["y"+year] = { siam, engage, numeroBilan: numeroBilan !== undefined ? numeroBilan : previous.numeroBilan, savedAt: TODAY.toISOString() };
 }
 
+// Le message adressé à l'engagé reprend l'appréciation de l'expert au moment où il est généré —
+// si l'expert modifie ensuite son appréciation (ou les activités) sans régénérer ce message, il
+// enverrait par erreur une version périmée (ex. une ancienne demande de complément). On retient
+// donc l'appréciation utilisée, pour pouvoir alerter en cas de décalage avec l'appréciation
+// actuelle.
+function getEngageMsgSnapshot(e, year){
+  if (!e.bilanEngageSnap) e.bilanEngageSnap = {};
+  return e.bilanEngageSnap["y"+year];
+}
+function setEngageMsgSnapshot(e, year, appreciationVal){
+  if (!e.bilanEngageSnap) e.bilanEngageSnap = {};
+  e.bilanEngageSnap["y"+year] = appreciationVal;
+}
+function isEngageMsgStale(e, year){
+  const snap = getEngageMsgSnapshot(e, year);
+  return snap !== undefined && snap !== getBilanAppreciation(e, year);
+}
+
+// Même principe que l'appréciation, mais pour l'ensemble des données du bilan (statuts et
+// contenus des activités, valences) : si l'expert les modifie après avoir généré la synthèse
+// SIAM, celle-ci ne les reflète plus tant qu'elle n'est pas régénérée.
+function computeBilanDataFingerprint(e, year){
+  const statuts = getBilanStatuts(e, year);
+  const contenus = getBilanContenus(e, year);
+  const valence = getBilanValence(e, year);
+  const parts = [];
+  PILIERS.forEach(p=> p.activites.forEach((a,ai)=>{
+    const key = p.id+"_"+ai;
+    const c = contenus[key];
+    parts.push(key+":"+(statuts[key]||"")+":"+((c&&c.texte)||"").length);
+  }));
+  parts.push("pluri:"+!!valence.pluridisciplinaire, "prof:"+!!valence.pluriprofessionnelle);
+  return parts.join("|");
+}
+function getBilanDataSnapshot(e, year){
+  if (!e.bilanDataSnap) e.bilanDataSnap = {};
+  return e.bilanDataSnap["y"+year];
+}
+function setBilanDataSnapshot(e, year){
+  if (!e.bilanDataSnap) e.bilanDataSnap = {};
+  e.bilanDataSnap["y"+year] = computeBilanDataFingerprint(e, year);
+}
+function isBilanSynthStale(e, year){
+  const snap = getBilanDataSnapshot(e, year);
+  return snap !== undefined && snap !== computeBilanDataFingerprint(e, year);
+}
+
 function renderBilan(){
   if (!STATE.selectedEngageId){
     // Même filtre que Gestion des engagés : les membres d'équipe ne sont pas suivis
@@ -2411,7 +2458,10 @@ function renderBilan(){
     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px;">${yearPills}</div>
     ${isAccreditationStage(e, year) ? `<div class="card" style="background:#F2FBF9; border-color:#0E7C6E;"><div style="font-size:12.8px;"><b>📋 Bilan d'accréditation.</b> C'est ce bilan qui est examiné par la HAS et qui délivre ou renouvelle l'accréditation. La synthèse générée ci-dessous compile les 3 bilans annuels précédents${compiledYearsForAccreditation(e, year).length ? " (" + compiledYearsForAccreditation(e, year).map(y=>stagesFor(e)[y]).join(", ") + ")" : ""}, pas seulement l'année en cours.</div></div>` : ""}
 
-    <div class="grid2">
+    <div class="section-label" style="margin-top:6px;">Les ${PILIERS.length} piliers</div>
+    ${pilierBlocks}
+
+    <div class="grid2" style="margin-top:20px;">
       <div>
         <div class="section-label">Conformité aux pré-requis</div>
         <div style="margin-bottom:6px;"><span class="badge ${preReqOk.rmm?'ok':'warn'}">RMM/CREX/REMED</span></div>
@@ -2428,24 +2478,6 @@ function renderBilan(){
         <label style="display:flex; align-items:center; gap:6px; font-size:12.8px;">
           <input type="checkbox" id="valenceProf" ${valence.pluriprofessionnelle?"checked":""} /> Valence pluriprofessionnelle retenue
         </label>
-        <button class="btn small" style="margin-top:10px;" id="genSyntheseBtn">📝 Générer la synthèse</button>
-        <button class="btn secondary small" style="margin-top:10px;" id="copyBilanPromptBtn">Copier le prompt (pour toute IA)</button>
-        <button class="btn secondary small" style="margin-top:10px;" id="toggleBilanPasteBtn">${STATE.showBilanPaste?"Masquer":"Coller une réponse IA obtenue ailleurs"}</button>
-        ${STATE.bilanSynthese ? `<a class="linklike" id="resetSyntheseBtn" style="margin-left:10px; font-size:12.5px; color:var(--danger);">🔄 Réinitialiser la synthèse et le message</a>` : ""}
-        <div class="muted-small" style="margin-top:6px;">« Générer la synthèse » produit immédiatement un texte structuré à partir des données ci-dessus, sans appel à un service tiers. Pour une synthèse rédigée par une IA, copiez le prompt et soumettez-le à l'outil de votre choix, puis collez sa réponse ci-dessous — rien n'est transmis à un tiers par cette application.</div>
-        ${STATE.showBilanPaste ? `
-        <div style="margin-top:12px; border-top:1px dashed var(--border); padding-top:12px;">
-          ${STATE.bilanPromptText ? `
-          <div class="muted-small" style="margin-bottom:6px;">Prompt à copier (fonctionne avec Claude.ai ou toute autre IA capable de suivre des instructions) — facultatif, vous pouvez aussi coller directement une réponse ci-dessous sans être passé par cette étape :</div>
-          <textarea rows="5" id="bilanPromptDisplayArea" readonly>${escapeHtml(STATE.bilanPromptText)}</textarea>
-          <div style="margin-top:6px;"><button class="btn secondary small" id="selectBilanPromptBtn">Sélectionner tout (si la copie automatique a échoué)</button></div>
-          ` : `<div class="muted-small" style="margin-bottom:6px;">Vous pouvez coller directement ci-dessous la réponse d'une IA (JSON) — sans forcément être passé par « Copier le prompt ».</div>`}
-          <div class="muted-small" style="margin:12px 0 6px;">Collez ici la réponse obtenue, au format JSON (texte brut uniquement) :</div>
-          <textarea rows="6" id="bilanPasteResponseArea" placeholder='{"syntheseSiam": "...", "syntheseEngage": "..."}'></textarea>
-          <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn small" id="loadBilanPasteBtn">Charger cette réponse (JSON)</button>
-          </div>
-        </div>` : ""}
       </div>
     </div>
 
@@ -2453,8 +2485,27 @@ function renderBilan(){
     <textarea rows="3" id="bilanAppreciationInput" placeholder="Votre appréciation personnelle sur l'année écoulée, à intégrer dans une synthèse fluide et agréable à lire…">${escapeHtml(getBilanAppreciation(e, year))}</textarea>
     <div class="muted-small" style="margin:4px 0 0;">Cochez « pour l'engagé » sur les activités pour lesquelles vous voulez renvoyer, dans le message qui lui sera adressé, les attendus/mots-clés/liens du didacticiel (utile pour répondre à une question ou suggérer une activité pour l'année suivante).</div>
 
-    <div class="section-label" style="margin-top:18px;">Les ${PILIERS.length} piliers</div>
-    ${pilierBlocks}
+    <div style="margin-top:18px;">
+      <button class="btn small" id="genSyntheseBtn">📝 Générer la synthèse</button>
+      <button class="btn secondary small" id="copyBilanPromptBtn">Copier le prompt (pour toute IA)</button>
+      <button class="btn secondary small" id="toggleBilanPasteBtn">${STATE.showBilanPaste?"Masquer":"Coller une réponse IA obtenue ailleurs"}</button>
+      ${STATE.bilanSynthese ? `<a class="linklike" id="resetSyntheseBtn" style="margin-left:10px; font-size:12.5px; color:var(--danger);">🔄 Réinitialiser la synthèse et le message</a>` : ""}
+      ${STATE.bilanSynthese && isBilanSynthStale(e, year) ? `<div class="badge warn" style="margin-top:8px; display:block; padding:8px 10px;">⚠️ Des activités, contenus ou valences ont été modifiés depuis la génération de cette synthèse — cliquez sur « Générer la synthèse » pour qu'elle en tienne compte.</div>` : ""}
+      <div class="muted-small" style="margin-top:6px;">« Générer la synthèse » produit immédiatement un texte structuré à partir des données ci-dessus, sans appel à un service tiers. Pour une synthèse rédigée par une IA, copiez le prompt et soumettez-le à l'outil de votre choix, puis collez sa réponse ci-dessous — rien n'est transmis à un tiers par cette application.</div>
+      ${STATE.showBilanPaste ? `
+      <div style="margin-top:12px; border-top:1px dashed var(--border); padding-top:12px;">
+        ${STATE.bilanPromptText ? `
+        <div class="muted-small" style="margin-bottom:6px;">Prompt à copier (fonctionne avec Claude.ai ou toute autre IA capable de suivre des instructions) — facultatif, vous pouvez aussi coller directement une réponse ci-dessous sans être passé par cette étape :</div>
+        <textarea rows="5" id="bilanPromptDisplayArea" readonly>${escapeHtml(STATE.bilanPromptText)}</textarea>
+        <div style="margin-top:6px;"><button class="btn secondary small" id="selectBilanPromptBtn">Sélectionner tout (si la copie automatique a échoué)</button></div>
+        ` : `<div class="muted-small" style="margin-bottom:6px;">Vous pouvez coller directement ci-dessous la réponse d'une IA (JSON) — sans forcément être passé par « Copier le prompt ».</div>`}
+        <div class="muted-small" style="margin:12px 0 6px;">Collez ici la réponse obtenue, au format JSON (texte brut uniquement) :</div>
+        <textarea rows="6" id="bilanPasteResponseArea" placeholder='{"syntheseSiam": "...", "syntheseEngage": "..."}'></textarea>
+        <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn small" id="loadBilanPasteBtn">Charger cette réponse (JSON)</button>
+        </div>
+      </div>` : ""}
+    </div>
 
     ${STATE.bilanSynthese ? renderBilanReport(e, year) : ""}
   </div>`;
@@ -2539,6 +2590,8 @@ function renderBilanReport(e, year){
     <div class="section-label" style="margin-top:14px;">Message adressé à l'engagé (éditable)</div>
     <textarea rows="6" id="syntheseEngageText">${escapeHtml(STATE.bilanSyntheseEngage||"")}</textarea>
     <div class="muted-small" style="margin-top:4px;">Les liens du didacticiel (mots-clés cochés « pour l'engagé ») sont ajoutés automatiquement après ce texte lors de l'envoi.</div>
+    <div style="margin-top:6px;"><a class="linklike" id="regenEngageMsgBtn" style="font-size:12.5px;">🔄 Régénérer ce message avec l'appréciation actuelle</a></div>
+    ${isEngageMsgStale(e, year) ? `<div class="badge warn" style="margin-top:8px; display:block; padding:8px 10px;">⚠️ Ce message a été généré avec une appréciation différente de celle actuellement enregistrée — cliquez sur « Régénérer » ci-dessus avant de l'envoyer, sans quoi l'engagé recevra une version périmée (ex. une ancienne demande de complément).</div>` : ""}
 
     <div style="margin-top:14px; background:#FFF8D6; border:2px solid #E8C74A; border-radius:8px; padding:10px 12px;">
       <label style="font-weight:700; color:#8A6D00; font-size:12.8px;">⚠️ N° de bilan (SIAM) — indispensable pour la facturation</label>
@@ -2734,7 +2787,23 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
     const syntheseEngage = deterministicEngageMessage(e, year, getBilanAppreciation(e, year));
     setState({ bilanSynthese: syntheseSiam, bilanSyntheseEngage: syntheseEngage });
     setBilanDraft(e, year, syntheseSiam, syntheseEngage);
+    setEngageMsgSnapshot(e, year, getBilanAppreciation(e, year));
+    setBilanDataSnapshot(e, year);
     toast("Synthèse générée à partir des données saisies — modifiable ci-dessous.");
+  };
+
+  const regenEngageMsgBtn = document.getElementById("regenEngageMsgBtn");
+  if (regenEngageMsgBtn) regenEngageMsgBtn.onclick = ()=>{
+    const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
+    const year = STATE.bilanYear || 0;
+    const appreciationInput = document.getElementById("bilanAppreciationInput");
+    if (appreciationInput) setBilanAppreciation(e, year, appreciationInput.value);
+    const syntheseEngage = deterministicEngageMessage(e, year, getBilanAppreciation(e, year));
+    const siam = document.getElementById("syntheseText") ? document.getElementById("syntheseText").value : (STATE.bilanSynthese || "");
+    setState({ bilanSyntheseEngage: syntheseEngage });
+    setBilanDraft(e, year, siam, syntheseEngage);
+    setEngageMsgSnapshot(e, year, getBilanAppreciation(e, year));
+    toast("Message à l'engagé régénéré avec l'appréciation actuelle.");
   };
 
   const copyBilanPromptBtn = document.getElementById("copyBilanPromptBtn");
@@ -2781,6 +2850,8 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
       if (!syntheseSiam && !syntheseEngage) throw new Error("le JSON ne contient ni \"syntheseSiam\" ni \"syntheseEngage\"");
       setState({ bilanSynthese: syntheseSiam, bilanSyntheseEngage: syntheseEngage, showBilanPaste:false });
       setBilanDraft(e, year, syntheseSiam, syntheseEngage);
+      setEngageMsgSnapshot(e, year, getBilanAppreciation(e, year));
+      setBilanDataSnapshot(e, year);
       toast("Réponse chargée — vous pouvez maintenant relire et modifier ci-dessous.");
     }catch(err){
       toast("Lecture impossible en JSON (" + err.message + ").", 9000);
@@ -2795,6 +2866,8 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
     const ok = window.confirm("Réinitialiser la synthèse et le message à l'engagé pour cette étape ?\n\nLe brouillon enregistré sera aussi effacé. Les activités par pilier, elles, ne sont pas touchées.");
     if (!ok) return;
     if (e.bilanDrafts) delete e.bilanDrafts["y"+year];
+    if (e.bilanEngageSnap) delete e.bilanEngageSnap["y"+year];
+    if (e.bilanDataSnap) delete e.bilanDataSnap["y"+year];
     setState({ bilanSynthese:null, bilanSyntheseEngage:null });
     toast("Synthèse et message réinitialisés — cliquez sur « Générer la synthèse » pour repartir de zéro.");
   };
@@ -2802,6 +2875,8 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
   if (saveBilanDraftBtn) saveBilanDraftBtn.onclick = ()=>{
     const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
     const year = STATE.bilanYear || 0;
+    const appreciationInput = document.getElementById("bilanAppreciationInput");
+    if (appreciationInput) setBilanAppreciation(e, year, appreciationInput.value);
     const siam = document.getElementById("syntheseText") ? document.getElementById("syntheseText").value : (STATE.bilanSynthese || "");
     const engage = document.getElementById("syntheseEngageText").value;
     const numeroBilan = document.getElementById("f_numeroSiamBilan") ? document.getElementById("f_numeroSiamBilan").value : "";
@@ -2824,6 +2899,10 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
   if (downloadBilanWordBtn) downloadBilanWordBtn.onclick = ()=>{
     const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
     const year = STATE.bilanYear || 0;
+    if (isBilanSynthStale(e, year)){
+      const proceed = window.confirm("Des activités, contenus ou valences ont été modifiés depuis la génération de cette synthèse — le document risque de ne pas refléter ces changements.\n\nTélécharger quand même sans régénérer ?");
+      if (!proceed) return;
+    }
     const syntheseText = document.getElementById("syntheseText") ? document.getElementById("syntheseText").value : (STATE.bilanSynthese || "");
     const appreciation = getBilanAppreciation(e, year);
     const filename = "Bilan_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".doc";
@@ -2835,6 +2914,10 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
   if (sendBilanEngageBtn) sendBilanEngageBtn.onclick = ()=>{
     const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
     const year = STATE.bilanYear || 0;
+    if (isEngageMsgStale(e, year)){
+      const proceed = window.confirm("Ce message a été généré avec une appréciation différente de celle actuellement enregistrée — l'engagé risque de recevoir une version périmée (ex. une ancienne demande de complément).\n\nEnvoyer quand même sans régénérer ?");
+      if (!proceed) return;
+    }
     const bodyMain = document.getElementById("syntheseEngageText").value;
     const snippet = buildDidacticielSnippetForBilan(e, year);
     const subject = "Votre bilan — " + stagesFor(e)[year] + " — Accréditation des Médecins";
@@ -2848,6 +2931,10 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
   if (validerArchiverBtn) validerArchiverBtn.onclick = ()=>{
     const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
     const year = STATE.bilanYear || 0;
+    if (isBilanSynthStale(e, year)){
+      const proceed = window.confirm("Des activités, contenus ou valences ont été modifiés depuis la génération de cette synthèse — celle-ci ne les reflète pas.\n\nValider quand même sans régénérer ?");
+      if (!proceed) return;
+    }
     const numeroBilan = document.getElementById("f_numeroSiamBilan") ? document.getElementById("f_numeroSiamBilan").value.trim() : "";
     if (!numeroBilan){
       const proceed = window.confirm("Aucun N° de bilan (SIAM) renseigné : ce bilan ne sera pas ajouté à la facturation tant que ce numéro ne sera pas complété.\n\nValider quand même sans facturer ?");
