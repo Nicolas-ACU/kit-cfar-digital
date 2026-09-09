@@ -261,9 +261,21 @@ const CFAR_LOGO_B64 = "iVBORw0KGgoAAAANSUhEUgAAAWgAAAGHCAYAAACd98iCAADN90lEQVR42
 
 const EXPERTS = [
   { id:"GOACFAR000", name:"Dr. Nicolas Blanchard", role:"Administrateur", password:"NBlanchard26!", isAdmin:true },
-  { id:"GOACFAR001", name:"Dr. Geoffrey Jurkulow", role:"Expert Accréditation", password:"GJurkulow26!", isAdmin:false },
+  { id:"GOACFAR001", name:"Dr. Geoffrey Jurkolow", role:"Expert Accréditation", password:"GJurkolow26!", isAdmin:false },
   { id:"GOACFAR002", name:"Dr. David Gouraud", role:"Expert Accréditation", password:"DGouraud26!", isAdmin:false },
   { id:"GOACFAR003", name:"Dr. Virginie Proust", role:"Expert Accréditation", password:"VProust26!", isAdmin:false },
+  { id:"PRECFAR001", name:"Dr. Jean-Michel Constantin", role:"Président", password:"JMConstantin26!", isAdmin:false },
+  { id:"POACFAR001", name:"Dr. Pierre Albaladejo", role:"Président OA", password:"PAlbaladejo26!", isAdmin:false },
+  { id:"POACFAR000", name:"Dr. Paul-Michel Mertes", role:"Président OA", password:"PMMertes26!", isAdmin:false },
+  { id:"DIRCFAR001", name:"Dr. Etienne Fourquet", role:"Directoire", password:"EFourquet26!", isAdmin:false },
+  { id:"DIRCFAR002", name:"Dr. Vincent Compère", role:"Directoire", password:"VCompere26!", isAdmin:false },
+  { id:"DIRCFAR003", name:"Dr. Laurent Heyer", role:"Directoire", password:"LHeyer26!", isAdmin:false },
+  { id:"DIRCFAR004", name:"Dr. Cherifa Cheurfa", role:"Directoire", password:"CCheurfa26!", isAdmin:false },
+  { id:"DIRCFAR005", name:"Dr. Hervé Bouaziz", role:"Directoire", password:"HBouaziz26!", isAdmin:false },
+  { id:"DIRCFAR006", name:"Dr. Jean-Marc Malinovski", role:"Directoire", password:"JMMalinovski26!", isAdmin:false },
+  { id:"DIRCFAR007", name:"Dr. François Bannier", role:"Directoire", password:"FBannier26!", isAdmin:false },
+  { id:"DIRCFAR008", name:"Dr. Christophe Decoene", role:"Directoire", password:"CDecoene26!", isAdmin:false },
+  { id:"DIRCFAR009", name:"Dr. Matthieu Closon", role:"Directoire", password:"MCloson26!", isAdmin:false },
   { id:"exp2", name:"Dr. Jean Test", role:"Expert Accréditation", password:"demo", isAdmin:false },
 ];
 
@@ -544,17 +556,32 @@ function delayStatus(echeance, statutBilan){
    Chaque expert a son propre jeu de données en mémoire. Dr. Jean Test conserve les cas de
    démonstration (pour montrer l'étendue de l'application à des correspondants) ; Dr. Nicolas
    Blanchard démarre à vide pour la saisie de vrais cas de test. */
+
+// Les dates de démonstration sont calculées par rapport au jour d'ouverture (TODAY), et non
+// figées en dur : sans ça, chaque cas se rapprocherait ou s'éloignerait insensiblement de son
+// échéance au fil des mois, jusqu'à ce que "l'exemple à jour" devienne lui-même en retard —
+// exactement le problème qu'on vient de corriger. `echeanceOverrides` force la date de l'étape
+// EN COURS de chaque cas, quel que soit le jour où le fichier est ouvert ; les autres dates
+// (entrée, dernière accréditation) ne servent qu'à la cohérence visuelle du reste de la frise.
+function demoDate(offsetDays){
+  return new Date(TODAY.getTime() + offsetDays*86400000).toISOString().slice(0,10);
+}
 const DEMO_ENGAGES_JEAN_TEST = [
   {
+    // Seul cas volontairement EN RETARD, pour la démonstration de l'alerte — reste ~100 jours
+    // de retard (niveau critique) quelle que soit la date d'ouverture du fichier.
     id:"e1", type:"individuel", nom:"Dr. Camille Faure", modeExercice:"Anesthésie — secteur public",
     telephone:"06 12 34 56 78", email:"camille.faure@exemple-hopital.fr",
-    dateEntree:"2024-06-01", accreditationCount:0, dateDerniereAccreditation:null, cycleIndex:2, statutBilan:"en_cours",
+    dateEntree:demoDate(-1550), accreditationCount:0, dateDerniereAccreditation:null, cycleIndex:2, statutBilan:"en_cours",
+    echeanceOverrides:{2:demoDate(-100)},
     eiasRealises:1, membres:[], bilanStatuts:{}, bilanContenus:{}, bilanValence:{}, dossiersEias:[]
   },
   {
+    // À jour, en Bilan Annuel 1 de son premier cycle — échéance toujours ~84 jours devant elle.
     id:"e2", type:"equipe", nom:"Équipe Anesthésie-Réanimation — Clinique du Parc", modeExercice:"Anesthésie / Réanimation, ESPIC",
     telephone:"01 23 45 67 89", email:"referent.parc@exemple-clinique.fr",
-    dateEntree:"2023-03-01", accreditationCount:0, dateDerniereAccreditation:null, cycleIndex:3, statutBilan:"en_cours",
+    dateEntree:demoDate(-650), accreditationCount:0, dateDerniereAccreditation:null, cycleIndex:1, statutBilan:"a_faire",
+    echeanceOverrides:{1:demoDate(84)},
     eiasRealises:5,
     membres:["e2m1","e2m2","e2m3","e2m4","e2m5","e2m6","e2m7"],
     bilanStatuts:{}, bilanContenus:{}, bilanValence:{}, dossiersEias:[]
@@ -581,15 +608,18 @@ const DEMO_ENGAGES_JEAN_TEST = [
     id:"e2m7", type:"membre_equipe", nom:"Dr G. Lambert", qualif:"Anesthésiste", equipeId:"e2", role:"membre", email:"", telephone:""
   },
   {
+    // Vient tout juste de s'inscrire — toujours ~19 jours après son entrée, dans le délai HAS.
     id:"e3", type:"individuel", nom:"Dr. Julien Bernard", modeExercice:"Réanimation pédiatrique",
     telephone:"06 98 76 54 32", email:"julien.bernard@exemple-hopital.fr",
-    dateEntree:"2026-07-01", accreditationCount:0, dateDerniereAccreditation:null, cycleIndex:0, statutBilan:"a_faire",
+    dateEntree:demoDate(-19), accreditationCount:0, dateDerniereAccreditation:null, cycleIndex:0, statutBilan:"a_faire",
     eiasRealises:0, membres:[], bilanStatuts:{}, bilanContenus:{}, bilanValence:{}, dossiersEias:[]
   },
   {
+    // Bien avancée dans son 2e cycle — échéance toujours ~266 jours devant elle.
     id:"e4", type:"individuel", nom:"Dr. Sophie Lenoir", modeExercice:"Anesthésie — secteur privé",
     telephone:"06 11 22 33 44", email:"sophie.lenoir@exemple-clinique.fr",
-    dateEntree:"2021-03-10", accreditationCount:1, dateDerniereAccreditation:"2024-12-01", cycleIndex:1, statutBilan:"en_cours",
+    dateEntree:demoDate(-2000), accreditationCount:1, dateDerniereAccreditation:demoDate(-800), cycleIndex:2, statutBilan:"en_cours",
+    echeanceOverrides:{2:demoDate(266)},
     eiasRealises:1, membres:[], bilanStatuts:{}, bilanContenus:{}, bilanValence:{}, dossiersEias:[]
   },
 ];
@@ -622,6 +652,7 @@ function montantLigne(l){
 /* ---------- APP STATE ---------- */
 let STATE = {
   screen:"login",
+  anonymisationAccepted:false,
   currentExpert:null,
   loginError:"",
   loginIdValue:"",
@@ -674,6 +705,11 @@ let STATE = {
   editingMailTemplate:null,
 };
 
+const ANONYMISATION_PARA1 = `Je m'engage personnellement à respecter l'anonymisation de tout élément, retranscrit, copié ou rédigé, dans le Kit CFAR, tant dans les EIAS que dans les bilans.`;
+const ANONYMISATION_PRECISION = `Aucun nom de patient, de praticien, d'établissement de santé, de ville ou de région ne doit y apparaître, sous quelque forme que ce soit.`;
+const ANONYMISATION_PARA2 = `Je m'engage à vérifier ce principe d'anonymisation avant toute transmission de compte rendu, résumé ou analyse, tant aux engagés, référents d'équipes, experts ou gestionnaire, qu'à toute IA éventuellement sollicitée.`;
+const ANONYMISATION_PARA3 = `Je suis conscient de la gravité potentielle de toute transmission de donnée sensible et conviens que le CFAR m'a clairement informé sur cette exigence et ne pourrait-être tenu responsable d'une erreur de ma part.`;
+
 function setState(patch){ STATE = Object.assign({}, STATE, patch); render(); }
 function toast(msg, duration){ setState({toast:msg}); setTimeout(()=>{ STATE.toast=null; render(); }, duration||2600); }
 
@@ -681,8 +717,40 @@ function toast(msg, duration){ setState({toast:msg}); setTimeout(()=>{ STATE.toa
 function render(){
   const root = document.getElementById("root");
   if (STATE.screen === "login"){ root.innerHTML = renderLogin(); attachLoginEvents(); return; }
+  if (STATE.screen === "app" && !STATE.anonymisationAccepted){ root.innerHTML = renderAnonymisationGate(); attachAnonymisationGateEvents(); return; }
   root.innerHTML = renderApp();
   attachAppEvents();
+}
+
+function renderAnonymisationGate(){
+  return `
+  <div class="modal-bg" style="z-index:200;">
+    <div class="modal" style="max-width:620px; width:92vw;">
+      <h3>Engagement de confidentialité</h3>
+      <div style="font-size:13.5px; line-height:1.65; max-height:48vh; overflow-y:auto; padding-right:6px; border:1px solid var(--border); border-radius:8px; padding:14px;">
+        <p style="margin:0 0 12px;">${escapeHtml(ANONYMISATION_PARA1)}</p>
+        <p style="margin:0 0 12px; background:#FFF8E8; border-left:4px solid #9A6400; padding:8px 12px; border-radius:4px; font-weight:700; color:#7A5300;">${escapeHtml(ANONYMISATION_PRECISION)}</p>
+        <p style="margin:0 0 12px;">${escapeHtml(ANONYMISATION_PARA2)}</p>
+        <p style="margin:0;">${escapeHtml(ANONYMISATION_PARA3)}</p>
+      </div>
+      <label style="display:flex; align-items:flex-start; gap:8px; margin-top:16px; font-size:13px; cursor:pointer;">
+        <input type="checkbox" id="anonymisationCheckbox" style="margin-top:3px;" />
+        <span>J'ai lu et j'accepte personnellement ces engagements.</span>
+      </label>
+      <div class="modal-actions">
+        <button class="btn" id="anonymisationAcceptBtn" disabled>J'accepte</button>
+      </div>
+    </div>
+  </div>`;
+}
+function attachAnonymisationGateEvents(){
+  const cb = document.getElementById("anonymisationCheckbox");
+  const btn = document.getElementById("anonymisationAcceptBtn");
+  if (cb && btn) cb.onchange = ()=>{ btn.disabled = !cb.checked; };
+  if (btn) btn.onclick = ()=>{
+    if (btn.disabled) return;
+    setState({ anonymisationAccepted: true });
+  };
 }
 
 /* ---------- LOGIN ---------- */
@@ -719,7 +787,7 @@ function attachLoginEvents(){
       FACTURATION = FACTURATION_STORE[exp.id];
       if (!FACTURATION_INFO_STORE[exp.id]) FACTURATION_INFO_STORE[exp.id] = blankFacturationInfo();
       FACTURATION_INFO = FACTURATION_INFO_STORE[exp.id];
-      setState({ screen:"app", currentExpert:exp, loginError:"", loginIdValue:"" });
+      setState({ screen:"app", currentExpert:exp, loginError:"", loginIdValue:"", anonymisationAccepted:false });
     } else {
       setState({ loginError:"Identifiants incorrects.", loginIdValue:id });
     }
@@ -814,7 +882,7 @@ function attachAppEvents(){
     }
     // Réinitialiser la navigation : un autre profil peut se connecter ensuite, avec des
     // engagés différents — une sélection ou un onglet laissés en l'état ferait planter le rendu.
-    setState({ screen:"login", currentExpert:null, activeTab:"engages", selectedEngageId:null, bilanYear:0, bilanSynthese:null, bilanSyntheseEngage:null, eiasDraft:null, eiasInputs: defaultEiasInputs(), eiasTestMode:false });
+    setState({ screen:"login", currentExpert:null, activeTab:"engages", selectedEngageId:null, bilanYear:0, bilanSynthese:null, bilanSyntheseEngage:null, eiasDraft:null, eiasInputs: defaultEiasInputs(), eiasTestMode:false, anonymisationAccepted:false });
   };
   document.querySelectorAll(".nav-item").forEach(el=>{
     el.onclick = ()=> { persistEiasWork(); setState({ activeTab: el.getAttribute("data-tab"), selectedEngageId:null, eiasDraft:null, eiasInputs: defaultEiasInputs(), eiasValidated:false, eiasTestMode:false }); };
@@ -848,6 +916,13 @@ function attachAppEvents(){
     const file = ev.target.files && ev.target.files[0];
     ev.target.value = ""; // permet de recharger le même fichier une seconde fois si besoin
     if (!file) return;
+    if (STATE.currentExpert && STATE.currentExpert.id === "exp2"){
+      // Le compte de démonstration reconstruit ses cas d'exemple à jour à chaque ouverture du
+      // fichier ; importer une sauvegarde ici — la sienne ou une autre — les remplace jusqu'au
+      // prochain rechargement de la page, avec des dates qui ne se réactualiseront plus.
+      const ok = window.confirm("Vous êtes connecté avec le compte de démonstration (Dr. Jean Test).\n\nImporter une sauvegarde ici remplacera les cas d'exemple (Camille Faure, etc.) jusqu'au prochain rechargement complet de la page — et si c'est une ancienne sauvegarde de ce même compte, ses dates ne se réactualiseront pas automatiquement.\n\nContinuer ?");
+      if (!ok) return;
+    }
     const reader = new FileReader();
     reader.onload = ()=>{
       try{
@@ -2426,12 +2501,22 @@ function renderBilan(){
             <input type="checkbox" data-annotate="${key}" ${annotations[key]?"checked":""} /> pour l'engagé
           </label>
           <a class="linklike" data-toggle-detail="${key}" style="font-size:11.5px;">${isOpen?"▾":"▸"} Contenu SIAM${c.texte?" ✓":""}</a>
-          <select class="status-select ${val}" data-pilier="${p.id}" data-ai="${ai}">
-            <option value="obligatoire" ${val==="obligatoire"?"selected":""}>À remplir obligatoirement</option>
-            <option value="realise" ${val==="realise"?"selected":""}>Réalisé</option>
-            <option value="en_cours" ${val==="en_cours"?"selected":""}>En cours</option>
-            <option value="non_retenue" ${val==="non_retenue"?"selected":""}>Activité non retenue</option>
-          </select>
+          ${(()=>{
+            // Les activités obligatoires n'admettent que 2 issues (à remplir / réalisé) — pas de
+            // "en cours" ni de "non retenue", qui n'ont pas de sens pour un pré-requis HAS. On
+            // garde malgré tout l'ancienne valeur affichable si des données antérieures à cette
+            // règle l'avaient enregistrée différemment, pour ne rien perdre silencieusement.
+            const allOptions = [
+              { v:"obligatoire", label:"À remplir obligatoirement" },
+              { v:"realise", label:"Réalisé" },
+              { v:"en_cours", label:"En cours" },
+              { v:"non_retenue", label:"Activité non retenue" },
+            ];
+            const options = a.obligatoire ? allOptions.filter(o=> o.v==="obligatoire" || o.v==="realise" || o.v===val) : allOptions;
+            return `<select class="status-select ${val}" data-pilier="${p.id}" data-ai="${ai}">
+            ${options.map(o=>`<option value="${o.v}" ${val===o.v?"selected":""}>${o.label}</option>`).join("")}
+          </select>`;
+          })()}
         </div>
       </div>${detail}`;
     }).join("");
@@ -2533,7 +2618,7 @@ function renderBilanReport(e, year){
       ? "<ul>" + items.map(o=>{
           const c = contenus[o.key];
           const label = escapeHtml(o.a.nom.replace(" (OBLIGATOIRE)",""));
-          const detail = c && (c.simplifie || c.texte) ? " — " + escapeHtml(c.simplifie || c.texte) : "";
+          const detail = c && (c.simplifie || c.texte) ? " — " + escapeHtml(truncateForPrompt(c.simplifie || c.texte)) : "";
           return "<li>" + label + detail + "</li>";
         }).join("") + "</ul>"
       : `<div class="none">aucune activité complémentaire retenue à ce stade</div>`;
@@ -2727,7 +2812,7 @@ function attachBilanEvents(){
       const txt = items.length ? items.map(o=>{
         const c = contenus[o.key];
         const label = o.a.nom.replace(" (OBLIGATOIRE)","");
-        const detail = c && (c.simplifie || c.texte) ? " — " + (c.simplifie || c.texte) : "";
+        const detail = c && (c.simplifie || c.texte) ? " — " + truncateForPrompt(c.simplifie || c.texte) : "";
         return label + detail;
       }).join(" ; ") : "aucune activité complémentaire retenue à ce stade";
       return `${p.nom} : ${txt}`;
@@ -3715,6 +3800,20 @@ function compiledYearsForAccreditation(e, year){
   return [year-3, year-2, year-1].filter(y=>y>=0);
 }
 
+// Le contenu collé depuis le SIAM peut être long, et un bilan (surtout un bilan
+// d'accréditation, qui compile 3 années) peut compter jusqu'à 63 activités : sans plafond, le
+// prompt copié pour l'IA — et la synthèse elle-même — deviendrait vite illisible. On retient
+// l'essentiel de chaque contenu plutôt que de tout reprendre verbatim ; ce n'est pas un résumé
+// intelligent (on a retiré l'appel IA pour la RGPD), mais ça garde le prompt et la synthèse
+// exploitables.
+function truncateForPrompt(text, maxLen){
+  maxLen = maxLen || 320;
+  if (!text) return "";
+  const t = text.trim();
+  if (t.length <= maxLen) return t;
+  return t.slice(0, maxLen).trim() + "…";
+}
+
 function buildBilanFactsAccreditation(e, year){
   const stages = stagesFor(e);
   const compiledYears = compiledYearsForAccreditation(e, year);
@@ -3730,7 +3829,7 @@ function buildBilanFactsAccreditation(e, year){
           if (!parActivite[nom]) parActivite[nom] = { annees:[], contenu:"" };
           parActivite[nom].annees.push(stages[y]);
           const c = contenus[key];
-          const detail = c && (c.simplifie||c.texte) || "";
+          const detail = truncateForPrompt(c && (c.simplifie||c.texte));
           if (detail && !parActivite[nom].contenu) parActivite[nom].contenu = detail;
         }
       });
@@ -3767,7 +3866,7 @@ function buildBilanFacts(e, year){
       pilier: p.nom,
       activites: items.map(o=>{
         const c = contenus[o.key];
-        return { nom: o.a.nom.replace(" (OBLIGATOIRE)",""), contenu: (c && (c.simplifie||c.texte)) || "" };
+        return { nom: o.a.nom.replace(" (OBLIGATOIRE)",""), contenu: truncateForPrompt(c && (c.simplifie||c.texte)) };
       }),
     };
   });
