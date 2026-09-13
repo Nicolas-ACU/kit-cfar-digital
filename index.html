@@ -587,6 +587,7 @@ let STATE = {
   bilanSyntheseEngage:null,
   bilanSyntheseLoading:false,
   showBilanPaste:false,
+  showImportEngage:false,
   bilanPromptText:"",
   eiasDraft:null,
   eiasLoading:false,
@@ -2457,6 +2458,22 @@ function renderBilan(){
     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px;">${yearPills}</div>
     ${isAccreditationStage(e, year) ? `<div class="card" style="background:#F2FBF9; border-color:#0E7C6E;"><div style="font-size:12.8px;"><b>📋 Bilan d'accréditation.</b> C'est ce bilan qui est examiné par la HAS et qui délivre ou renouvelle l'accréditation. La synthèse générée ci-dessous compile les 3 bilans annuels précédents${compiledYearsForAccreditation(e, year).length ? " (" + compiledYearsForAccreditation(e, year).map(y=>stagesFor(e)[y]).join(", ") + ")" : ""}, pas seulement l'année en cours.</div></div>` : ""}
 
+    <div class="card" style="background:#F2FBF9; border-color:#0E7C6E;">
+      <div class="section-label">📬 Faire remplir par l'engagé (optionnel)</div>
+      <div class="muted-small" style="margin-bottom:8px;">L'engagé (ou le référent d'équipe) peut compléter lui-même ses activités, à l'aide du didacticiel, dans un fichier séparé qu'il vous renvoie — ce n'est alors plus vous qui recopiez depuis le SIAM. Si l'engagé n'utilise pas cet outil, rien ne change : continuez de coller vous-même depuis le SIAM comme aujourd'hui.</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn secondary small" id="genEspaceEngageBtn">📤 Générer l'espace engagé (à lui envoyer)</button>
+        <button class="btn secondary small" id="toggleImportEngageBtn">${STATE.showImportEngage?"Masquer":"📥 Importer sa réponse"}</button>
+      </div>
+      ${STATE.showImportEngage ? `
+      <div style="margin-top:12px; border-top:1px dashed var(--border); padding-top:12px; max-width:420px;">
+        <div class="field"><label>Fichier reçu de l'engagé (.json)</label><input type="file" id="importEngageFile" accept=".json,application/json" /></div>
+        <div class="field"><label>Code qu'il vous a communiqué séparément</label><input type="password" id="importEngageCode" autocomplete="off" /></div>
+        <button class="btn small" id="loadEngageResponseBtn">Charger sa réponse</button>
+        <div id="importEngageMsg" class="muted-small" style="margin-top:8px;"></div>
+      </div>` : ""}
+    </div>
+
     <div class="section-label" style="margin-top:6px;">Les ${PILIERS.length} piliers</div>
     ${pilierBlocks}
 
@@ -2907,6 +2924,61 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
     const filename = "Bilan_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".doc";
     downloadWordDoc(bilanWordHtml(e, year, syntheseText, appreciation), filename);
     toast("Synthèse téléchargée (Word) — à joindre manuellement au SIAM et/ou au mail (les liens mailto ne permettent pas de joindre un fichier automatiquement).");
+  };
+
+  const genEspaceEngageBtn = document.getElementById("genEspaceEngageBtn");
+  if (genEspaceEngageBtn) genEspaceEngageBtn.onclick = ()=>{
+    const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
+    const year = STATE.bilanYear || 0;
+    const html = buildEspaceEngageHtml(e, year);
+    const a = document.createElement("a");
+    a.href = "data:text/html;charset=utf-8," + encodeURIComponent(html);
+    a.download = "Espace_Engage_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,50) + ".html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast("Espace engagé généré — à envoyer par mail (pas besoin de le chiffrer, il ne contient que ce que vous savez déjà).");
+  };
+
+  const toggleImportEngageBtn = document.getElementById("toggleImportEngageBtn");
+  if (toggleImportEngageBtn) toggleImportEngageBtn.onclick = ()=> setState({ showImportEngage: !STATE.showImportEngage });
+
+  const loadEngageResponseBtn = document.getElementById("loadEngageResponseBtn");
+  if (loadEngageResponseBtn) loadEngageResponseBtn.onclick = ()=>{
+    const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
+    const fileInput = document.getElementById("importEngageFile");
+    const code = document.getElementById("importEngageCode").value;
+    const msg = document.getElementById("importEngageMsg");
+    const file = fileInput.files && fileInput.files[0];
+    if (!file){ msg.textContent = "Choisissez d'abord le fichier reçu de l'engagé."; return; }
+    if (!code){ msg.textContent = "Renseignez le code qu'il vous a communiqué."; return; }
+    msg.textContent = "Lecture en cours...";
+    const reader = new FileReader();
+    reader.onload = async ()=>{
+      try{
+        const pack = JSON.parse(reader.result);
+        const payload = await decryptEspacePackage(pack, code);
+        let nbMaj = 0;
+        Object.keys(payload.reponses || {}).forEach(yearKey=>{
+          const y = parseInt(yearKey.slice(1));
+          const statuts = getBilanStatuts(e, y);
+          const contenus = getBilanContenus(e, y);
+          Object.keys(payload.reponses[yearKey]).forEach(key=>{
+            const rep = payload.reponses[yearKey][key];
+            if (!rep || (!rep.texte && !rep.realise)) return;
+            if (!contenus[key]) contenus[key] = { texte:"", simplifie:"" };
+            if (rep.texte) contenus[key].texte = rep.texte;
+            if (rep.realise && statuts[key] === "obligatoire") statuts[key] = "realise";
+            nbMaj++;
+          });
+        });
+        setState({ showImportEngage:false });
+        toast("Réponse de " + payload.engageNom + " chargée (" + nbMaj + " activité(s) mise(s) à jour) — relisez avant de régénérer la synthèse.");
+      }catch(err){
+        msg.textContent = "Lecture impossible (code incorrect, ou fichier non reconnu) : " + err.message;
+      }
+    };
+    reader.readAsText(file);
   };
 
   const sendBilanEngageBtn = document.getElementById("sendBilanEngageBtn");
@@ -3408,6 +3480,27 @@ function exportUpdatedApp(){
   a.click();
   document.body.removeChild(a);
   setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(err){} }, 5000);
+}
+
+// Chiffrement des réponses renvoyées par l'engagé : AES-256-GCM avec clé dérivée d'un code par
+// PBKDF2, via l'API Web Crypto native du navigateur — aucune bibliothèque tierce, donc aucune
+// nouvelle dépendance ni service externe. Seul le retour de l'engagé (nouveau contenu clinique)
+// est chiffré ; l'aller (référentiel + ce que l'expert sait déjà) ne l'est pas.
+async function deriveEspaceKey(code, saltB64){
+  const salt = Uint8Array.from(atob(saltB64), c=>c.charCodeAt(0));
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(code), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name:"PBKDF2", salt, iterations:100000, hash:"SHA-256" },
+    keyMaterial, { name:"AES-GCM", length:256 }, false, ["decrypt"]
+  );
+}
+async function decryptEspacePackage(pack, code){
+  const key = await deriveEspaceKey(code, pack.salt);
+  const iv = Uint8Array.from(atob(pack.iv), c=>c.charCodeAt(0));
+  const data = Uint8Array.from(atob(pack.data), c=>c.charCodeAt(0));
+  const plainBuf = await crypto.subtle.decrypt({ name:"AES-GCM", iv }, key, data);
+  return JSON.parse(new TextDecoder().decode(plainBuf));
 }
 
 function downloadWordDoc(bodyHtml, filename){
@@ -4687,6 +4780,395 @@ function attachDidacticielEvents(){
     window.open(buildMailUrl(resolveMailRecipient(target), subject, body), "_blank");
   };
 }
+
+// Génère un fichier HTML autonome et personnalisé, à envoyer à l'engagé (ou au référent
+// d'équipe) : il y retrouve sa frise, les attendus/exemples/mots-clés du didacticiel, et ce qui
+// a déjà été renseigné pour lui — il complète, puis exporte un fichier chiffré à renvoyer à son
+// expert. Ce sens (expert → engagé) n'est volontairement pas chiffré : il ne contient que le
+// référentiel et ce que l'expert sait déjà de son propre engagé.
+function buildEspaceEngageHtml(e, year){
+  const isAccred = isAccreditationStage(e, year);
+  const yearsToInclude = (isAccred ? compiledYearsForAccreditation(e, year) : []).concat([year]);
+  const stages = stagesFor(e);
+  const dates = stageDates(e);
+  const friseStages = stages.map((s,i)=>({ label:s, date: dates[i].toISOString().slice(0,10) }));
+  const todayPct = computeTodayMarkerPercent(dates);
+
+  const piliersData = PILIERS.map(p=>({
+    id:p.id, nom:p.nom, req:p.req,
+    activites: p.activites.map(a=>{
+      // Le fichier Espace Engagé est autonome : il n'a pas accès au répertoire de Kit CFAR.
+      // On résout donc ici, une bonne fois, chaque mot-clé vers ses liens (recommandations,
+      // vidéos, bibliographie...) pour que l'engagé en bénéficie directement — c'est là tout
+      // l'intérêt d'un didacticiel interactif plutôt qu'une simple liste d'intitulés.
+      const ressources = (a.motscles||[]).map(k=>{
+        const match = matchRepertoire(k);
+        return match ? { motcle: match.motcle, liens: match.liens } : { motcle: k, liens: [] };
+      }).filter(r=> r.liens.length > 0);
+      return { nom:a.nom.replace(" (OBLIGATOIRE)",""), obligatoire:!!a.obligatoire, attendus:a.attendus||"", exemple:a.exemple||"", ressources:ressources };
+    })
+  }));
+
+  const reponses = {};
+  yearsToInclude.forEach(y=>{
+    const statuts = getBilanStatuts(e, y);
+    const contenus = getBilanContenus(e, y);
+    const yd = {};
+    PILIERS.forEach(p=>p.activites.forEach((a,ai)=>{
+      const key = p.id+"_"+ai;
+      const c = contenus[key];
+      yd[key] = { texte: (c && c.texte) || "", realise: statuts[key]==="realise" || statuts[key]==="en_cours" };
+    }));
+    reponses["y"+y] = yd;
+  });
+
+  const eeData = {
+    engageNom: e.nom,
+    etapeActuelle: stages[year],
+    isAccreditation: isAccred,
+    years: yearsToInclude.map(y=>({ key:"y"+y, label: stages[y], isCurrent: y===year })),
+    frise: { stages: friseStages, todayPct: todayPct, currentIndex: year },
+    piliers: piliersData,
+    reponses: reponses,
+    generePar: STATE.currentExpert.name,
+    genereLe: TODAY.toISOString().slice(0,10),
+  };
+
+  return ESPACE_ENGAGE_TEMPLATE.replace("__EE_DATA_JSON__", JSON.stringify(eeData));
+}
+
+const ESPACE_ENGAGE_TEMPLATE = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<title>Espace Engagé — CFAR Accréditation</title>
+<style>:root{ --navy:#1F3864; --navy-deep:#16294A; --teal:#0E7C6E; --border:#E2E6ED; --muted:#667085; --warn-bg:#FFF8E8; --warn-border:#f0dca8; }
+*{ box-sizing:border-box; }
+body{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; background:#F5F7FA; color:#1B2430; margin:0; padding:24px 16px 60px; line-height:1.5; }
+#root{ max-width:760px; margin:0 auto; }
+.ee-header{ text-align:center; margin-bottom:22px; }
+.ee-eyebrow{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--teal); font-weight:800; }
+.ee-header h1{ color:var(--navy); margin:6px 0 4px; font-size:26px; }
+.ee-sub{ color:var(--muted); font-size:14px; }
+.ee-card{ background:#fff; border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin-bottom:16px; }
+.ee-info{ background:#F2FBF9; border-color:#bfe3d0; font-size:13.5px; }
+.ee-info p{ margin:0; }
+.ee-section-label{ font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:700; margin-bottom:12px; }
+.ee-stepper{ position:relative; display:flex; justify-content:space-between; padding-top:26px; }
+.ee-today-marker{ position:absolute; top:0; transform:translateX(-50%); text-align:center; }
+.ee-today-marker .ee-tag{ background:var(--navy); color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+.ee-today-marker .ee-arrow{ display:block; color:var(--navy); font-size:12px; }
+.ee-step{ flex:1; text-align:center; border-top:3px solid var(--border); padding-top:8px; font-size:12px; }
+.ee-step-current{ border-top-color:var(--teal); }
+.ee-step-label{ font-weight:700; color:#1B2430; }
+.ee-step-current .ee-step-label{ color:var(--teal); }
+.ee-step-date{ color:var(--muted); font-size:11px; margin-top:2px; }
+.ee-year-tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.ee-year-tab{ background:#fff; border:1px solid var(--border); border-radius:20px; padding:8px 16px; font-size:13px; font-weight:600; color:var(--navy); cursor:pointer; }
+.ee-year-tab.active{ background:var(--navy); color:#fff; border-color:var(--navy); }
+.ee-reset-row{ text-align:right; margin-bottom:8px; }
+.ee-linklike{ color:#B33A3A; font-size:12.5px; text-decoration:none; cursor:pointer; }
+.ee-linklike:hover{ text-decoration:underline; }
+.ee-pilier-block{ background:#fff; border:1px solid var(--border); border-radius:10px; margin-bottom:14px; overflow:hidden; }
+.ee-pilier-header{ background:#F7F9FC; padding:12px 18px; border-bottom:1px solid var(--border); }
+.ee-pilier-name{ font-weight:800; color:var(--navy); font-size:15px; }
+.ee-pilier-req{ font-size:12px; color:var(--muted); margin-top:2px; }
+.ee-activite-row{ padding:14px 18px; border-bottom:1px solid var(--border); }
+.ee-activite-row:last-child{ border-bottom:none; }
+.ee-activite-check{ display:flex; align-items:flex-start; gap:8px; cursor:pointer; font-size:14px; }
+.ee-activite-check input{ margin-top:3px; }
+.ee-obl-tag{ background:var(--warn-bg); color:#9A6400; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; margin-left:6px; }
+.ee-muted{ color:var(--muted); font-size:12.8px; margin:6px 0 0 24px; }
+.ee-exemple{ background:var(--warn-bg); border:1px solid var(--warn-border); border-radius:6px; padding:6px 10px; font-size:12.5px; margin:6px 0 0 24px; }
+.ee-ressources{ margin:8px 0 0 24px; display:flex; flex-direction:column; gap:4px; }
+.ee-ressource-link{ color:var(--teal); font-size:12.5px; text-decoration:none; }
+.ee-ressource-link:hover{ text-decoration:underline; }
+.ee-ressource-type{ color:var(--muted); font-size:11px; }
+.ee-activite-row textarea{ width:100%; margin:8px 0 0 24px; max-width:calc(100% - 24px); padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-family:inherit; font-size:13.5px; resize:vertical; }
+.ee-siam-reminder{ background:var(--warn-bg); border-color:var(--warn-border); font-size:13.5px; }
+.ee-field{ margin-bottom:12px; max-width:320px; }
+.ee-field label{ display:block; font-size:12.5px; font-weight:600; color:var(--navy); margin-bottom:4px; }
+.ee-field input{ width:100%; padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; }
+.ee-btn{ background:var(--navy); color:#fff; border:none; padding:11px 20px; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; }
+.ee-btn:hover{ background:var(--navy-deep); }
+.ee-btn-secondary{ background:#fff; color:var(--navy); border:1px solid var(--border); padding:9px 16px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer; margin-left:8px; }
+.ee-btn-secondary:hover{ background:#F7F9FC; }
+</style></head>
+<body><div id="root"></div>
+<script>
+var EE_DATA = __EE_DATA_JSON__;
+// ==== Script interne de l'Espace Engagé ====
+// Convention volontaire : chaînes JS délimitées par des guillemets doubles (") pour tout texte
+// contenant une apostrophe française, guillemets simples (') pour les attributs HTML à
+// l'intérieur. Aucun caractère d'échappement n'est utilisé : une barre oblique inverse serait
+// interprétée une première fois lors de l'incorporation de ce script dans le gabarit du
+// générateur de Kit CFAR, avant même d'atteindre ce script — mieux vaut l'éviter entièrement.
+
+function eeEscapeHtml(s){
+  s = String(s == null ? "" : s);
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function eeNormalizeSearch(s){
+  return String(s||"").toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+}
+var eeLinkIcon = { biblio:"📄", autre:"🎬", formation:"🎓" };
+var eeLinkLabel = { biblio:"Bibliographie", autre:"Vidéo / Autre", formation:"Formation" };
+
+var EE_STATE = { activeYear: EE_DATA.years[EE_DATA.years.length-1].key };
+
+function eeRender(){
+  var root = document.getElementById("root");
+  var html = "";
+
+  html += "<div class='ee-header'>";
+  html += "<div class='ee-eyebrow'>CFAR &middot; Accréditation</div>";
+  html += "<h1>Espace Engagé</h1>";
+  html += "<div class='ee-sub'>" + eeEscapeHtml(EE_DATA.engageNom) + " &mdash; " + eeEscapeHtml(EE_DATA.etapeActuelle) + "</div>";
+  html += "</div>";
+
+  html += "<div class='ee-card ee-info'>";
+  html += "<p>Bonjour, votre expert vous invite à compléter ci-dessous les activités que vous avez réalisées, à l’aide des attendus, exemples et ressources du didacticiel. Une fois terminé, exportez votre réponse (bouton en bas de page) et renvoyez le fichier généré à votre expert.</p>";
+  html += "</div>";
+
+  html += "<div class='ee-card'>";
+  html += "<div class='ee-section-label'>Mise à jour du référentiel</div>";
+  html += "<p class='ee-muted'>Si votre expert vous signale une mise à jour (nouveaux exemples, mots-clés, liens...), chargez le fichier reçu ici — vos réponses déjà saisies sont conservées, seuls les attendus/exemples/ressources sont actualisés.</p>";
+  html += "<input type='file' id='eeRefFile' accept='.json,application/json' />";
+  html += "<button class='ee-btn-secondary' id='eeRefUpdateBtn'>Mettre à jour</button>";
+  html += "<div id='eeRefMsg' class='ee-muted' style='margin-top:8px;'></div>";
+  html += "</div>";
+
+  html += eeRenderFrise();
+
+  if (EE_DATA.years.length > 1){
+    html += "<div class='ee-year-tabs'>";
+    EE_DATA.years.forEach(function(y){
+      var cls = "ee-year-tab" + (y.key === EE_STATE.activeYear ? " active" : "");
+      html += "<button class='" + cls + "' data-year='" + y.key + "'>" + eeEscapeHtml(y.label) + (y.isCurrent ? " (année en cours)" : "") + "</button>";
+    });
+    html += "</div>";
+  }
+
+  var yearData = EE_DATA.reponses[EE_STATE.activeYear] || {};
+  html += "<div class='ee-reset-row'><a href='#' id='eeResetBtn' class='ee-linklike'>Vider mes réponses pour cette année</a></div>";
+
+  EE_DATA.piliers.forEach(function(p){
+    html += "<div class='ee-pilier-block'>";
+    html += "<div class='ee-pilier-header'><div class='ee-pilier-name'>" + eeEscapeHtml(p.nom) + "</div><div class='ee-pilier-req'>" + eeEscapeHtml(p.req) + "</div></div>";
+    p.activites.forEach(function(a, ai){
+      var key = p.id + "_" + ai;
+      var rep = yearData[key] || { texte:"", realise:false };
+      html += "<div class='ee-activite-row'>";
+      html += "<label class='ee-activite-check'><input type='checkbox' data-check='" + key + "' " + (rep.realise ? "checked" : "") + " /> <b>" + eeEscapeHtml(a.nom) + "</b>" + (a.obligatoire ? " <span class='ee-obl-tag'>OBLIGATOIRE</span>" : "") + "</label>";
+      if (a.attendus) html += "<div class='ee-muted'>Attendu : " + eeEscapeHtml(a.attendus) + "</div>";
+      if (a.exemple) html += "<div class='ee-exemple'>Exemple : " + eeEscapeHtml(a.exemple) + "</div>";
+      if (a.ressources && a.ressources.length){
+        html += "<div class='ee-ressources'>";
+        a.ressources.forEach(function(r){
+          (r.liens||[]).forEach(function(l){
+            var icon = eeLinkIcon[l.type] || "🔗";
+            var typeLabel = eeLinkLabel[l.type] || "";
+            html += "<a href='" + eeEscapeHtml(l.url) + "' target='_blank' rel='noopener' class='ee-ressource-link'>" + icon + " " + eeEscapeHtml(l.label) + " <span class='ee-ressource-type'>(" + typeLabel + ")</span></a>";
+          });
+        });
+        html += "</div>";
+      }
+      html += "<textarea rows='3' data-texte='" + key + "' placeholder='Décrivez ici ce que vous avez fait pour cette activité...'>" + eeEscapeHtml(rep.texte) + "</textarea>";
+      html += "</div>";
+    });
+    html += "</div>";
+  });
+
+  html += "<div class='ee-card ee-siam-reminder'>";
+  html += "<b>Important :</b> une fois que votre expert vous aura confirmé que votre bilan est complet, pensez impérativement à recopier vous-même vos réponses validées dans le SIAM. Ce fichier ne s’y substitue pas.";
+  html += "</div>";
+
+  html += "<div class='ee-card'>";
+  html += "<div class='ee-section-label'>Exporter mes réponses</div>";
+  html += "<p class='ee-muted'>Choisissez un code que vous communiquerez à votre expert par un autre moyen que ce fichier (téléphone, SMS...) — il lui servira à ouvrir votre réponse.</p>";
+  html += "<div class='ee-field'><label>Code de protection</label><input type='password' id='eeCode1' autocomplete='off' /></div>";
+  html += "<div class='ee-field'><label>Confirmez le code</label><input type='password' id='eeCode2' autocomplete='off' /></div>";
+  html += "<button class='ee-btn' id='eeExportBtn'>Exporter mes réponses (fichier chiffré)</button>";
+  html += "<div id='eeExportMsg' class='ee-muted' style='margin-top:8px;'></div>";
+  html += "</div>";
+
+  root.innerHTML = html;
+  eeAttachEvents();
+}
+
+function eeRenderFrise(){
+  var html = "<div class='ee-card'><div class='ee-section-label'>Votre parcours</div>";
+  html += "<div class='ee-stepper'>";
+  html += "<div class='ee-today-marker' style='left:" + EE_DATA.frise.todayPct + "%;'><span class='ee-tag'>Aujourd’hui</span><span class='ee-arrow'>&#9660;</span></div>";
+  EE_DATA.frise.stages.forEach(function(s, i){
+    var cls = "ee-step" + (i === EE_DATA.frise.currentIndex ? " ee-step-current" : "");
+    html += "<div class='" + cls + "'><div class='ee-step-label'>" + eeEscapeHtml(s.label) + "</div><div class='ee-step-date'>" + s.date + "</div></div>";
+  });
+  html += "</div></div>";
+  return html;
+}
+
+function eeAttachEvents(){
+  document.querySelectorAll("[data-year]").forEach(function(btn){
+    btn.onclick = function(){ EE_STATE.activeYear = btn.getAttribute("data-year"); eeRender(); };
+  });
+  document.querySelectorAll("[data-check]").forEach(function(cb){
+    cb.onchange = function(){
+      var key = cb.getAttribute("data-check");
+      if (!EE_DATA.reponses[EE_STATE.activeYear][key]) EE_DATA.reponses[EE_STATE.activeYear][key] = { texte:"", realise:false };
+      EE_DATA.reponses[EE_STATE.activeYear][key].realise = cb.checked;
+    };
+  });
+  document.querySelectorAll("[data-texte]").forEach(function(ta){
+    ta.onblur = function(){
+      var key = ta.getAttribute("data-texte");
+      if (!EE_DATA.reponses[EE_STATE.activeYear][key]) EE_DATA.reponses[EE_STATE.activeYear][key] = { texte:"", realise:false };
+      EE_DATA.reponses[EE_STATE.activeYear][key].texte = ta.value;
+      if (ta.value.trim() && !EE_DATA.reponses[EE_STATE.activeYear][key].realise){
+        EE_DATA.reponses[EE_STATE.activeYear][key].realise = true;
+        eeRender();
+      }
+    };
+  });
+  var resetBtn = document.getElementById("eeResetBtn");
+  if (resetBtn) resetBtn.onclick = function(ev){
+    ev.preventDefault();
+    var ok = window.confirm("Vider toutes vos réponses pour cette année ? Cette action ne peut pas être annulée.");
+    if (!ok) return;
+    var yd = EE_DATA.reponses[EE_STATE.activeYear];
+    Object.keys(yd).forEach(function(k){ yd[k] = { texte:"", realise:false }; });
+    eeRender();
+  };
+  var exportBtn = document.getElementById("eeExportBtn");
+  if (exportBtn) exportBtn.onclick = function(){ eeDoExport(); };
+  var refBtn = document.getElementById("eeRefUpdateBtn");
+  if (refBtn) refBtn.onclick = function(){ eeDoRefUpdate(); };
+}
+
+// Résout les mots-clés d'une activité vers leurs liens (recommandations, vidéos,
+// bibliographie...) à partir d'un répertoire donné — même logique que Kit CFAR, reproduite
+// localement puisque ce fichier autonome n'a pas accès à ses fonctions.
+function eeResolveRessources(motscles, repertoire){
+  var out = [];
+  (motscles||[]).forEach(function(k){
+    var norm = eeNormalizeSearch(k);
+    var match = (repertoire||[]).find(function(e){ return eeNormalizeSearch(e.motcle) === norm; });
+    if (match && match.liens && match.liens.length){
+      out.push({ motcle: match.motcle, liens: match.liens });
+    }
+  });
+  return out;
+}
+
+function eeDoRefUpdate(){
+  var fileInput = document.getElementById("eeRefFile");
+  var msg = document.getElementById("eeRefMsg");
+  var file = fileInput.files && fileInput.files[0];
+  if (!file){ msg.textContent = "Choisissez d’abord un fichier."; return; }
+  var reader = new FileReader();
+  reader.onload = function(){
+    try{
+      var data = JSON.parse(reader.result);
+      var newPiliers = data.piliers || data;
+      var repertoire = data.repertoire || [];
+      if (!Array.isArray(newPiliers)) throw new Error("le fichier ne contient pas de référentiel reconnaissable");
+      var updated = 0;
+      newPiliers.forEach(function(np){
+        var existing = EE_DATA.piliers.find(function(p){ return p.id === np.id; });
+        if (!existing){
+          EE_DATA.piliers.push({ id:np.id, nom:np.nom, req:np.req, activites: (np.activites||[]).map(function(a){
+            return { nom:a.nom, obligatoire:!!a.obligatoire, attendus:a.attendus||"", exemple:a.exemple||"", ressources: eeResolveRessources(a.motscles, repertoire) };
+          }) });
+          updated++;
+          return;
+        }
+        existing.nom = np.nom;
+        existing.req = np.req;
+        (np.activites||[]).forEach(function(na, ai){
+          if (!existing.activites[ai]) existing.activites[ai] = { nom:"", obligatoire:false, attendus:"", exemple:"", ressources:[] };
+          existing.activites[ai].nom = na.nom;
+          existing.activites[ai].obligatoire = !!na.obligatoire;
+          existing.activites[ai].attendus = na.attendus || "";
+          existing.activites[ai].exemple = na.exemple || "";
+          existing.activites[ai].ressources = eeResolveRessources(na.motscles, repertoire);
+        });
+        updated++;
+      });
+      // EE_DATA.reponses n’est jamais touché ici : c’est tout l’intérêt de cette mise à jour
+      // séparée, pour ne jamais perdre ce que l’engagé a déjà rempli, y compris sur plusieurs
+      // années.
+      eeRender();
+      var newMsg = document.getElementById("eeRefMsg");
+      if (newMsg) newMsg.textContent = "Référentiel mis à jour (" + updated + " pilier(s), avec leurs ressources) — vos réponses déjà saisies sont conservées.";
+    }catch(err){
+      msg.textContent = "Fichier non reconnu : " + err.message;
+    }
+  };
+  reader.readAsText(file);
+}
+
+function eeArrayBufferToBase64(buf){
+  var bytes = new Uint8Array(buf);
+  var binary = "";
+  for (var i=0; i<bytes.byteLength; i++){ binary += String.fromCharCode(bytes[i]); }
+  return btoa(binary);
+}
+
+function eeDeriveKey(code, salt){
+  var enc = new TextEncoder();
+  return crypto.subtle.importKey("raw", enc.encode(code), "PBKDF2", false, ["deriveKey"]).then(function(keyMaterial){
+    return crypto.subtle.deriveKey(
+      { name:"PBKDF2", salt: salt, iterations:100000, hash:"SHA-256" },
+      keyMaterial, { name:"AES-GCM", length:256 }, false, ["encrypt"]
+    );
+  });
+}
+
+function eeDoExport(){
+  var code1 = document.getElementById("eeCode1").value;
+  var code2 = document.getElementById("eeCode2").value;
+  var msg = document.getElementById("eeExportMsg");
+  if (!code1 || code1.length < 4){ msg.textContent = "Choisissez un code d’au moins 4 caractères."; return; }
+  if (code1 !== code2){ msg.textContent = "Les deux codes ne correspondent pas."; return; }
+  msg.textContent = "Génération en cours...";
+
+  var salt = crypto.getRandomValues(new Uint8Array(16));
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var payload = {
+    engageNom: EE_DATA.engageNom,
+    etapeActuelle: EE_DATA.etapeActuelle,
+    reponses: EE_DATA.reponses,
+    exporteLe: new Date().toISOString().slice(0,10)
+  };
+  var enc = new TextEncoder();
+  var data = enc.encode(JSON.stringify(payload));
+
+  eeDeriveKey(code1, salt).then(function(key){
+    return crypto.subtle.encrypt({ name:"AES-GCM", iv: iv }, key, data);
+  }).then(function(cipherBuf){
+    var pack = {
+      v: 1, type: "espace-engage-reponse",
+      engageNom: EE_DATA.engageNom,
+      salt: eeArrayBufferToBase64(salt),
+      iv: eeArrayBufferToBase64(iv),
+      data: eeArrayBufferToBase64(cipherBuf)
+    };
+    var json = JSON.stringify(pack, null, 2);
+    var a = document.createElement("a");
+    a.href = "data:application/json;charset=utf-8," + encodeURIComponent(json);
+    a.download = "Reponse_" + EE_DATA.engageNom.replace(/[^a-z0-9]+/gi,"_").slice(0,40) + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    msg.textContent = "Fichier téléchargé. Envoyez-le à votre expert, et communiquez-lui votre code par un autre moyen (téléphone, SMS...).";
+    document.getElementById("eeCode1").value = "";
+    document.getElementById("eeCode2").value = "";
+  }).catch(function(err){
+    msg.textContent = "Erreur lors du chiffrement : " + err.message;
+  });
+}
+
+eeRender();
+
+<\/script>
+</body></html>`;
 
 function buildDidacticielExportHtml(selection){
   const hasSelection = selection && Object.values(selection).some(Boolean);
