@@ -576,6 +576,9 @@ function montantLigne(l){
 /* ---------- APP STATE ---------- */
 let STATE = {
   screen:"login",
+  referentielImportedPending:false,
+  editingMotscles:null,
+  showModeEmploi:false,
   anonymisationAccepted:false,
   currentExpert:null,
   loginError:"",
@@ -676,6 +679,107 @@ function attachAnonymisationGateEvents(){
     if (btn.disabled) return;
     setState({ anonymisationAccepted: true });
   };
+}
+
+/* ---------- MODE D'EMPLOI ---------- */
+function renderModeEmploiModal(){
+  const section = (title, bodyHtml)=>`
+    <div style="margin-bottom:22px;">
+      <div class="section-label" style="font-size:12px; margin-bottom:8px;">${title}</div>
+      <div style="font-size:13.5px; line-height:1.7;">${bodyHtml}</div>
+    </div>`;
+
+  return `
+  <div class="modal-bg" style="z-index:150; align-items:flex-start; overflow-y:auto; padding:40px 20px;">
+    <div class="modal" style="max-width:820px; width:94vw; text-align:left; max-height:none;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
+        <div>
+          <div style="font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--teal); font-weight:800;">CFAR · Accréditation</div>
+          <h2 style="margin:4px 0 2px; color:var(--navy);">Mode d'emploi du Kit CFAR Digital</h2>
+          <div class="muted-small">Tout ce qu'il faut savoir pour prendre en main l'application, module par module.</div>
+        </div>
+        <a class="linklike" id="closeModeEmploiBtn" style="font-size:22px; line-height:1; margin-left:12px;">✕</a>
+      </div>
+
+      <div style="max-height:72vh; overflow-y:auto; padding-right:10px; margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
+
+        ${section("🔑 Connexion, sauvegarde et mises à jour", `
+          Rendez-vous sur le lien fourni par votre administrateur et connectez-vous avec l'identifiant et le mot de passe qui vous ont été communiqués.
+          <br/><br/>
+          <b>Tant que la fenêtre reste ouverte, aucun souci</b> — mais dès que le navigateur est fermé, tout ce qui n'a pas été sauvegardé est perdu (rien n'est enregistré sur un serveur, par choix, pour la confidentialité des données). Il faut donc <b>impérativement faire une sauvegarde régulièrement</b> : tout en bas de la colonne de gauche, le bouton <i>« ⬇️ Exporter (.json) »</i> génère un fichier à conserver sur votre ordinateur ; utilisez <i>« 📂 Importer… »</i> à l'ouverture suivante pour retrouver vos engagés.
+          <br/><br/>
+          Fermer puis rouvrir le Kit (ou faire <b>⌘+Maj+R</b> pour simplement recharger la page) permet de récupérer les dernières mises à jour du référentiel et du didacticiel, dès que votre administrateur les a diffusées.
+          <br/><br/>
+          Un compte de démonstration existe pour s'entraîner sans risque : identifiant <code>exp2</code>, mot de passe <code>demo</code>. Évitez d'y utiliser votre propre sauvegarde — ce compte est fait pour tester, pas pour votre suivi réel.
+        `)}
+
+        ${section("👥 Gestion des engagés", `
+          <i>« + Ajouter un engagé »</i> permet d'enregistrer vos engagés individuels et vos référents d'équipe. Les membres d'une équipe s'ajoutent ensuite depuis la fiche de l'équipe elle-même, pour ne pas surcharger la liste principale — un membre peut à tout moment redevenir individuel, et le référent peut être changé.
+          <br/><br/>
+          <b>Point important à la création</b> : renseignez la date du dernier bilan d'accréditation validé et le nombre d'accréditations déjà obtenues (y compris le tout premier bilan d'engagement) — c'est ce qui permet à la frise chronologique d'être juste dès le départ.
+          <br/><br/>
+          La liste des engagés suivis affiche le type (individuel ou équipe), l'étape en cours, le nombre d'EIAS déclarés sur l'année, et le délai avant la prochaine échéance — de quoi repérer les retards en un coup d'œil. Une petite cloche 🔔 peut apparaître à côté d'un engagé pour vous inviter à lui adresser un rappel trimestriel.
+          <br/><br/>
+          En ouvrant la fiche d'un engagé, vous retrouvez sa frise chronologique, ses coordonnées, une note libre, l'état de ses pré-requis, et — pour une équipe — sa composition. C'est aussi de là que vous accédez directement à son bilan annuel ou à une déclaration d'EIAS le concernant.
+          <br/><br/>
+          Pour échanger avec l'engagé ou son référent, plusieurs actions ouvrent automatiquement un mail pré-rédigé (point d'étape avec capture de la frise, décision sur un bilan, situation particulière — retraite, grossesse, maladie...). Chaque envoi met aussi à jour la frise chronologique.
+        `)}
+
+        ${section("📋 Bilan annuel", `
+          Deux façons de fonctionner, à votre convenance : coller vous-même le contenu depuis le SIAM pilier par pilier, ou <b>faire remplir l'engagé lui-même</b> via l'espace qui lui est dédié (voir plus bas) — les deux peuvent aussi se combiner.
+          <br/><br/>
+          Pour chaque activité : cochez son statut, collez ou lisez le contenu, puis <i>« 📝 Générer la synthèse »</i> produit un texte structuré instantanément, sans appel à un service extérieur. Pour une synthèse rédigée par une IA, copiez le prompt fourni et soumettez-le à l'outil de votre choix, puis collez sa réponse — l'application ne transmet elle-même aucune donnée à un tiers.
+          <br/><br/>
+          Une fois satisfait : <i>« ✓ Valider et archiver »</i>, après avoir renseigné le numéro du bilan (indispensable pour la facturation). La synthèse est à recopier dans le SIAM et peut être adressée à l'engagé en un clic.
+        `)}
+
+        ${section("🩺 Analyse EIAS", `
+          Un mode test existe pour travailler un EIAS sans l'attribuer à un engagé (préparation de RMM, cas personnel...) — rien n'y est conservé d'une session à l'autre.
+          <br/><br/>
+          Renseignez les rubriques demandées (copier-coller aisé depuis le SIAM), puis choisissez : rédiger vous-même l'<i>« Analyse de l'expert »</i>, ou copier le prompt fourni pour le soumettre à une IA de votre choix et coller sa réponse (format JSON) — la même IA peut aussi vous être utile pour reformuler une analyse reçue d'ailleurs.
+          <br/><br/>
+          Pensez à renseigner le numéro SIAM avant de valider, pour l'import automatique en facturation. <b>Avant toute validation, vérifiez soigneusement l'anonymisation</b> — c'est un engagement personnel de l'expert, rappelé à chaque connexion.
+        `)}
+
+        ${section("📬 Espace Engagé — faire remplir l'engagé lui-même", `
+          Depuis un bilan, <i>« 📤 Générer l'espace engagé »</i> produit un fichier autonome, personnalisé pour cet engagé : sa frise, l'intitulé de chaque activité selon l'architecture des 5 piliers du SIAM, les attendus reformulés simplement, un exemple concret, et des mots-clés menant vers des ressources (bibliographie, vidéos...). Une recherche par mot-clé en tête de document l'aide à trouver la bonne case même s'il ne sait pas où classer une activité.
+          <br/><br/>
+          L'engagé remplit, puis vous renvoie un fichier chiffré (protégé par un code qu'il choisit et vous communique séparément, par téléphone par exemple). Vous l'importez dans son bilan, corrigez si besoin, et pouvez lui renvoyer une version mise à jour autant de fois que nécessaire.
+          <br/><br/>
+          <b>Une fois le bilan jugé satisfaisant, l'engagé doit impérativement recopier lui-même ses réponses dans le SIAM</b> — ce fichier ne s'y substitue pas, c'est à rappeler systématiquement.
+          <br/><br/>
+          Si l'engagé n'utilise pas cet outil, rien ne change : vous continuez de coller vous-même depuis le SIAM comme auparavant. Le référentiel de son fichier peut aussi être actualisé indépendamment (sans jamais perdre ses réponses déjà saisies) via <i>« 🔄 Mettre à jour le référentiel »</i>, présent directement dans son espace.
+        `)}
+
+        ${section("📚 Didacticiel", `
+          Deux vues : <i>par pilier</i> (intitulé SIAM, attendus détaillés, exemple concret, mots-clés menant à des ressources) et <i>par mots-clés</i> (un répertoire consultable directement). Le didacticiel est évolutif : il est enrichi et corrigé régulièrement par votre administrateur, d'où l'intérêt de recharger le Kit périodiquement.
+          <br/><br/>
+          Vous pouvez adresser tout ou partie du didacticiel à un engagé (sélection libre par activité), en complément ou à la place de l'espace engagé complet.
+        `)}
+
+        ${section("💶 Facturation", `
+          Les EIAS et bilans validés y apparaissent automatiquement dès lors que leur numéro SIAM a été renseigné au moment de la validation — pensez-y systématiquement, c'est la seule condition.
+        `)}
+
+        ${section("✅ À retenir absolument", `
+          <ul style="margin:0; padding-left:20px;">
+            <li>Sauvegardez régulièrement (.json) — rien n'est conservé automatiquement d'une session à l'autre.</li>
+            <li>Rechargez le Kit périodiquement (fermeture/réouverture ou ⌘+Maj+R) pour bénéficier des mises à jour du référentiel.</li>
+            <li>Vérifiez l'anonymisation avant toute transmission — c'est votre responsabilité personnelle d'expert.</li>
+            <li>Renseignez systématiquement les numéros SIAM (EIAS et bilan) pour que la facturation se fasse automatiquement.</li>
+            <li>Si l'engagé remplit son espace lui-même, rappelez-lui de recopier ses réponses validées dans le SIAM.</li>
+          </ul>
+        `)}
+
+      </div>
+    </div>
+  </div>`;
+}
+function attachModeEmploiEvents(){
+  const openBtn = document.getElementById("openModeEmploiBtn");
+  if (openBtn) openBtn.onclick = ()=> setState({ showModeEmploi:true });
+  const closeBtn = document.getElementById("closeModeEmploiBtn");
+  if (closeBtn) closeBtn.onclick = ()=> setState({ showModeEmploi:false });
 }
 
 /* ---------- LOGIN ---------- */
@@ -783,9 +887,11 @@ function renderApp(){
             <input type="file" id="importBackupInput" accept="application/json,.json" style="display:none;" />
           </label>
         </div>
+        <button class="btn secondary block small" id="openModeEmploiBtn" style="margin-bottom:8px;">📖 Mode d'emploi</button>
         <button class="btn secondary block small" id="logoutBtn">Se déconnecter</button>
       </div>
     </div>
+    ${STATE.showModeEmploi ? renderModeEmploiModal() : ""}
     <div class="main">
       <div class="topbar">
         <div><div class="topbar-title">${t}</div><div class="topbar-sub">${sub}</div></div>
@@ -798,6 +904,7 @@ function renderApp(){
 }
 
 function attachAppEvents(){
+  attachModeEmploiEvents();
   document.getElementById("logoutBtn").onclick = ()=> {
     persistEiasWork();
     if (STATE.currentExpert){
@@ -4191,6 +4298,7 @@ function renderDidacticiel(){
     <div class="card-head">
       <div><div class="card-title">📦 Diffuser la mise à jour à tous les experts</div><div class="card-desc">La méthode recommandée — le même principe que pour MTC Consultation</div></div>
     </div>
+    ${STATE.referentielImportedPending ? `<div class="badge warn" style="display:block; padding:8px 10px; margin-bottom:10px;">⚠️ Vous avez importé un référentiel qui n'est encore chargé qu'en mémoire — il sera perdu à la prochaine ouverture du fichier tant que vous n'aurez pas cliqué ci-dessous ET déposé le fichier obtenu sur GitHub.</div>` : ""}
     <button class="btn" id="exportUpdatedAppBtn">💾 Exporter l'application mise à jour (index.html)</button>
     <div class="muted-small" style="margin-top:8px;">Génère un fichier <code>index.html</code> identique à celui-ci, mais avec le référentiel, les règles de gestion et les modèles de mail actuellement en mémoire. Déposez-le sur GitHub à la place de l'ancien (« Add file » → « Upload files » → « Commit changes ») : chaque expert n'a alors qu'à faire <b>⌘+Maj+R</b> pour recevoir la mise à jour — rien d'autre à faire de leur côté.</div>
   </div>
@@ -4265,8 +4373,17 @@ function renderDidacticiel(){
             <textarea rows="3" id="editAttendus_${key}">${escapeHtml(a.attendus||"")}</textarea>
             <div class="section-label" style="margin-top:8px;">💡 Exemple concret (pour aider l'engagé à comprendre à quoi ça ressemble en vrai)</div>
             <textarea rows="3" id="editExemple_${key}" placeholder="Ex. : « Votre service organise une RMM tous les 2 mois... »">${escapeHtml(a.exemple||"")}</textarea>
-            <div class="section-label" style="margin-top:8px;">Mots-clés (séparés par des virgules)</div>
-            <input type="text" id="editMotscles_${key}" value="${escapeHtml((a.motscles||[]).join(", "))}" />
+            <div class="section-label" style="margin-top:8px;">Mots-clés</div>
+            <div id="motclesChips_${key}">
+              ${(STATE.editingMotscles || a.motscles || []).map(k=>`<span class="kw-chip" style="cursor:default;">${escapeHtml(k)} <a data-remove-motcle="${escapeHtml(k)}" data-remove-motcle-key="${key}" style="margin-left:4px; color:inherit; text-decoration:none; font-weight:800;">✕</a></span>`).join("") || `<span class="muted-small">Aucun mot-clé pour l'instant</span>`}
+            </div>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <input type="text" id="motcleAddInput_${key}" list="repertoireDatalist" placeholder="Choisir dans la liste ou taper un nouveau mot-clé…" style="flex:1;" />
+              <button type="button" class="btn secondary small" data-add-motcle-key="${key}">+ Ajouter</button>
+            </div>
+            <datalist id="repertoireDatalist">
+              ${DIDACTICIEL_REPERTOIRE.map(r=>`<option value="${escapeHtml(r.motcle)}">`).join("")}
+            </datalist>
             <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
               <button class="btn small" data-save-activite="${key}">Enregistrer</button>
               <button class="btn secondary small" data-cancel-edit="${key}">Annuler</button>
@@ -4453,10 +4570,37 @@ function attachDidacticielEvents(){
   });
 
   document.querySelectorAll("[data-edit-activite]").forEach(el=>{
-    el.onclick = ()=> setState({ didacticielEditKey: el.getAttribute("data-edit-activite") });
+    el.onclick = ()=>{
+      const key = el.getAttribute("data-edit-activite");
+      const idx = key.lastIndexOf("_");
+      const pilier = PILIERS.find(p=>p.id===key.slice(0, idx));
+      const a = pilier && pilier.activites[parseInt(key.slice(idx+1))];
+      setState({ didacticielEditKey: key, editingMotscles: a ? [...(a.motscles||[])] : [] });
+    };
   });
   document.querySelectorAll("[data-cancel-edit]").forEach(el=>{
-    el.onclick = ()=> setState({ didacticielEditKey:null });
+    el.onclick = ()=> setState({ didacticielEditKey:null, editingMotscles:null });
+  });
+  document.querySelectorAll("[data-add-motcle-key]").forEach(el=>{
+    el.onclick = ()=>{
+      const key = el.getAttribute("data-add-motcle-key");
+      const input = document.getElementById("motcleAddInput_"+key);
+      const val = (input.value||"").trim();
+      if (!val) return;
+      if (!STATE.editingMotscles) STATE.editingMotscles = [];
+      const already = STATE.editingMotscles.some(k=> normalizeSearch(k)===normalizeSearch(val));
+      if (already){ toast("« " + val + " » est déjà dans la liste."); return; }
+      STATE.editingMotscles.push(val);
+      render();
+    };
+  });
+  document.querySelectorAll("[data-remove-motcle]").forEach(el=>{
+    el.onclick = ()=>{
+      const kw = el.getAttribute("data-remove-motcle");
+      if (!STATE.editingMotscles) return;
+      STATE.editingMotscles = STATE.editingMotscles.filter(k=>k!==kw);
+      render();
+    };
   });
   document.querySelectorAll("[data-save-activite]").forEach(el=>{
     el.onclick = ()=>{
@@ -4469,15 +4613,14 @@ function attachDidacticielEvents(){
       const oblEl = document.getElementById("editObligatoire_"+key);
       const attendusEl = document.getElementById("editAttendus_"+key);
       const exempleEl = document.getElementById("editExemple_"+key);
-      const motclesEl = document.getElementById("editMotscles_"+key);
       if (nomEl) pilier.activites[ai].nom = nomEl.value.trim() || pilier.activites[ai].nom;
       if (oblEl) pilier.activites[ai].obligatoire = oblEl.checked;
       pilier.activites[ai].attendus = attendusEl.value;
       pilier.activites[ai].exemple = exempleEl ? exempleEl.value : (pilier.activites[ai].exemple || "");
-      pilier.activites[ai].motscles = motclesEl.value.split(",").map(s=>s.trim()).filter(Boolean);
+      pilier.activites[ai].motscles = STATE.editingMotscles || pilier.activites[ai].motscles || [];
       const unknown = computeUnknownKeywords(pilier.activites[ai].motscles);
       unknown.forEach(kw=>{ if (!STATE.pendingConcordance.includes(kw)) STATE.pendingConcordance.push(kw); });
-      setState({ didacticielEditKey:null });
+      setState({ didacticielEditKey:null, editingMotscles:null });
       toast(unknown.length ? "Mis à jour — " + unknown.length + " mot(s)-clé(s) non répertorié(s) à résoudre ci-dessus." : "Mis à jour pour cette session (administrateur).");
     };
   });
@@ -4503,7 +4646,7 @@ function attachDidacticielEvents(){
       if (!pilier) return;
       pilier.activites.push({ nom:"Nouvelle activité", obligatoire:false, attendus:"", exemple:"", motscles:[] });
       const newKey = pid + "_" + (pilier.activites.length - 1);
-      setState({ didacticielEditKey: newKey });
+      setState({ didacticielEditKey: newKey, editingMotscles: [] });
     };
   });
 
@@ -4661,6 +4804,7 @@ function attachDidacticielEvents(){
   if (exportUpdatedAppBtn) exportUpdatedAppBtn.onclick = ()=>{
     try{
       exportUpdatedApp();
+      setState({ referentielImportedPending:false });
       toast("Application exportée (index.html) — à déposer sur GitHub pour diffusion à tous les experts.");
     }catch(err){
       toast("Export impossible : " + err.message);
@@ -4700,8 +4844,8 @@ function attachDidacticielEvents(){
         } else {
           throw new Error("format non reconnu (attendu : tableau de piliers, ou objet { piliers, reglesGestion })");
         }
-        render();
-        toast("Référentiel importé (" + PILIERS.length + " pilier(s)).");
+        setState({ referentielImportedPending:true });
+        toast("Référentiel chargé en mémoire (" + PILIERS.length + " pilier(s)) — ATTENTION, ce n'est pas encore permanent : cliquez maintenant sur « Exporter l'application mise à jour » ci-dessus et déposez ce fichier sur GitHub, sinon cet import sera perdu à la prochaine ouverture.", 12000);
       }catch(err){
         toast("Import impossible : " + err.message);
       }
@@ -4877,7 +5021,10 @@ body{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-
 .ee-obl-tag{ background:var(--warn-bg); color:#9A6400; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; margin-left:6px; }
 .ee-muted{ color:var(--muted); font-size:12.8px; margin:6px 0 0 24px; }
 .ee-exemple{ background:var(--warn-bg); border:1px solid var(--warn-border); border-radius:6px; padding:6px 10px; font-size:12.5px; margin:6px 0 0 24px; }
-.ee-ressources{ margin:8px 0 0 24px; display:flex; flex-direction:column; gap:4px; }
+.ee-ressources{ margin:8px 0 0 24px; display:flex; flex-wrap:wrap; gap:6px; }
+.ee-kw-chip{ display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11.5px; background:#EAF7F4; color:var(--teal); border:1px solid #bfe3dd; cursor:pointer; font-weight:600; text-decoration:none; }
+.ee-kw-chip:hover{ background:#dcf1ec; }
+.ee-liens-dropdown{ margin:8px 0 0 24px; padding:10px 12px; background:#F7F9FC; border:1px solid var(--border); border-radius:8px; flex-direction:column; gap:6px; }
 .ee-ressource-link{ color:var(--teal); font-size:12.5px; text-decoration:none; }
 .ee-ressource-link:hover{ text-decoration:underline; }
 .ee-ressource-type{ color:var(--muted); font-size:11px; }
@@ -4890,6 +5037,12 @@ body{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-
 .ee-btn:hover{ background:var(--navy-deep); }
 .ee-btn-secondary{ background:#fff; color:var(--navy); border:1px solid var(--border); padding:9px 16px; border-radius:8px; font-size:13.5px; font-weight:700; cursor:pointer; margin-left:8px; }
 .ee-btn-secondary:hover{ background:#F7F9FC; }
+#eeSearchInput{ width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; }
+.ee-search-result{ display:block; padding:8px 10px; border:1px solid var(--border); border-radius:6px; text-decoration:none; color:#1B2430; font-size:13px; }
+.ee-search-result:hover{ background:#F7F9FC; border-color:var(--teal); }
+.ee-activite-row.ee-highlight{ background:#FFF8E8; transition:background .3s ease; }
+.ee-prerequis{ background:var(--warn-bg); border-color:var(--warn-border); }
+.ee-prerequis-list{ margin:0 0 10px; padding-left:20px; font-size:13.5px; line-height:1.7; }
 </style></head>
 <body><div id="root"></div>
 <script>
@@ -4928,6 +5081,23 @@ function eeRender(){
   html += "</div>";
 
   html += "<div class='ee-card'>";
+  html += "<div class='ee-section-label'>Je ne sais pas où renseigner ce que j’ai fait ?</div>";
+  html += "<p class='ee-muted'>Tapez un mot-clé (le nom d’un protocole, d’une formation, d’une activité...) pour trouver directement la bonne case ci-dessous.</p>";
+  html += "<input type='text' id='eeSearchInput' placeholder='Ex. : check-list, RMM, formation douleur...' />";
+  html += "<div id='eeSearchResults'></div>";
+  html += "</div>";
+
+  html += "<div class='ee-card ee-prerequis'>";
+  html += "<div class='ee-section-label'>À ne pas oublier — pré-requis obligatoires</div>";
+  html += "<ul class='ee-prerequis-list'>";
+  html += "<li><b>RMM / CREX / REMED</b> — pilier « Sécurité des Patients »</li>";
+  html += "<li><b>Check-list</b> utilisée au bloc (ou en réanimation) — pilier « Travail en équipe »</li>";
+  html += "<li><b>Formation labellisée Gestion des Risques</b>, 12h sur 4 ans — pilier « Pratiques professionnelles »</li>";
+  html += "</ul>";
+  html += "<p class='ee-muted'>En plus de ces 3 activités obligatoires, il faut renseigner <b>au moins une activité supplémentaire par pilier</b> (5 piliers au total) — même une petite chose compte, votre expert vous aidera à la formuler si besoin.</p>";
+  html += "</div>";
+
+  html += "<div class='ee-card'>";
   html += "<div class='ee-section-label'>Mise à jour du référentiel</div>";
   html += "<p class='ee-muted'>Si votre expert vous signale une mise à jour (nouveaux exemples, mots-clés, liens...), chargez le fichier reçu ici — vos réponses déjà saisies sont conservées, seuls les attendus/exemples/ressources sont actualisés.</p>";
   html += "<input type='file' id='eeRefFile' accept='.json,application/json' />";
@@ -4955,20 +5125,33 @@ function eeRender(){
     p.activites.forEach(function(a, ai){
       var key = p.id + "_" + ai;
       var rep = yearData[key] || { texte:"", realise:false };
-      html += "<div class='ee-activite-row'>";
+      html += "<div class='ee-activite-row' id='act-" + key + "'>";
       html += "<label class='ee-activite-check'><input type='checkbox' data-check='" + key + "' " + (rep.realise ? "checked" : "") + " /> <b>" + eeEscapeHtml(a.nom) + "</b>" + (a.obligatoire ? " <span class='ee-obl-tag'>OBLIGATOIRE</span>" : "") + "</label>";
       if (a.attendus) html += "<div class='ee-muted'>Attendu : " + eeEscapeHtml(a.attendus) + "</div>";
       if (a.exemple) html += "<div class='ee-exemple'>Exemple : " + eeEscapeHtml(a.exemple) + "</div>";
       if (a.ressources && a.ressources.length){
         html += "<div class='ee-ressources'>";
-        a.ressources.forEach(function(r){
-          (r.liens||[]).forEach(function(l){
+        a.ressources.forEach(function(r, ri){
+          var chipKey = key + "_r" + ri;
+          if (r.liens.length === 1){
+            var icon = eeLinkIcon[r.liens[0].type] || "🔗";
+            html += "<a href='" + eeEscapeHtml(r.liens[0].url) + "' target='_blank' rel='noopener' class='ee-kw-chip'>" + icon + " " + eeEscapeHtml(r.motcle) + "</a>";
+          } else {
+            html += "<span class='ee-kw-chip' data-toggle-liens='" + chipKey + "'>" + eeEscapeHtml(r.motcle) + " (" + r.liens.length + ") &#9662;</span>";
+          }
+        });
+        html += "</div>";
+        a.ressources.forEach(function(r, ri){
+          if (r.liens.length <= 1) return;
+          var chipKey = key + "_r" + ri;
+          html += "<div class='ee-liens-dropdown' id='liens_" + chipKey + "' style='display:none;'>";
+          r.liens.forEach(function(l){
             var icon = eeLinkIcon[l.type] || "🔗";
             var typeLabel = eeLinkLabel[l.type] || "";
             html += "<a href='" + eeEscapeHtml(l.url) + "' target='_blank' rel='noopener' class='ee-ressource-link'>" + icon + " " + eeEscapeHtml(l.label) + " <span class='ee-ressource-type'>(" + typeLabel + ")</span></a>";
           });
+          html += "</div>";
         });
-        html += "</div>";
       }
       html += "<textarea rows='3' data-texte='" + key + "' placeholder='Décrivez ici ce que vous avez fait pour cette activité...'>" + eeEscapeHtml(rep.texte) + "</textarea>";
       html += "</div>";
@@ -5040,6 +5223,53 @@ function eeAttachEvents(){
   if (exportBtn) exportBtn.onclick = function(){ eeDoExport(); };
   var refBtn = document.getElementById("eeRefUpdateBtn");
   if (refBtn) refBtn.onclick = function(){ eeDoRefUpdate(); };
+  var searchInput = document.getElementById("eeSearchInput");
+  if (searchInput) searchInput.oninput = function(){ eeDoSearch(searchInput.value); };
+  document.querySelectorAll("[data-toggle-liens]").forEach(function(chip){
+    chip.onclick = function(){
+      var panel = document.getElementById("liens_" + chip.getAttribute("data-toggle-liens"));
+      if (!panel) return;
+      var isOpen = panel.style.display !== "none";
+      // Un seul volet ouvert à la fois par activité, pour ne pas surcharger la page.
+      document.querySelectorAll(".ee-liens-dropdown").forEach(function(p){ p.style.display = "none"; });
+      panel.style.display = isOpen ? "none" : "flex";
+    };
+  });
+}
+
+function eeDoSearch(query){
+  var resultsEl = document.getElementById("eeSearchResults");
+  var q = eeNormalizeSearch(query.trim());
+  if (!q){ resultsEl.innerHTML = ""; return; }
+  var matches = [];
+  EE_DATA.piliers.forEach(function(p){
+    p.activites.forEach(function(a, ai){
+      var haystack = eeNormalizeSearch(a.nom + " " + (a.attendus||"") + " " + (a.exemple||"") + " " + (a.ressources||[]).map(function(r){ return r.motcle; }).join(" "));
+      if (haystack.indexOf(q) !== -1){
+        matches.push({ key: p.id + "_" + ai, pilierNom: p.nom, activiteNom: a.nom });
+      }
+    });
+  });
+  if (!matches.length){
+    resultsEl.innerHTML = "<div class='ee-muted' style='margin-top:8px;'>Aucune activité ne correspond — décrivez votre activité dans la case qui vous semble la plus proche, votre expert pourra la déplacer si besoin.</div>";
+    return;
+  }
+  var html = "<div style='margin-top:8px; display:flex; flex-direction:column; gap:4px;'>";
+  matches.slice(0, 8).forEach(function(m){
+    html += "<a href='#' class='ee-search-result' data-goto-activite='" + m.key + "'><b>" + eeEscapeHtml(m.activiteNom) + "</b> <span class='ee-muted'>— " + eeEscapeHtml(m.pilierNom) + "</span></a>";
+  });
+  html += "</div>";
+  resultsEl.innerHTML = html;
+  document.querySelectorAll("[data-goto-activite]").forEach(function(el){
+    el.onclick = function(ev){
+      ev.preventDefault();
+      var target = document.getElementById("act-" + el.getAttribute("data-goto-activite"));
+      if (!target) return;
+      target.scrollIntoView({ behavior:"smooth", block:"center" });
+      target.classList.add("ee-highlight");
+      setTimeout(function(){ target.classList.remove("ee-highlight"); }, 2000);
+    };
+  });
 }
 
 // Résout les mots-clés d'une activité vers leurs liens (recommandations, vidéos,
