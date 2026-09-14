@@ -2462,7 +2462,20 @@ function getBilanDraft(e, year){
 function setBilanDraft(e, year, siam, engage, numeroBilan){
   if (!e.bilanDrafts) e.bilanDrafts = {};
   const previous = e.bilanDrafts["y"+year] || {};
-  e.bilanDrafts["y"+year] = { siam, engage, numeroBilan: numeroBilan !== undefined ? numeroBilan : previous.numeroBilan, savedAt: TODAY.toISOString() };
+  e.bilanDrafts["y"+year] = { siam, engage, numeroBilan: numeroBilan !== undefined ? numeroBilan : previous.numeroBilan, validated: previous.validated || false, savedAt: TODAY.toISOString() };
+}
+// La validation (l'expert relit et approuve la synthèse) et l'archivage (création de la ligne de
+// facturation, avancée de la frise) sont deux étapes distinctes : entre les deux, l'expert doit
+// pouvoir continuer à copier/télécharger/envoyer la synthèse déjà validée, sans que tout
+// disparaisse comme le ferait une action unique "valider et archiver".
+function isBilanValidated(e, year){
+  const d = getBilanDraft(e, year);
+  return !!(d && d.validated);
+}
+function setBilanValidated(e, year, val){
+  if (!e.bilanDrafts) e.bilanDrafts = {};
+  const previous = e.bilanDrafts["y"+year] || {};
+  e.bilanDrafts["y"+year] = Object.assign({}, previous, { validated: val });
 }
 
 // Le message adressé à l'engagé reprend l'appréciation de l'expert au moment où il est généré —
@@ -2568,17 +2581,18 @@ function renderBilan(){
           </label>
           <a class="linklike" data-toggle-detail="${key}" style="font-size:11.5px;">${isOpen?"▾":"▸"} Contenu SIAM${c.texte?" ✓":""}</a>
           ${(()=>{
-            // Les activités obligatoires n'admettent que 2 issues (à remplir / réalisé) — pas de
-            // "en cours" ni de "non retenue", qui n'ont pas de sens pour un pré-requis HAS. On
-            // garde malgré tout l'ancienne valeur affichable si des données antérieures à cette
-            // règle l'avaient enregistrée différemment, pour ne rien perdre silencieusement.
+            // Les activités obligatoires admettent "à remplir", "en cours" et "réalisé" — mais
+            // pas "non retenue", qui n'a pas de sens pour un pré-requis HAS (on ne peut pas
+            // choisir de ne pas retenir une activité obligatoire). On garde malgré tout
+            // l'ancienne valeur affichable si des données antérieures à cette règle l'avaient
+            // enregistrée différemment, pour ne rien perdre silencieusement.
             const allOptions = [
               { v:"obligatoire", label:"À remplir obligatoirement" },
               { v:"realise", label:"Réalisé" },
               { v:"en_cours", label:"En cours" },
               { v:"non_retenue", label:"Activité non retenue" },
             ];
-            const options = a.obligatoire ? allOptions.filter(o=> o.v==="obligatoire" || o.v==="realise" || o.v===val) : allOptions;
+            const options = a.obligatoire ? allOptions.filter(o=> o.v!=="non_retenue" || o.v===val) : allOptions;
             return `<select class="status-select ${val}" data-pilier="${p.id}" data-ai="${ai}">
             ${options.map(o=>`<option value="${o.v}" ${val===o.v?"selected":""}>${o.label}</option>`).join("")}
           </select>`;
@@ -2765,21 +2779,23 @@ function renderBilanReport(e, year){
       <input type="text" id="f_numeroSiamBilan" placeholder="Numéro attribué par le SIAM au moment du collage…" value="${escapeHtml((getBilanDraft(e, year)||{}).numeroBilan||"")}" style="margin-top:6px;" />
     </div>
 
-    ${(()=>{ const draft = getBilanDraft(e, year); return draft ? `<div class="muted-small" style="margin-top:6px;">💾 Brouillon enregistré le ${fmtDate(new Date(draft.savedAt))} — non validé, conservé pour y revenir sans rien perdre.</div>` : ""; })()}
+    ${(()=>{ const draft = getBilanDraft(e, year); return draft ? `<div class="muted-small" style="margin-top:6px;">💾 Brouillon enregistré le ${fmtDate(new Date(draft.savedAt))} — ${isBilanValidated(e,year)?"validé, prêt à être archivé":"non validé"}, conservé pour y revenir sans rien perdre.</div>` : ""; })()}
+
+    ${isBilanValidated(e, year) ? `<div class="badge ok" style="margin-top:8px; display:block; padding:8px 10px;">✓ Bilan validé — vous pouvez encore le copier, le télécharger ou l'envoyer autant de fois que nécessaire avant de l'archiver.</div>` : ""}
 
     <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn secondary small" id="saveBilanDraftBtn">💾 Enregistrer le brouillon (sans valider)</button>
       <button class="btn small" id="copyAppreciationBtn">📋 Copier l'appréciation pour le SIAM</button>
       <button class="btn secondary small" id="downloadBilanWordBtn">⬇️ Télécharger la synthèse complète (Word)</button>
       <button class="btn secondary small" id="sendBilanEngageBtn">✉️ Envoyer à l'engagé</button>
-      <button class="btn teal" id="validerArchiverBilanBtn">✓ Valider et archiver le bilan</button>
+      ${isBilanValidated(e, year)
+        ? `<button class="btn teal" id="archiverBilanBtn">📦 Archiver le bilan</button>`
+        : `<button class="btn teal" id="validerBilanBtn">✓ Valider le bilan</button>`}
     </div>
   </div>`;
 }
 
 function bilanWordHtml(e, year, syntheseText, appreciation){
-  const isAccreditation = isAccreditationStage(e, year);
-  const facts = isAccreditation ? buildBilanFactsAccreditation(e, year) : buildBilanFacts(e, year);
   const attendu = e.type==="equipe" ? eiasAttendus(e.membres.length) : 1;
   const statuts = getBilanStatuts(e, year);
   const p1a0 = statuts["p1_0"], p3a0 = statuts["p3_0"];
@@ -2788,24 +2804,6 @@ function bilanWordHtml(e, year, syntheseText, appreciation){
     { label:"Check-list sécurité du patient utilisée", ok: p3a0==="realise" },
     { label:"EIAS : "+e.eiasRealises+"/"+attendu+" réalisé(s)", ok: e.eiasRealises >= attendu },
   ];
-
-  const pilierColorFor = (i)=> ["#1F3864","#2E5B8A","#0E7C6E","#6B4C9A","#9A6400"][i % 5];
-
-  const pilierSections = facts.activitesParPilier.map((p, i)=>{
-    const color = pilierColorFor(i);
-    const items = (p.activites||[]).length
-      ? p.activites.map(a=>{
-          const anneesTag = a.annees ? ` <span style="color:#8894A3; font-size:9.5pt;">(${a.annees.join(", ")})</span>` : "";
-          const detail = a.contenu ? ` — ${escapeHtml(a.contenu)}` : "";
-          return `<li style="margin-bottom:6px;"><b>${escapeHtml(a.nom)}</b>${anneesTag}${detail}</li>`;
-        }).join("")
-      : `<li style="color:#8894A3;">aucune activité complémentaire retenue à ce stade</li>`;
-    return `
-    <div style="margin:0 0 22px; page-break-inside:avoid;">
-      <h3 style="color:${color}; font-size:13pt; border-bottom:1.5px solid ${color}; padding-bottom:4px; margin:0 0 10px;">${escapeHtml(p.pilier)}</h3>
-      <ul style="margin:0; padding-left:20px; font-size:11pt; line-height:1.5;">${items}</ul>
-    </div>`;
-  }).join("");
 
   return `
   <h1 style="color:#1F3864; font-size:20pt; border-bottom:3px solid #1F3864; padding-bottom:10px; margin-bottom:4px;">${escapeHtml(stagesFor(e)[year])}</h1>
@@ -2817,8 +2815,8 @@ function bilanWordHtml(e, year, syntheseText, appreciation){
     ${preReq.map(r=>`<tr><td style="padding:5px 0; font-size:11pt;"><span style="color:${r.ok?'#2F7D5A':'#9A6400'}; font-weight:bold;">${r.ok?'✓':'!'}</span>&nbsp;&nbsp;${r.label}</td></tr>`).join("")}
   </table>
 
-  <h2 style="color:#2E5B8A; font-size:14pt; margin:0 0 14px;">Activités par pilier</h2>
-  ${pilierSections}
+  <h2 style="color:#2E5B8A; font-size:14pt; margin:0 0 14px;">Synthèse</h2>
+  <p style="font-size:11.5pt; line-height:1.6; margin:0 0 28px;">${escapeHtml(syntheseText||"").replace(/\n/g,"<br/>")}</p>
 
   <div style="height:8px;"></div>
   <div style="background:#E4F4F1; border-left:4px solid #0E7C6E; padding:14px 18px; margin-top:10px; page-break-inside:avoid;">
@@ -2958,6 +2956,11 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
     setBilanDataSnapshot(e, year);
     toast("Synthèse générée à partir des données saisies — modifiable ci-dessous.");
   };
+
+  const syntheseTextArea = document.getElementById("syntheseText");
+  if (syntheseTextArea) syntheseTextArea.onblur = ()=>{ STATE.bilanSynthese = syntheseTextArea.value; };
+  const syntheseEngageTextArea = document.getElementById("syntheseEngageText");
+  if (syntheseEngageTextArea) syntheseEngageTextArea.onblur = ()=>{ STATE.bilanSyntheseEngage = syntheseEngageTextArea.value; };
 
   const regenEngageMsgBtn = document.getElementById("regenEngageMsgBtn");
   if (regenEngageMsgBtn) regenEngageMsgBtn.onclick = ()=>{
@@ -3149,20 +3152,35 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
     toast("Mail ouvert — pensez à joindre manuellement la synthèse Word téléchargée (un lien mailto ne peut pas joindre de fichier automatiquement).");
   };
 
-  const validerArchiverBtn = document.getElementById("validerArchiverBilanBtn");
-  if (validerArchiverBtn) validerArchiverBtn.onclick = ()=>{
+  const validerBtn = document.getElementById("validerBilanBtn");
+  if (validerBtn) validerBtn.onclick = ()=>{
     const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
     const year = STATE.bilanYear || 0;
     if (isBilanSynthStale(e, year)){
       const proceed = window.confirm("Des activités, contenus ou valences ont été modifiés depuis la génération de cette synthèse — celle-ci ne les reflète pas.\n\nValider quand même sans régénérer ?");
       if (!proceed) return;
     }
+    const ok = window.confirm("Confirmer la validation de cette synthèse ?\n\nVous pourrez continuer à la copier, la télécharger ou l'envoyer avant de l'archiver définitivement.");
+    if (!ok) return;
+    const siam = document.getElementById("syntheseText") ? document.getElementById("syntheseText").value : (STATE.bilanSynthese || "");
+    const engage = document.getElementById("syntheseEngageText").value;
+    const numeroBilan = document.getElementById("f_numeroSiamBilan") ? document.getElementById("f_numeroSiamBilan").value : "";
+    setBilanDraft(e, year, siam, engage, numeroBilan);
+    setBilanValidated(e, year, true);
+    render();
+    toast("Bilan validé — vous pouvez maintenant le copier, le télécharger ou l'envoyer, puis l'archiver quand vous êtes prêt.");
+  };
+
+  const archiverBtn = document.getElementById("archiverBilanBtn");
+  if (archiverBtn) archiverBtn.onclick = ()=>{
+    const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
+    const year = STATE.bilanYear || 0;
     const numeroBilan = document.getElementById("f_numeroSiamBilan") ? document.getElementById("f_numeroSiamBilan").value.trim() : "";
     if (!numeroBilan){
-      const proceed = window.confirm("Aucun N° de bilan (SIAM) renseigné : ce bilan ne sera pas ajouté à la facturation tant que ce numéro ne sera pas complété.\n\nValider quand même sans facturer ?");
+      const proceed = window.confirm("Aucun N° de bilan (SIAM) renseigné : ce bilan ne sera pas ajouté à la facturation tant que ce numéro ne sera pas complété.\n\nArchiver quand même sans facturer ?");
       if (!proceed) return;
     }
-    const ok = window.confirm("Confirmer la validation de ce bilan ?\n\nLe statut sera mis à jour (« Validé ») et la frise avancera d'une étape.");
+    const ok = window.confirm("Confirmer l'archivage de ce bilan ?\n\nLe statut sera mis à jour (« Validé ») et la frise avancera d'une étape — cette action est définitive.");
     if (!ok) return;
     if (!e.dossiersBilan) e.dossiersBilan = [];
     const annotations = getBilanAnnotations(e, year);
@@ -3188,9 +3206,10 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
     }
     applyEngageAction(e, "valide");
     if (e.bilanDrafts) delete e.bilanDrafts["y"+year];
-    toast(numeroBilan ? "Bilan validé, archivé et ajouté à la facturation." : "Bilan validé et archivé — non facturé (aucun N° de bilan renseigné).");
+    toast(numeroBilan ? "Bilan archivé et ajouté à la facturation." : "Bilan archivé — non facturé (aucun N° de bilan renseigné).");
     setState({ bilanSynthese:null, bilanSyntheseEngage:null });
   };
+
 
   document.querySelectorAll("[data-toggle-detail]").forEach(el=>{
     el.onclick = ()=>{
