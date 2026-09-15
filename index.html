@@ -1272,14 +1272,16 @@ function renderEngageDetail(){
     ? "Premier cycle : le bilan d'inscription (bilan d'accréditation « 1 ») ne réapparaîtra plus une fois validé — le cycle suivant repart directement sur les bilans annuels, jusqu'au bilan d'accréditation « 2 ». Frise calée sur la date d'entrée dans le dispositif."
     : `${e.accreditationCount} accréditation(s) déjà validée(s) le ${fmtDate(e.dateDerniereAccreditation)} — cycle actuel sans bilan d'inscription, frise calée sur cette date.`;
 
-  // Navigation manuelle du cycle : réservée au compte de démonstration (Dr Jean Test), pour
-  // pouvoir explorer librement la frise. Côté administrateur, l'avancement se fait par les
-  // actions réelles ci-dessous (valider un bilan fait avancer la frise automatiquement).
-  const cycleNav = !isAdmin ? `
+  // Navigation manuelle du cycle : sert à explorer librement la frise (compte de démonstration)
+  // mais aussi, pour tout compte, à corriger une avancée accidentelle en double — par exemple si
+  // un bilan a été archivé à la fois depuis le module Bilan et depuis les actions rapides
+  // ci-dessous (l'une de ces deux voies ne doit plus être utilisée pour la validation depuis
+  // cette mise à jour, mais d'anciennes données peuvent encore en porter la trace).
+  const cycleNav = `
     <div style="margin-top:6px; display:flex; gap:8px;">
-      <button class="btn secondary small" data-retreat="${e.id}">← Revenir à l'étape précédente (mode test)</button>
-      <button class="btn secondary small" data-advance="${e.id}">→ Avancer d'une étape (mode test)</button>
-    </div>` : "";
+      <button class="btn secondary small" data-retreat="${e.id}">🔧 Corriger : reculer d'une étape</button>
+      <button class="btn secondary small" data-advance="${e.id}">🔧 Corriger : avancer d'une étape</button>
+    </div>`;
 
   let membresHtml = "";
   if (e.type === "equipe"){
@@ -1537,7 +1539,7 @@ function renderEngageDetail(){
 }
 
 /*__ACTIONDEFS_START__*/
-let ACTION_DEFS = [{"key":"valide","icon":"✓","group":"cycle","core":true},{"key":"complement_demande","icon":"✎","group":"cycle","core":true},{"key":"information_contradictoire","icon":"⚠️","group":"cycle","core":true},{"key":"avis_defavorable","icon":"⛔","group":"cycle","core":true},{"key":"avis_defavorable_definitif","icon":"🚫","group":"cycle","core":true},{"key":"bilan_vide","icon":"🤰","group":"special","core":true},{"key":"renoncement","icon":"⏸️","group":"special","core":true},{"key":"retraite","icon":"🎓","group":"special","core":true},{"key":"sortie_non_demande","icon":"🚪","group":"special","core":true}];
+let ACTION_DEFS = [{"key":"complement_demande","icon":"✎","group":"cycle","core":true},{"key":"information_contradictoire","icon":"⚠️","group":"cycle","core":true},{"key":"avis_defavorable","icon":"⛔","group":"cycle","core":true},{"key":"avis_defavorable_definitif","icon":"🚫","group":"cycle","core":true},{"key":"bilan_vide","icon":"🤰","group":"special","core":true},{"key":"renoncement","icon":"⏸️","group":"special","core":true},{"key":"retraite","icon":"🎓","group":"special","core":true},{"key":"sortie_non_demande","icon":"🚪","group":"special","core":true}];
 /*__ACTIONDEFS_END__*/
 
 function renderMailTemplateEditor(){
@@ -1933,17 +1935,21 @@ function attachEngagesEvents(){
     el.onclick = (ev)=>{ ev.stopPropagation();
       const e = ENGAGES.find(x=>x.id===el.getAttribute("data-advance"));
       const closedLabel = stagesFor(e)[e.cycleIndex];
+      const ok = window.confirm("Avancer manuellement d'une étape pour " + e.nom + " ?\n\nÀ n'utiliser que pour corriger une erreur (par exemple une double avancée) — la validation normale d'un bilan se fait depuis le module Bilan annuel.");
+      if (!ok) return;
       const wrapped = advanceCycle(e);
       if (wrapped) toast(closedLabel + " validé — nouveau cycle entamé directement sur le Bilan Annuel 1 (pas de nouveau bilan d'inscription).");
-      else toast("Passage à l'étape suivante du cycle (mode test).");
+      else toast("Passage à l'étape suivante (correction manuelle).");
       render();
     };
   });
   document.querySelectorAll("[data-retreat]").forEach(el=>{
     el.onclick = (ev)=>{ ev.stopPropagation();
       const e = ENGAGES.find(x=>x.id===el.getAttribute("data-retreat"));
+      const ok = window.confirm("Reculer manuellement d'une étape pour " + e.nom + " ?\n\nÀ n'utiliser que pour corriger une erreur — cette action ne rejoue pas l'historique exact (dates, dossiers déjà archivés restent inchangés).");
+      if (!ok) return;
       retreatCycle(e);
-      toast("Retour à l'étape précédente (mode test).");
+      toast("Retour à l'étape précédente (correction manuelle).");
       render();
     };
   });
@@ -2155,18 +2161,6 @@ function attachEngagesEvents(){
       const label = STATUT_BILAN_META[key].label;
       const ok = window.confirm("Confirmer : « " + label + " » pour " + e.nom + " ?\n\nCette action met à jour le statut affiché et ouvre un mail type dans votre messagerie (modifiable avant envoi).");
       if (!ok) return;
-      if (key === "valide"){
-        const numeroBilan = window.prompt("N° de bilan (SIAM), pour la facturation :", "");
-        const nbMembres = e.type==="equipe" ? e.membres.length : 1;
-        FACTURATION.push({
-          id:"f"+Date.now()+Math.floor(Math.random()*1000),
-          type:"bilan", engageId:e.id, engageNom:e.nom,
-          theme: stagesFor(e)[e.cycleIndex],
-          numeroSiam: numeroBilan || "",
-          date: TODAY.toISOString().slice(0,10),
-          accepte:true, nbMembres,
-        });
-      }
       applyEngageAction(e, key);
       const mailto = buildMailto(e, key);
       if (mailto) window.open(mailto, "_blank");
