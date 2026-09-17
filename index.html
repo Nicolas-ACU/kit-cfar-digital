@@ -769,6 +769,14 @@ function renderModeEmploiModal(){
           En ouvrant la fiche d'un engagé, vous retrouvez sa frise chronologique, ses coordonnées, une note libre, l'état de ses pré-requis, et — pour une équipe — sa composition. C'est aussi de là que vous accédez directement à son bilan annuel ou à une déclaration d'EIAS le concernant.
           <br/><br/>
           Pour échanger avec l'engagé ou son référent, plusieurs actions ouvrent automatiquement un mail pré-rédigé (point d'étape avec capture de la frise, décision sur un bilan, situation particulière — retraite, grossesse, maladie...). Chaque envoi met aussi à jour la frise chronologique.
+          <br/><br/>
+          <b>Import en masse depuis un export SIAM</b> : plutôt que de saisir un par un vos engagés, <i>« ⬇️ Modèle Excel »</i> puis <i>« 📥 Importer depuis Excel »</i> permettent de déposer directement un export du module SIAM « Recherche de médecins », filtré sur votre portefeuille. Pour chaque équipe, placez en <b>première ligne du groupe</b> le médecin qui doit devenir référent — c'est cette ligne-là qui sera reconnue comme telle (modifiable ensuite dans la fiche). Un même RPPS déjà présent n'est jamais réimporté en double.
+          <br/><br/>
+          <b>Deux corrections manuelles à prévoir après un import</b> :
+          <ul style="margin:6px 0 0; padding-left:20px;">
+            <li>Quand un nom est saisi entièrement en majuscules dans le SIAM (ex. « BARDIN REMY »), impossible de deviner à coup sûr où finit le nom et où commence le prénom — l'import met alors tout dans le nom plutôt que de risquer une inversion silencieuse. À corriger à la main dans la fiche si besoin (le RPPS, lui, est toujours exact).</li>
+            <li>Le nombre exact d'accréditations déjà obtenues n'est pas fourni par le SIAM — l'import affecte la valeur 1 par défaut à tout engagé « Accrédité ». Cela n'affecte jamais les dates ni les échéances (reprises telles quelles du SIAM), seulement l'intitulé « Bilan d'accréditation N° » affiché — à corriger à la main si ce numéro compte pour vous.</li>
+          </ul>
         `)}
 
         ${section("📋 Bilan annuel", `
@@ -814,6 +822,7 @@ function renderModeEmploiModal(){
             <li>Vérifiez l'anonymisation avant toute transmission — c'est votre responsabilité personnelle d'expert.</li>
             <li>Renseignez systématiquement les numéros SIAM (EIAS et bilan) pour que la facturation se fasse automatiquement.</li>
             <li>Si l'engagé remplit son espace lui-même, rappelez-lui de recopier ses réponses validées dans le SIAM.</li>
+            <li>Après un import Excel, vérifiez les noms saisis tout en majuscules dans le SIAM (nom/prénom parfois non séparés) et, si besoin, le numéro exact d'accréditation affiché.</li>
           </ul>
         `)}
 
@@ -1362,10 +1371,11 @@ function renderEngageDetail(){
     ` : ""}
     <div class="field"><label>Téléphone</label><input type="text" id="editTelephone" value="${escapeHtml(e.telephone||"")}" /></div>
     <div class="field"><label>Adresse mail</label><input type="text" id="editEmail" value="${escapeHtml(e.email||"")}" /></div>
+    <div class="field"><label>N° RPPS <span class="muted-small">(utile pour distinguer les homonymes)</span></label><input type="text" id="editRpps" value="${escapeHtml(e.rpps||"")}" /></div>
     <button class="btn small" data-save-contact="${e.id}">Enregistrer</button>
     <a class="linklike" data-cancel-contact style="margin-left:10px;">Annuler</a>
   ` : `
-    <div class="muted-small">📞 ${e.telephone ? escapeHtml(e.telephone) : "non renseigné"} &nbsp;·&nbsp; ✉️ ${e.email ? escapeHtml(e.email) : "non renseigné"} &nbsp; <a class="linklike" data-edit-contact="${e.id}" style="font-size:11.5px;">✎ Modifier</a></div>
+    <div class="muted-small">📞 ${e.telephone ? escapeHtml(e.telephone) : "non renseigné"} &nbsp;·&nbsp; ✉️ ${e.email ? escapeHtml(e.email) : "non renseigné"}${e.rpps ? ` &nbsp;·&nbsp; RPPS ${escapeHtml(e.rpps)}` : ""} &nbsp; <a class="linklike" data-edit-contact="${e.id}" style="font-size:11.5px;">✎ Modifier</a></div>
   `;
 
   const editingNote = STATE.engageEditNote === e.id;
@@ -1636,6 +1646,7 @@ function renderAddEngageModal(){
   ` : "";
 
   const contactFields = `
+      <div class="field"><label>N° RPPS <span class="muted-small">(utile pour distinguer les homonymes)</span></label><input type="text" id="newRpps" name="rpps_${tok}" placeholder="10 chiffres" value="${escapeHtml(draft.rpps||"")}" autocomplete="off" /></div>
       <div class="field"><label>Téléphone</label><input type="text" id="newTelephone" name="tel_${tok}" placeholder="06 xx xx xx xx" value="${escapeHtml(draft.telephone||"")}" autocomplete="new-password" data-lpignore="true" data-1p-ignore /></div>
       <div class="field"><label>Adresse mail</label><input type="text" id="newEmail" name="mail_${tok}" placeholder="nom@exemple.fr" value="${escapeHtml(draft.email||"")}" autocomplete="new-password" data-lpignore="true" data-1p-ignore /></div>`;
 
@@ -1911,40 +1922,37 @@ function attachEngagesEvents(){
     const notice = [
       ["Modèle d'import des engagés — Kit CFAR Digital"],
       [""],
-      ["Complétez un ou plusieurs des onglets suivants, puis déposez ce fichier dans « 📥 Importer depuis Excel »."],
+      ["Ce modèle reprend exactement les colonnes d'un export du SIAM (module « Recherche de médecins ») — vous pouvez déposer directement un export SIAM ici, sans le retravailler, à deux préparations près :"],
+      ["1. Filtrez l'export SIAM sur votre propre portefeuille d'engagés avant de l'exporter (ou supprimez les lignes qui ne vous concernent pas)."],
+      ["2. Pour chaque équipe, placez en PREMIÈRE ligne du groupe le médecin qui doit devenir référent — c'est cette ligne-là qui sera reconnue comme telle. Vous pourrez changer le référent ensuite dans l'application."],
       [""],
-      ["Onglet « Individuels » : un engagé individuel par ligne."],
-      ["Onglet « Équipes » : une équipe par ligne (les informations demandées désignent son référent)."],
-      ["Onglet « Membres d'équipe » : un membre supplémentaire par ligne (en plus du référent), rattaché à une équipe par son nom exact."],
+      ["Colonnes utilisées (les autres colonnes d'un export SIAM, si présentes, sont ignorées sans erreur) :"],
+      ["Nº RPPS, Nom Prénom, Mode d'exercice, Statut, Dernière date engagement, Dernière date d'accréditation, Lieu d'exercice, Mail, Numéro de mobile, Adresse, Date prochain bilan, Equipe."],
       [""],
-      ["Colonne « Étape en cours » : un nombre de 1 à 4."],
-      ["  1 = premier bilan du cycle actuel (bilan d'inscription si Accréditations = 0, sinon Bilan Annuel 1)"],
-      ["  2 = Bilan Annuel 2 (ou Bilan Annuel 1 si Accréditations = 0)"],
-      ["  3 = Bilan Annuel 3 (ou Bilan Annuel 2 si Accréditations = 0)"],
-      ["  4 = Bilan d'accréditation (ou Bilan Annuel 3 si Accréditations = 0)"],
-      ["Si vous ne savez pas, laissez à 1 — vous pourrez ajuster ensuite dans la fiche de l'engagé."],
+      ["Statut : « Engagé » ou « Accrédité ». Détermine comment l'échéance est calculée :"],
+      ["  - Accrédité (individuel ou équipe) : l'échéance repose sur « Dernière date d'accréditation »."],
+      ["  - Engagé, sans équipe : l'échéance est fixée à 1 an après « Dernière date engagement »."],
+      ["  - Engagé, avec équipe : l'échéance est celle du prochain bilan de l'équipe (« Date prochain bilan »)."],
+      ["Dans tous les cas, la colonne « Date prochain bilan », si elle est renseignée, est utilisée telle quelle pour caler précisément la frise — vous n'avez rien à calculer."],
       [""],
-      ["Les dates se saisissent au format JJ/MM/AAAA."],
-      ["Ne renseignez « Date du dernier bilan d'accréditation » que si Accréditations est supérieur à 0."],
+      ["Equipe : le code d'équipe (ex. CFAR-27). Laissez vide pour un engagé individuel. Toutes les lignes partageant le même code sont regroupées dans la même équipe ; seule la donnée de la première ligne du groupe (le référent) sert à caler la frise de l'équipe — les dates des autres membres ne sont pas utilisées."],
+      [""],
+      ["Dates au format JJ/MM/AAAA (ou AAAA-MM-JJ, les deux sont acceptés)."],
     ];
     const wsNotice = window.XLSX.utils.aoa_to_sheet(notice);
     wsNotice["!cols"] = [{wch:100}];
     window.XLSX.utils.book_append_sheet(wb, wsNotice, "Notice");
 
-    const indivHeaders = ["Nom de famille","Prénom","Mode d'exercice","Téléphone","Email","Date d'entrée (JJ/MM/AAAA)","Accréditations déjà obtenues","Date du dernier bilan d'accréditation (JJ/MM/AAAA)","Étape en cours (1 à 4)"];
-    const wsIndiv = window.XLSX.utils.aoa_to_sheet([indivHeaders, ["Exemple","Camille","Anesthésie — secteur public","0612345678","camille.exemple@hopital.fr","01/09/2026",0,"",1]]);
-    wsIndiv["!cols"] = indivHeaders.map(()=>({wch:26}));
-    window.XLSX.utils.book_append_sheet(wb, wsIndiv, "Individuels");
-
-    const equipeHeaders = ["Nom de l'équipe","Mode d'exercice","Nom du référent","Prénom du référent","Téléphone (référent)","Email (référent)","Date d'entrée (JJ/MM/AAAA)","Accréditations déjà obtenues","Date du dernier bilan d'accréditation (JJ/MM/AAAA)","Étape en cours (1 à 4)"];
-    const wsEquipe = window.XLSX.utils.aoa_to_sheet([equipeHeaders, ["Exemple — Clinique du Parc","Anesthésie / Réanimation","Nguyen","Alice","0611223344","referent.exemple@clinique.fr","01/09/2026",0,"",1]]);
-    wsEquipe["!cols"] = equipeHeaders.map(()=>({wch:26}));
-    window.XLSX.utils.book_append_sheet(wb, wsEquipe, "Équipes");
-
-    const membreHeaders = ["Équipe (nom exact)","Nom du membre","Qualification","Email","Téléphone"];
-    const wsMembre = window.XLSX.utils.aoa_to_sheet([membreHeaders, ["Exemple — Clinique du Parc","Dr B. Costa","Anesthésiste","","" ]]);
-    wsMembre["!cols"] = membreHeaders.map(()=>({wch:26}));
-    window.XLSX.utils.book_append_sheet(wb, wsMembre, "Membres d'équipe");
+    const headers = ["Nº RPPS","Nom Prénom","Mode d'exercice","Statut","Dernière date engagement","Dernière date d'accréditation","Lieu d'exercice","Mail","Numéro de mobile","Adresse","Date prochain bilan","Equipe"];
+    const exemples = [
+      headers,
+      ["10101234567","DUPONT Marie","Libéral","Engagé","01/09/2025","","Clinique du Parc","marie.dupont@exemple.fr","0612345678","12 rue de la Paix, 75002 Paris","01/09/2026",""],
+      ["10101234568","MARTIN Jean (référent)","Libéral","Accrédité","15/03/2020","10/01/2024","Clinique du Parc","jean.martin@exemple.fr","0612345679","12 rue de la Paix, 75002 Paris","10/01/2025","CFAR-99"],
+      ["10101234569","BERNARD Alice","Salarié","Accrédité","20/06/2021","10/01/2024","Clinique du Parc","alice.bernard@exemple.fr","0612345680","12 rue de la Paix, 75002 Paris","10/01/2025","CFAR-99"],
+    ];
+    const ws = window.XLSX.utils.aoa_to_sheet(exemples);
+    ws["!cols"] = headers.map(()=>({wch:24}));
+    window.XLSX.utils.book_append_sheet(wb, ws, "Liste de médecins");
 
     window.XLSX.writeFile(wb, "Modele_import_engages_CFAR.xlsx");
     toast("Modèle téléchargé.");
@@ -1963,110 +1971,165 @@ function attachEngagesEvents(){
     reader.onload = (ev)=>{
       try{
         const wb = window.XLSX.read(new Uint8Array(ev.target.result), { type:"array", cellDates:true });
-        const excelDateToIso = (v)=>{
+
+        // --- Utilitaires de lecture, tolérants aux variations d'un export SIAM à l'autre
+        // (espaces superflus, apostrophes typographiques, accents) ---
+        const normHeader = (s)=> String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g,"'").replace(/\s+/g," ").trim();
+        function parseAnyDate(v){
           if (!v) return null;
-          // Object.prototype.toString plutôt que instanceof : reste correct même si l'objet
-          // Date provient d'un contexte JS différent de celui de la page (rare, mais plus sûr).
           if (Object.prototype.toString.call(v) === "[object Date]"){
-            const d = new Date(v);
-            return isNaN(d) ? null : d.toISOString().slice(0,10);
+            return isNaN(v) ? null : new Date(v).toISOString().slice(0,10);
           }
+          const s = String(v).trim();
+          let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+          if (m) return m[3] + "-" + m[2].padStart(2,"0") + "-" + m[1].padStart(2,"0");
+          m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+          if (m) return m[1] + "-" + m[2].padStart(2,"0") + "-" + m[3].padStart(2,"0");
           return null;
-        };
-        const sheetRows = (name)=>{
-          const ws = wb.Sheets[name];
-          return ws ? window.XLSX.utils.sheet_to_json(ws, { defval:"" }) : [];
-        };
+        }
+        function titleCase(s){
+          return String(s||"").toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (m,sep,c)=> sep+c.toUpperCase());
+        }
+        function splitNomPrenom(raw){
+          const trimmed = String(raw||"").trim().replace(/\s+/g," ");
+          if (!trimmed) return { nomFamille:"", prenom:"" };
+          const words = trimmed.split(" ");
+          let idx = -1;
+          for (let i=0; i<words.length; i++){
+            const w = words[i];
+            if (w !== w.toUpperCase() && w !== w.toLowerCase()){ idx = i; break; }
+          }
+          if (idx <= 0) return { nomFamille: titleCase(trimmed), prenom:"" };
+          return { nomFamille: titleCase(words.slice(0, idx).join(" ")), prenom: titleCase(words.slice(idx).join(" ")) };
+        }
+        function yearsBetween(iso1, iso2){
+          if (!iso1 || !iso2) return null;
+          return (new Date(iso2) - new Date(iso1)) / (365.25*86400000);
+        }
 
+        const sheetName = wb.SheetNames.find(n=> normHeader(n).includes("medecin") || normHeader(n).includes("liste")) || wb.SheetNames[0];
+        const ws = wb.Sheets[sheetName];
+        const raw = window.XLSX.utils.sheet_to_json(ws, { header:1, defval:"", raw:false });
+        let headerRowIdx = raw.findIndex(r=> r.some(c=>normHeader(c)==="nom prenom") && r.some(c=>normHeader(c)==="statut"));
+        if (headerRowIdx === -1) headerRowIdx = 0;
+        const headerRow = raw[headerRowIdx].map(normHeader);
+        const colIdx = (...aliases)=>{
+          for (const a of aliases){ const i = headerRow.indexOf(normHeader(a)); if (i !== -1) return i; }
+          return -1;
+        };
+        const iRpps = colIdx("nº rpps","n° rpps","rpps");
+        const iNomPrenom = colIdx("nom prenom","nom et prenom");
+        const iMode = colIdx("mode d'exercice");
+        const iStatut = colIdx("statut");
+        const iDateEngagement = colIdx("derniere date engagement");
+        const iDateAccred = colIdx("derniere date d'accreditation");
+        const iLieu = colIdx("lieu d'exercice");
+        const iMail = colIdx("mail","email");
+        const iMobile = colIdx("numero de mobile","telephone","numero de telephone");
+        const iAdresseUnique = colIdx("adresse");
+        const iVoie = colIdx("n° et libelle de voie","n et libelle de voie");
+        const iComplement = colIdx("complement d'adresse");
+        const iCp = colIdx("code postal");
+        const iVille = colIdx("ville");
+        const iDateProchainBilan = colIdx("date prochain bilan");
+        const iEquipe = colIdx("equipe");
+
+        if (iNomPrenom === -1 || iStatut === -1){
+          setState({ importEngagesResultMsg: "Fichier non reconnu : colonnes « Nom Prénom » et/ou « Statut » introuvables. Vérifiez qu'il s'agit bien d'un export du module SIAM « Recherche de médecins », ou du modèle fourni." });
+          return;
+        }
+
+        const dataRows = raw.slice(headerRowIdx+1);
         const errors = [];
-        let nbIndiv = 0, nbEquipes = 0, nbMembres = 0;
+        let nbIndiv = 0, nbEquipes = 0, nbMembres = 0, nbIgnoresDoublons = 0;
+        const rppsExistants = new Set(ENGAGES.filter(e=>e.rpps).map(e=>e.rpps.trim()));
+        const equipeIdByCode = {};
 
-        // --- Individuels ---
-        sheetRows("Individuels").forEach((row, i)=>{
-          const nomFamille = String(row["Nom de famille"]||"").trim();
-          if (!nomFamille) return; // ligne vide ou d'exemple non complétée
-          const prenom = String(row["Prénom"]||"").trim();
-          const accreditationCount = Math.max(0, parseInt(row["Accréditations déjà obtenues"]) || 0);
-          const cycleIndex = Math.max(0, (parseInt(row["Étape en cours (1 à 4)"]) || 1) - 1);
-          const dateAccred = excelDateToIso(row["Date du dernier bilan d'accréditation (JJ/MM/AAAA)"]);
-          if (accreditationCount > 0 && !dateAccred){
-            errors.push("Individuels, ligne " + (i+2) + " (" + nomFamille + ") : date du dernier bilan d'accréditation manquante malgré " + accreditationCount + " accréditation(s) — ligne ignorée.");
+        dataRows.forEach((r, i)=>{
+          const nomPrenomRaw = String(r[iNomPrenom]||"").trim();
+          if (!nomPrenomRaw) return;
+          const rpps = iRpps!==-1 ? String(r[iRpps]||"").trim() : "";
+          if (rpps && rppsExistants.has(rpps)){
+            nbIgnoresDoublons++;
             return;
           }
-          const nom = "Dr. " + (prenom ? prenom+" " : "") + nomFamille;
-          ENGAGES.push({
-            id:newEngageId("e"), type:"individuel", nom, prenom, nomFamille,
-            modeExercice: String(row["Mode d'exercice"]||"Non précisé").trim() || "Non précisé",
-            telephone: String(row["Téléphone"]||"").trim(), email: String(row["Email"]||"").trim(),
-            dateEntree: excelDateToIso(row["Date d'entrée (JJ/MM/AAAA)"]) || TODAY.toISOString().slice(0,10),
-            accreditationCount, dateDerniereAccreditation: dateAccred, cycleIndex,
-            statutBilan:"a_faire", echeanceOverrides:{}, eiasRealises:0, membres:[],
-            bilanStatuts:{}, bilanContenus:{}, bilanValence:{}, bilanAnnotations:{}, bilanAppreciations:{},
-            dossiersEias:[], dossiersBilan:[], note:"", lastRappelDate:null
-          });
-          nbIndiv++;
-        });
+          const { nomFamille, prenom } = splitNomPrenom(nomPrenomRaw);
+          const nom = "Dr. " + (prenom ? prenom+" " : "") + (nomFamille || nomPrenomRaw);
+          const statutRaw = normHeader(r[iStatut]);
+          const estAccredite = statutRaw.startsWith("accredit");
+          const dateEngagement = iDateEngagement!==-1 ? parseAnyDate(r[iDateEngagement]) : null;
+          const dateAccred = iDateAccred!==-1 ? parseAnyDate(r[iDateAccred]) : null;
+          const dateProchainBilan = iDateProchainBilan!==-1 ? parseAnyDate(r[iDateProchainBilan]) : null;
+          const equipeCode = iEquipe!==-1 ? String(r[iEquipe]||"").trim() : "";
+          const mode = iMode!==-1 ? String(r[iMode]||"").trim() : "";
+          const lieu = iLieu!==-1 ? String(r[iLieu]||"").trim() : "";
+          const mail = iMail!==-1 ? String(r[iMail]||"").trim() : "";
+          const mobile = iMobile!==-1 ? String(r[iMobile]||"").trim() : "";
+          let adresse = iAdresseUnique!==-1 ? String(r[iAdresseUnique]||"").trim() : "";
+          if (!adresse){
+            const parts = [iVoie, iComplement].map(idx=> idx!==-1 ? String(r[idx]||"").trim() : "").filter(Boolean);
+            const cpVille = [iCp!==-1?String(r[iCp]||"").trim():"", iVille!==-1?String(r[iVille]||"").trim():""].filter(Boolean).join(" ");
+            if (cpVille) parts.push(cpVille);
+            adresse = parts.join(", ");
+          }
 
-        // --- Équipes (+ leur référent) ---
-        const equipeIdByNom = {};
-        sheetRows("Équipes").forEach((row, i)=>{
-          const equipeNom = String(row["Nom de l'équipe"]||"").trim();
-          if (!equipeNom) return;
-          const accreditationCount = Math.max(0, parseInt(row["Accréditations déjà obtenues"]) || 0);
-          const cycleIndex = Math.max(0, (parseInt(row["Étape en cours (1 à 4)"]) || 1) - 1);
-          const dateAccred = excelDateToIso(row["Date du dernier bilan d'accréditation (JJ/MM/AAAA)"]);
-          if (accreditationCount > 0 && !dateAccred){
-            errors.push("Équipes, ligne " + (i+2) + " (" + equipeNom + ") : date du dernier bilan d'accréditation manquante malgré " + accreditationCount + " accréditation(s) — ligne ignorée.");
-            return;
+          let accreditationCount, dateEntreeFinal, dateDerniereAccreditationFinal, cycleIndex;
+          if (estAccredite){
+            accreditationCount = 1;
+            dateDerniereAccreditationFinal = dateAccred;
+            dateEntreeFinal = dateEngagement || dateAccred;
+            const delta = yearsBetween(dateAccred, dateProchainBilan);
+            cycleIndex = delta !== null ? Math.min(3, Math.max(0, Math.round(delta) - 1)) : 0;
+          } else {
+            accreditationCount = 0;
+            dateEntreeFinal = dateEngagement || TODAY.toISOString().slice(0,10);
+            dateDerniereAccreditationFinal = null;
+            cycleIndex = 0;
           }
-          const prenomRef = String(row["Prénom du référent"]||"").trim();
-          const nomRef = String(row["Nom du référent"]||"").trim();
-          const nomReferentAffiche = (prenomRef || nomRef) ? ("Dr. " + (prenomRef ? prenomRef+" " : "") + nomRef).trim() : "Référent à préciser";
-          const equipeId = newEngageId("e");
-          const referentId = newEngageId("e");
-          ENGAGES.push(Object.assign({
-            id:equipeId, type:"equipe", nom:equipeNom,
-            modeExercice: String(row["Mode d'exercice"]||"Non précisé").trim() || "Non précisé",
-            dateEntree: excelDateToIso(row["Date d'entrée (JJ/MM/AAAA)"]) || TODAY.toISOString().slice(0,10),
-            membres:[referentId],
-          }, blankIndividuelFields(), { accreditationCount, dateDerniereAccreditation: dateAccred, cycleIndex }));
-          ENGAGES.push({
-            id:referentId, type:"membre_equipe", nom:nomReferentAffiche, prenom:prenomRef, nomFamille:nomRef,
-            qualif:"Anesthésiste", equipeId, role:"referent",
-            email: String(row["Email (référent)"]||"").trim(), telephone: String(row["Téléphone (référent)"]||"").trim()
-          });
-          equipeIdByNom[normalizeSearch(equipeNom)] = equipeId;
-          nbEquipes++;
-        });
+          const echeanceOverrides = {};
+          if (dateProchainBilan) echeanceOverrides[cycleIndex] = dateProchainBilan;
 
-        // --- Membres d'équipe (rattachés à une équipe déjà créée ci-dessus) ---
-        sheetRows("Membres d'équipe").forEach((row, i)=>{
-          const equipeNom = String(row["Équipe (nom exact)"]||"").trim();
-          const nomMembre = String(row["Nom du membre"]||"").trim();
-          if (!equipeNom && !nomMembre) return;
-          const equipeId = equipeIdByNom[normalizeSearch(equipeNom)];
-          if (!equipeId){
-            errors.push("Membres d'équipe, ligne " + (i+2) + " (" + (nomMembre||"?") + ") : équipe « " + equipeNom + " » introuvable dans l'onglet Équipes — ligne ignorée.");
+          if (!equipeCode){
+            ENGAGES.push({
+              id:newEngageId("e"), type:"individuel", nom, prenom, nomFamille, rpps,
+              modeExercice: mode || "Non précisé", telephone: mobile, email: mail,
+              dateEntree: dateEntreeFinal, accreditationCount, dateDerniereAccreditation: dateDerniereAccreditationFinal, cycleIndex, echeanceOverrides,
+              statutBilan:"a_faire", eiasRealises:0, membres:[],
+              bilanStatuts:{}, bilanContenus:{}, bilanValence:{}, bilanAnnotations:{}, bilanAppreciations:{},
+              dossiersEias:[], dossiersBilan:[], note:lieu, adresse, lastRappelDate:null
+            });
+            if (rpps) rppsExistants.add(rpps);
+            nbIndiv++;
             return;
           }
-          if (!nomMembre){
-            errors.push("Membres d'équipe, ligne " + (i+2) + " : nom du membre manquant — ligne ignorée.");
-            return;
+
+          if (!equipeIdByCode[equipeCode]){
+            const equipeId = newEngageId("e");
+            const referentId = newEngageId("e");
+            ENGAGES.push(Object.assign({
+              id:equipeId, type:"equipe", nom:equipeCode, modeExercice: mode || "Non précisé",
+              membres:[referentId], note:lieu, adresse,
+            }, blankIndividuelFields(), {
+              dateEntree: dateEntreeFinal, accreditationCount, dateDerniereAccreditation: dateDerniereAccreditationFinal, cycleIndex, echeanceOverrides,
+            }));
+            ENGAGES.push({ id:referentId, type:"membre_equipe", nom, prenom, nomFamille, rpps, qualif:"Anesthésiste", equipeId, role:"referent", email:mail, telephone:mobile });
+            equipeIdByCode[equipeCode] = equipeId;
+            if (rpps) rppsExistants.add(rpps);
+            nbEquipes++;
+          } else {
+            const equipeId = equipeIdByCode[equipeCode];
+            const memberId = newEngageId("e");
+            ENGAGES.push({ id:memberId, type:"membre_equipe", nom, prenom, nomFamille, rpps, qualif:"Anesthésiste", equipeId, role:"membre", email:mail, telephone:mobile });
+            const equipe = ENGAGES.find(x=>x.id===equipeId);
+            if (equipe) equipe.membres.push(memberId);
+            if (rpps) rppsExistants.add(rpps);
+            nbMembres++;
           }
-          const memberId = newEngageId("e");
-          ENGAGES.push({
-            id:memberId, type:"membre_equipe", nom:nomMembre, prenom:"", nomFamille:nomMembre,
-            qualif: String(row["Qualification"]||"Anesthésiste").trim() || "Anesthésiste",
-            equipeId, role:"membre",
-            email: String(row["Email"]||"").trim(), telephone: String(row["Téléphone"]||"").trim()
-          });
-          const equipe = ENGAGES.find(x=>x.id===equipeId);
-          if (equipe) equipe.membres.push(memberId);
-          nbMembres++;
         });
 
         let resultMsg = nbIndiv + " engagé(s) individuel(s), " + nbEquipes + " équipe(s) et " + nbMembres + " membre(s) supplémentaire(s) importés.";
-        if (errors.length) resultMsg += "\n\n" + errors.length + " ligne(s) ignorée(s) :\n" + errors.join("\n");
+        if (nbIgnoresDoublons) resultMsg += "\n" + nbIgnoresDoublons + " ligne(s) ignorée(s) car déjà présente(s) (même RPPS).";
+        if (errors.length) resultMsg += "\n\n" + errors.length + " ligne(s) en erreur :\n" + errors.join("\n");
         setState({ importEngagesResultMsg: resultMsg });
         if (nbIndiv + nbEquipes + nbMembres > 0) toast("Import terminé — pensez à sauvegarder (⬇️ Exporter .json) pour ne rien perdre.");
       }catch(err){
@@ -2151,6 +2214,8 @@ function attachEngagesEvents(){
       const e = ENGAGES.find(x=>x.id===el.getAttribute("data-save-contact"));
       e.telephone = document.getElementById("editTelephone").value.trim();
       e.email = document.getElementById("editEmail").value.trim();
+      const rppsEl = document.getElementById("editRpps");
+      if (rppsEl) e.rpps = rppsEl.value.trim();
       const prenomEl = document.getElementById("editPrenom");
       const nomFamilleEl = document.getElementById("editNomFamille");
       if (prenomEl && nomFamilleEl){
@@ -2434,23 +2499,29 @@ function attachEngagesEvents(){
       const memberId = el.getAttribute("data-remove-membre");
       const member = findEngage(memberId);
       if (!member) return;
-      const ok = window.confirm(member.nom + " va sortir de l'équipe et devenir un engagé individuel. Continuer ?");
+      const ok = window.confirm(member.nom + " va sortir de l'équipe et devenir un engagé individuel, en reprenant la position actuelle de l'équipe dans son cycle (même échéance). Continuer ?");
       if (!ok) return;
       const equipe = findEngage(member.equipeId);
       if (equipe) equipe.membres = equipe.membres.filter(id=>id!==memberId);
-      const dateAccred = window.prompt("Date du dernier bilan d'accréditation validé pour " + member.nom + " (laisser vide si nouvel engagé) :", "");
+      // L'engagé qui sort d'une équipe garde la référence d'accréditation de l'équipe (dernière
+      // date d'accréditation, étape en cours, échéance) plutôt que de repartir de zéro — c'est
+      // cette équipe qui l'a fait progresser jusqu'ici.
+      const accreditationCount = equipe ? equipe.accreditationCount : 0;
+      const dateDerniereAccreditation = equipe ? equipe.dateDerniereAccreditation : null;
+      const cycleIndex = equipe ? equipe.cycleIndex : 0;
+      const echeanceOverrides = equipe ? Object.assign({}, equipe.echeanceOverrides) : {};
       Object.assign(member, blankIndividuelFields());
       member.type = "individuel";
       member.modeExercice = member.qualif || "Non précisé";
-      member.dateEntree = TODAY.toISOString().slice(0,10);
-      if (dateAccred){
-        member.accreditationCount = 1;
-        member.dateDerniereAccreditation = dateAccred;
-      }
+      member.dateEntree = (equipe && equipe.dateEntree) || TODAY.toISOString().slice(0,10);
+      member.accreditationCount = accreditationCount;
+      member.dateDerniereAccreditation = dateDerniereAccreditation;
+      member.cycleIndex = cycleIndex;
+      member.echeanceOverrides = echeanceOverrides;
       delete member.equipeId;
       delete member.role;
       delete member.qualif;
-      toast(member.nom + " est maintenant suivi individuellement.");
+      toast(member.nom + " est maintenant suivi individuellement, à la même échéance que l'équipe qu'il quitte.");
       setState({ selectedEngageId: equipe ? equipe.id : STATE.selectedEngageId });
     };
   });
@@ -2510,6 +2581,7 @@ function attachEngagesEvents(){
         mode: g("newMode") !== undefined ? g("newMode") : STATE.addEngageDraft.mode,
         telephone: g("newTelephone") !== undefined ? g("newTelephone") : STATE.addEngageDraft.telephone,
         email: g("newEmail") !== undefined ? g("newEmail") : STATE.addEngageDraft.email,
+        rpps: g("newRpps") !== undefined ? g("newRpps") : STATE.addEngageDraft.rpps,
         qualif: g("newQualif") !== undefined ? g("newQualif") : STATE.addEngageDraft.qualif,
         dateAccreditation: g("newDateAccreditation") !== undefined ? g("newDateAccreditation") : STATE.addEngageDraft.dateAccreditation,
         cycleIndex: g("newCycleIndex") !== undefined ? g("newCycleIndex") : STATE.addEngageDraft.cycleIndex,
@@ -2529,6 +2601,7 @@ function attachEngagesEvents(){
       const nom = (prenom || nomFamille) ? ("Dr. " + (prenom ? prenom+" " : "") + nomFamille).trim() : (type==="equipe" ? "Nouveau référent" : "Nouvel engagé");
       const telephone = document.getElementById("newTelephone") ? document.getElementById("newTelephone").value.trim() : "";
       const email = document.getElementById("newEmail") ? document.getElementById("newEmail").value.trim() : "";
+      const rpps = document.getElementById("newRpps") ? document.getElementById("newRpps").value.trim() : "";
 
       // --- Cas 1 : rejoint une équipe existante -> crée un membre lié, pas un engagé autonome ---
       if (type === "individuel" && statutParcours === "rejoint_equipe"){
@@ -2537,7 +2610,7 @@ function attachEngagesEvents(){
         if (!equipe){ alert("Aucune équipe existante à rejoindre — créez d'abord une équipe (Type = Équipe)."); return; }
         const qualif = document.getElementById("newQualif").value.trim() || "Anesthésiste";
         const memberId = newEngageId("e");
-        ENGAGES.push({ id:memberId, type:"membre_equipe", nom, prenom, nomFamille, qualif, equipeId, role:"membre", email, telephone });
+        ENGAGES.push({ id:memberId, type:"membre_equipe", nom, prenom, nomFamille, qualif, equipeId, role:"membre", email, telephone, rpps });
         equipe.membres.push(memberId);
         toast(nom + " a rejoint " + equipe.nom + " comme membre.");
         setState({ showAddEngageModal:false, addEngageType:"individuel", addEngageStatut:"nouveau", addEngageDraft:{}, addEngageFormToken:null });
@@ -2563,7 +2636,7 @@ function attachEngagesEvents(){
           id:equipeId, type:"equipe", nom:equipeNom, modeExercice:mode,
           dateEntree: TODAY.toISOString().slice(0,10), membres:[referentId],
         }, blankIndividuelFields(), { accreditationCount, dateDerniereAccreditation, cycleIndex }));
-        ENGAGES.push({ id:referentId, type:"membre_equipe", nom, prenom, nomFamille, qualif:"Anesthésiste", equipeId, role:"referent", email, telephone });
+        ENGAGES.push({ id:referentId, type:"membre_equipe", nom, prenom, nomFamille, qualif:"Anesthésiste", equipeId, role:"referent", email, telephone, rpps });
         toast("Équipe « " + equipeNom + " » créée avec " + nom + " comme référent.");
         setState({ showAddEngageModal:false, addEngageType:"individuel", addEngageStatut:"nouveau", addEngageDraft:{}, addEngageFormToken:null });
         return;
@@ -2580,11 +2653,11 @@ function attachEngagesEvents(){
         cycleIndex = parseInt(document.getElementById("newCycleIndex").value) || 0;
       }
       ENGAGES.push({
-        id:newEngageId("e"), type:"individuel", nom, prenom, nomFamille, modeExercice:mode, telephone, email,
+        id:newEngageId("e"), type:"individuel", nom, prenom, nomFamille, modeExercice:mode, telephone, email, rpps,
         dateEntree: TODAY.toISOString().slice(0,10), accreditationCount, dateDerniereAccreditation, cycleIndex,
         statutBilan:"a_faire", echeanceOverrides:{},
         eiasRealises:0, membres:[],
-        bilanStatuts:{}, bilanContenus:{}, bilanValence:{}, bilanAnnotations:{}, bilanAppreciations:{}, dossiersEias:[], dossiersBilan:[], note:"", lastRappelDate:null
+        bilanStatuts:{}, bilanContenus:{}, bilanValence:{}, bilanAnnotations:{}, bilanAppreciations:{}, dossiersEias:[], dossiersBilan:[], note:"", adresse:"", lastRappelDate:null
       });
       setState({ showAddEngageModal:false, addEngageType:"individuel", addEngageStatut:"nouveau", addEngageDraft:{}, addEngageFormToken:null });
     };
@@ -5957,13 +6030,26 @@ function exportFacturationWord(){
   const info = FACTURATION_INFO;
   const byEngage = {};
   FACTURATION.forEach(l=>{
-    if (!byEngage[l.engageId]) byEngage[l.engageId] = { nom:l.engageNom, eias:[], bilans:[] };
+    if (!byEngage[l.engageId]) byEngage[l.engageId] = { nom:l.engageNom, engageId:l.engageId, eias:[], bilans:[] };
     if (l.type==="eias") byEngage[l.engageId].eias.push(l); else byEngage[l.engageId].bilans.push(l);
   });
+  // Pour une équipe, l'en-tête du bloc précise le nom de l'équipe, l'établissement ou la ville
+  // (issus de son adresse) et le nom du référent — plus lisible qu'un simple nom d'équipe pour
+  // le service comptabilité.
+  function blockHeader(g){
+    const e = findEngage(g.engageId);
+    if (!e || e.type !== "equipe") return escapeHtml(g.nom);
+    const lieu = e.note || (e.adresse ? e.adresse.split(",").pop().trim() : "");
+    const referent = resolveTeamMembers(e).find(m=>m.role==="referent");
+    const parts = [e.nom];
+    if (lieu) parts.push(lieu);
+    if (referent) parts.push("référent : " + referent.nom);
+    return escapeHtml(parts.join(" — "));
+  }
   const blocks = Object.values(byEngage).map(g=>{
     const eiasHtml = g.eias.map(l=>`<p style="margin:4px 0;">Thème EIAS <b>N° ${escapeHtml(l.numeroSiam||"—")}</b> — ${escapeHtml(l.theme)} — ${l.accepte?"Accepté ☑":"Refusé ☑"}<br/>Date de validation EIAS : ${fmtDate(l.date)}</p>`).join("");
     const bilansHtml = g.bilans.map(l=>`<p style="margin:4px 0;">Type bilan <b>N° ${escapeHtml(l.numeroSiam||"—")}</b> — ${escapeHtml(l.theme)} — ${l.accepte?"Accepté ☑":"Refusé ☑"}<br/>Date de validation Bilan : ${fmtDate(l.date)}</p>`).join("");
-    return `<div style="margin:0 0 16px; padding-bottom:12px; border-bottom:1px solid #ccc;"><p><b>${escapeHtml(g.nom)}</b></p>${eiasHtml}${bilansHtml}</div>`;
+    return `<div style="margin:0 0 16px; padding-bottom:12px; border-bottom:1px solid #ccc;"><p><b>${blockHeader(g)}</b></p>${eiasHtml}${bilansHtml}</div>`;
   }).join("");
 
   const bodyHtml = `
