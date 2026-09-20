@@ -515,7 +515,11 @@ function delayStatus(echeance, statutBilan){
   const j = daysBetween(echeance, TODAY);
   const delai = REGLES_GESTION.delaiTraitementJours, tolerance = REGLES_GESTION.toleranceRetardJours;
   if (j < 0) return { level:"ok", label:"Échéance dans " + (-j) + " j", jours:j };
-  if (j < delai) return { level:"ok", label: j + " j après l'échéance (dans le délai HAS de " + delai + " j)", jours:j };
+  // Dès que l'échéance elle-même est dépassée (j >= 0), c'est du retard aux yeux de l'expert —
+  // même si l'application laisse encore une marge de traitement administratif avant l'indicateur
+  // qualité HAS. Le jaune attire l'œil sur ce retard dès le premier jour ; seul le dépassement de
+  // la tolérance HAS bascule en rouge (retard critique).
+  if (j < delai) return { level:"warn", label: j + " j après l'échéance (dans le délai HAS de " + delai + " j)", jours:j };
   if (j <= tolerance) return { level:"warn", label: j + " j de retard — au-delà du délai HAS de " + delai + " j", jours:j };
   return { level:"danger", label: j + " j de retard — retard critique (> tolérance " + tolerance + " j)", jours:j };
 }
@@ -1171,6 +1175,12 @@ function renderEngages(){
   const prochaine = trackedEngages.map(e=>({ e, date: stageDates(e)[e.cycleIndex] }))
     .filter(x=> !(STATUT_BILAN_META[x.e.statutBilan] && (STATUT_BILAN_META[x.e.statutBilan].terminal || STATUT_BILAN_META[x.e.statutBilan].tolere)))
     .sort((a,b)=> a.date - b.date)[0];
+  // Même code couleur que le badge "Délai bilan" de chaque ligne, pour que la date affichée en
+  // tête de tableau de bord attire l'œil de la même façon dès qu'elle est en retard.
+  const prochaineDelay = prochaine ? delayStatus(prochaine.date, prochaine.e.statutBilan) : null;
+  const prochaineColor = prochaineDelay
+    ? (prochaineDelay.level==="danger" ? "var(--danger)" : prochaineDelay.level==="warn" ? "var(--warning)" : "var(--navy)")
+    : "var(--navy)";
 
   const dashboard = `
   <div class="card">
@@ -1189,7 +1199,7 @@ function renderEngages(){
         <div class="muted-small">EIAS manquant(s) sur l'année</div>
       </div>
       <div style="text-align:center;">
-        <div style="font-size:15px; font-weight:800; color:var(--navy);">${prochaine ? fmtDate(prochaine.date) : "—"}</div>
+        <div style="font-size:15px; font-weight:800; color:${prochaineColor};">${prochaine ? fmtDate(prochaine.date) : "—"}</div>
         <div class="muted-small">Prochaine échéance${prochaine? " ("+prochaine.e.nom.split(" ").slice(0,2).join(" ")+"…)" : ""}</div>
       </div>
     </div>
