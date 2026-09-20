@@ -770,7 +770,7 @@ function renderModeEmploiModal(){
           <br/><br/>
           Pour échanger avec l'engagé ou son référent, plusieurs actions ouvrent automatiquement un mail pré-rédigé (point d'étape avec capture de la frise, décision sur un bilan, situation particulière — retraite, grossesse, maladie...). Chaque envoi met aussi à jour la frise chronologique.
           <br/><br/>
-          <b>Import en masse depuis un export SIAM</b> : plutôt que de saisir un par un vos engagés, <i>« ⬇️ Modèle Excel »</i> puis <i>« 📥 Importer depuis Excel »</i> permettent de déposer directement un export du module SIAM « Recherche de médecins », filtré sur votre portefeuille. Pour chaque équipe, placez en <b>première ligne du groupe</b> le médecin qui doit devenir référent — c'est cette ligne-là qui sera reconnue comme telle (modifiable ensuite dans la fiche). Un même RPPS déjà présent n'est jamais réimporté en double.
+          <b>Import en masse depuis un export SIAM</b> : plutôt que de saisir un par un vos engagés, <i>« ⬇️ Modèle Excel »</i> puis <i>« 📥 Importer depuis Excel »</i> permettent de déposer directement un export du module SIAM « Recherche de médecins » (individuel ou équipe), sans le retravailler — le modèle reprend désormais exactement les mêmes colonnes, dans le même ordre, qu'un export SIAM (préambule compris), ce qui évite tout décalage si vous préférez coller vos lignes à la main dans le modèle plutôt que de déposer le fichier SIAM tel quel. Pour chaque équipe, placez en <b>première ligne du groupe</b> le médecin qui doit devenir référent — c'est cette ligne-là qui sera reconnue comme telle (modifiable ensuite dans la fiche). Un même RPPS déjà présent n'est jamais réimporté en double, et une ligne avec une « Date de sortie » renseignée est ignorée (médecin ayant quitté le dispositif).
           <br/><br/>
           <b>Deux corrections manuelles à prévoir après un import</b> :
           <ul style="margin:6px 0 0; padding-left:20px;">
@@ -782,17 +782,31 @@ function renderModeEmploiModal(){
         ${section("📋 Bilan annuel", `
           Deux façons de fonctionner, à votre convenance : coller vous-même le contenu depuis le SIAM pilier par pilier, ou <b>faire remplir l'engagé lui-même</b> via l'espace qui lui est dédié (voir plus bas) — les deux peuvent aussi se combiner.
           <br/><br/>
-          Pour chaque activité : cochez son statut, collez ou lisez le contenu, puis <i>« 📝 Générer la synthèse »</i> produit un texte structuré instantanément, sans appel à un service extérieur. Pour une synthèse rédigée par une IA, copiez le prompt fourni et soumettez-le à l'outil de votre choix, puis collez sa réponse — l'application ne transmet elle-même aucune donnée à un tiers.
+          Pour chaque activité : cochez son statut, collez ou lisez le contenu, puis <i>« 📝 Générer la synthèse »</i> produit un texte structuré instantanément, sans appel à un service extérieur. Pour une synthèse rédigée par une IA, copiez le prompt fourni et soumettez-le à l'outil de votre choix, puis collez sa réponse — l'application ne transmet elle-même aucune donnée à un tiers. <b>Un contrôle basique des éléments identifiants est effectué au moment même où vous copiez le prompt</b> (pas seulement à la validation), pour éviter de transmettre un texte non anonymisé à une IA externe.
           <br/><br/>
-          Une fois satisfait : <i>« ✓ Valider et archiver »</i>, après avoir renseigné le numéro du bilan (indispensable pour la facturation). La synthèse est à recopier dans le SIAM et peut être adressée à l'engagé en un clic.
+          Sur chaque activité, deux cases bien distinctes, à ne pas confondre :
+          <ul style="margin:6px 0 0; padding-left:20px;">
+            <li><i>« à améliorer »</i> — une <b>critique</b> de ce qui a été déclaré <b>cette année</b> : dès que cochée, un champ apparaît juste après le contenu SIAM collé (ou importé de l'espace engagé) pour préciser ce qui doit être repris — c'est là, et non plus dans l'appréciation générale, que l'expert écrit sa précision.</li>
+            <li><i>« à travailler l'an prochain »</i> (anciennement « pour l'engagé ») — une simple <b>suggestion</b> pour l'année suivante, sans jugement sur l'année écoulée : elle joint les attendus/mots-clés/liens du didacticiel pour aider l'engagé à s'y projeter.</li>
+          </ul>
+          Ces deux listes, ainsi que votre appréciation, peuvent être renvoyées à l'engagé de deux façons complémentaires, toujours présentées séparément (« Activités à revoir » puis « Propositions de travail pour l'année prochaine ») :
+          <ul style="margin:6px 0 0; padding-left:20px;">
+            <li><i>« ✉️ Envoyer à l'engagé »</i> — un mail pré-rédigé, pratique pour un mot rapide ou une ou deux activités.</li>
+            <li><i>« 🗂️ Télécharger le retour structuré (JSON) »</i> — dès qu'il y a plusieurs activités à faire remonter, préférez ce fichier : à joindre à un mail ou à transmettre autrement, il se charge tel quel dans la section <b>« Retour de mon expert »</b> de l'espace engagé (voir plus bas), qui met alors en évidence chaque activité concernée (rouge pour « à revoir », vert pour « proposé pour l'an prochain ») avec un bandeau reprenant votre appréciation — bien plus lisible qu'un mail dès que le nombre d'items grandit. Ce fichier n'est <b>volontairement pas chiffré</b> : il ne reprend que ce que vous savez déjà de votre engagé.</li>
+          </ul>
+          Dans les deux cas, pensez au rappel de recopier les corrections dans le SIAM une fois celles-ci apportées. Le Didacticiel (onglet séparé) reste, lui, réservé à un envoi ponctuel — à la demande de l'engagé ou lors d'un contact trimestriel — indépendamment du bilan.
+          <br/><br/>
+          Une fois satisfait : <i>« ✓ Valider le bilan »</i> (relisez, corrigez, copiez ou envoyez autant de fois que nécessaire), puis <i>« 📦 Archiver le bilan »</i> après avoir renseigné le numéro du bilan (indispensable pour la facturation) — cette dernière étape est définitive. La synthèse courte (pré-requis + appréciation) est à recopier dans le SIAM ; la synthèse complète, détaillée, n'existe que dans le document Word à joindre en pièce jointe.
+          <br/><br/>
+          <b>Archivage garanti sur les 4 ans du cycle.</b> Chaque bilan archivé conserve pour toujours (consultable dans « Bilans archivés ») le détail complet de l'année : statuts, contenus, valence et activités « à améliorer » de chaque pilier, ainsi que le nombre d'EIAS réalisés à cette date. Lorsque le bilan archivé est un <b>bilan d'accréditation</b> (fin d'un cycle de 4 ans), l'application le détecte automatiquement et remet à zéro les données de travail (activités, contenus, appréciations, brouillons, compteur EIAS) pour repartir sur un cycle neuf — sans jamais toucher à l'historique déjà archivé. Un message à l'écran confirme ce passage à un nouveau cycle.
         `)}
 
         ${section("🩺 Analyse EIAS", `
           Un mode test existe pour travailler un EIAS sans l'attribuer à un engagé (préparation de RMM, cas personnel...) — rien n'y est conservé d'une session à l'autre.
           <br/><br/>
-          Renseignez les rubriques demandées (copier-coller aisé depuis le SIAM), puis choisissez : rédiger vous-même l'<i>« Analyse de l'expert »</i>, ou copier le prompt fourni pour le soumettre à une IA de votre choix et coller sa réponse (format JSON) — la même IA peut aussi vous être utile pour reformuler une analyse reçue d'ailleurs.
+          Renseignez les rubriques demandées (copier-coller aisé depuis le SIAM), cochez le cas échéant <i>« analysé en RMM/CREX/REMED »</i>, puis choisissez : rédiger vous-même l'<i>« Analyse de l'expert »</i>, ou copier le prompt fourni pour le soumettre à une IA de votre choix et coller sa réponse (format JSON) — la même IA peut aussi vous être utile pour reformuler une analyse reçue d'ailleurs. <b>Un contrôle basique des éléments identifiants est effectué dès la copie du prompt</b>, avant toute transmission à une IA externe — pas seulement à la validation finale.
           <br/><br/>
-          Pensez à renseigner le numéro SIAM avant de valider, pour l'import automatique en facturation. <b>Avant toute validation, vérifiez soigneusement l'anonymisation</b> — c'est un engagement personnel de l'expert, rappelé à chaque connexion.
+          Pensez à renseigner le numéro SIAM avant de valider, pour l'import automatique en facturation. <b>Avant toute validation, vérifiez soigneusement l'anonymisation</b> — c'est un engagement personnel de l'expert, rappelé à chaque connexion. Une fois validé, <i>« 📋 Copier le résumé pour le SIAM »</i> ne copie qu'un résumé d'une dizaine de lignes (le compte-rendu complet, détaillé, est à joindre séparément en Word) — inutile de tout recopier deux fois.
         `)}
 
         ${section("📬 Espace Engagé — faire remplir l'engagé lui-même", `
@@ -803,6 +817,8 @@ function renderModeEmploiModal(){
           <b>Une fois le bilan jugé satisfaisant, l'engagé doit impérativement recopier lui-même ses réponses dans le SIAM</b> — ce fichier ne s'y substitue pas, c'est à rappeler systématiquement.
           <br/><br/>
           Si l'engagé n'utilise pas cet outil, rien ne change : vous continuez de coller vous-même depuis le SIAM comme auparavant. Le référentiel de son fichier peut aussi être actualisé indépendamment (sans jamais perdre ses réponses déjà saisies) via <i>« 🔄 Mettre à jour le référentiel »</i>, présent directement dans son espace.
+          <br/><br/>
+          <b>« Retour de mon expert »</b> : une seconde carte, juste en dessous, permet à l'engagé de charger le fichier <i>« 🗂️ Télécharger le retour structuré (JSON) »</i> que vous lui avez transmis depuis son bilan. Dès qu'il le charge, un bandeau affiche votre appréciation pour l'étape concernée, avec deux listes bien séparées : les activités « à revoir » (celles cochées « à améliorer », avec votre précision), surlignées en rouge dans sa liste d'activités, et les « propositions de travail pour l'année prochaine » (celles cochées « à travailler l'an prochain »), surlignées en vert — sans jamais effacer ce qu'il a déjà rempli.
         `)}
 
         ${section("📚 Didacticiel", `
@@ -822,6 +838,8 @@ function renderModeEmploiModal(){
             <li>Vérifiez l'anonymisation avant toute transmission — c'est votre responsabilité personnelle d'expert.</li>
             <li>Renseignez systématiquement les numéros SIAM (EIAS et bilan) pour que la facturation se fasse automatiquement.</li>
             <li>Si l'engagé remplit son espace lui-même, rappelez-lui de recopier ses réponses validées dans le SIAM.</li>
+            <li>« à améliorer » = critique de l'année écoulée (avec précision à saisir juste sous le contenu SIAM) ; « à travailler l'an prochain » = simple suggestion. Ne pas confondre les deux, et dès qu'il y en a plusieurs à transmettre, préférez le fichier « Retour structuré (JSON) » au mail — l'engagé le charge dans son espace, section « Retour de mon expert ».</li>
+            <li>Chaque bilan archivé garde son détail complet pendant les 4 ans du cycle ; au bilan d'accréditation qui clôt le cycle, les données de travail repartent automatiquement à zéro pour le nouveau cycle, sans jamais effacer l'historique.</li>
             <li>Après un import Excel, vérifiez les noms saisis tout en majuscules dans le SIAM (nom/prénom parfois non séparés) et, si besoin, le numéro exact d'accréditation affiché.</li>
           </ul>
         `)}
@@ -1372,10 +1390,11 @@ function renderEngageDetail(){
     <div class="field"><label>Téléphone</label><input type="text" id="editTelephone" value="${escapeHtml(e.telephone||"")}" /></div>
     <div class="field"><label>Adresse mail</label><input type="text" id="editEmail" value="${escapeHtml(e.email||"")}" /></div>
     <div class="field"><label>N° RPPS <span class="muted-small">(utile pour distinguer les homonymes)</span></label><input type="text" id="editRpps" value="${escapeHtml(e.rpps||"")}" /></div>
+    <div class="field"><label>Qualifications particulières <span class="muted-small">(pédiatrie, réanimation, chirurgie cardiaque…)</span></label><input type="text" id="editQualifs" value="${escapeHtml(e.qualifsParticulieres||"")}" /></div>
     <button class="btn small" data-save-contact="${e.id}">Enregistrer</button>
     <a class="linklike" data-cancel-contact style="margin-left:10px;">Annuler</a>
   ` : `
-    <div class="muted-small">📞 ${e.telephone ? escapeHtml(e.telephone) : "non renseigné"} &nbsp;·&nbsp; ✉️ ${e.email ? escapeHtml(e.email) : "non renseigné"}${e.rpps ? ` &nbsp;·&nbsp; RPPS ${escapeHtml(e.rpps)}` : ""} &nbsp; <a class="linklike" data-edit-contact="${e.id}" style="font-size:11.5px;">✎ Modifier</a></div>
+    <div class="muted-small">📞 ${e.telephone ? escapeHtml(e.telephone) : "non renseigné"} &nbsp;·&nbsp; ✉️ ${e.email ? escapeHtml(e.email) : "non renseigné"}${e.rpps ? ` &nbsp;·&nbsp; RPPS ${escapeHtml(e.rpps)}` : ""}${e.qualifsParticulieres ? ` &nbsp;·&nbsp; ${escapeHtml(e.qualifsParticulieres)}` : ""} &nbsp; <a class="linklike" data-edit-contact="${e.id}" style="font-size:11.5px;">✎ Modifier</a></div>
   `;
 
   const editingNote = STATE.engageEditNote === e.id;
@@ -1537,7 +1556,7 @@ function renderEngageDetail(){
           <div style="font-size:12.8px; white-space:pre-wrap; margin-top:8px;"><b>Message adressé à l'engagé :</b>\n${escapeHtml(dos.syntheseEngage||"")}</div>
           ${dos.appreciation ? `<div class="muted-small" style="margin-top:8px;"><b>Appréciation de l'expert :</b> ${escapeHtml(dos.appreciation)}</div>` : ""}
           <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn secondary small" data-recopy-bilan="${dos.id}" data-engage="${e.id}">📋 Copier l'appréciation pour le SIAM</button>
+            <button class="btn secondary small" data-recopy-bilan="${dos.id}" data-engage="${e.id}">📋 Copier la synthèse courte pour le SIAM</button>
             <button class="btn secondary small" data-download-bilan="${dos.id}" data-engage="${e.id}">⬇️ Télécharger (Word)</button>
             <button class="btn secondary small" data-resend-bilan="${dos.id}" data-engage="${e.id}">✉️ Renvoyer à l'engagé</button>
           </div>
@@ -1751,14 +1770,37 @@ function applyEngageAction(e, actionKey){
   e.statutBilan = actionKey;
   e.statutBilanDate = TODAY.toISOString().slice(0,10);
   if (actionKey === "valide"){
-    advanceCycle(e);
+    const wrapped = advanceCycle(e);
     // Le statut "Validé" ne concerne que l'étape qui vient de se terminer : la nouvelle étape,
     // elle, n'a encore rien reçu. Sans cette réinitialisation, le badge de délai resterait figé
     // sur "Validé" indéfiniment au lieu de repartir sur un compte à rebours pour la nouvelle
     // échéance — l'expert ne serait alors plus jamais alerté d'un retard sur cette étape.
     e.statutBilan = "a_faire";
     e.statutBilanDate = null;
+    return wrapped;
   }
+  return false;
+}
+
+// Remise à zéro des données de TRAVAIL du bilan (statuts saisis, contenus, valence,
+// annotations, "à améliorer", brouillons, snapshots de staleness) lors du passage à un
+// nouveau cycle de 4 ans (déclenché par un bilan d'accréditation validé qui boucle la frise).
+// L'historique complet de chaque bilan archivé (dossiersBilan, avec son activitesSnapshot)
+// n'est PAS touché ici : il reste consultable indéfiniment dans « Bilans archivés ». Le compteur
+// cumulatif d'EIAS réalisés est lui aussi remis à zéro car il est cumulé sur la durée d'un cycle
+// (voir buildBilanFactsAccreditation), pas sur toute la carrière de l'engagé.
+function resetBilanCycleWorkingData(e){
+  e.bilanStatuts = {};
+  e.bilanContenus = {};
+  e.bilanValence = {};
+  e.bilanAAmeliorer = {};
+  e.bilanAAmeliorerJustif = {};
+  e.bilanAnnotations = {};
+  e.bilanAppreciations = {};
+  e.bilanDrafts = {};
+  e.bilanEngageSnap = {};
+  e.bilanDataSnap = {};
+  e.eiasRealises = 0;
 }
 
 function buildMailto(e, actionKey){
@@ -1922,12 +1964,16 @@ function attachEngagesEvents(){
     const notice = [
       ["Modèle d'import des engagés — Kit CFAR Digital"],
       [""],
-      ["Ce modèle reprend exactement les colonnes d'un export du SIAM (module « Recherche de médecins ») — vous pouvez déposer directement un export SIAM ici, sans le retravailler, à deux préparations près :"],
+      ["Ce modèle reprend EXACTEMENT les colonnes, dans le MÊME ORDRE, d'un export du SIAM (module « Recherche de médecins », individuel ou équipe) — vous pouvez donc :"],
+      ["  A) déposer directement un export SIAM ici (fichier .xls tel quel, sans le retravailler), ou"],
+      ["  B) sélectionner vos lignes dans Excel/le SIAM et les COLLER telles quelles à partir de la cellule A6 de l'onglet « Liste de médecins » ci-contre — l'ordre des colonnes étant identique, aucun décalage ne se produit."],
+      [""],
+      ["Deux seules préparations à faire vous-même avant l'import :"],
       ["1. Filtrez l'export SIAM sur votre propre portefeuille d'engagés avant de l'exporter (ou supprimez les lignes qui ne vous concernent pas)."],
       ["2. Pour chaque équipe, placez en PREMIÈRE ligne du groupe le médecin qui doit devenir référent — c'est cette ligne-là qui sera reconnue comme telle. Vous pourrez changer le référent ensuite dans l'application."],
       [""],
-      ["Colonnes utilisées (les autres colonnes d'un export SIAM, si présentes, sont ignorées sans erreur) :"],
-      ["Nº RPPS, Nom Prénom, Mode d'exercice, Statut, Dernière date engagement, Dernière date d'accréditation, Lieu d'exercice, Mail, Numéro de mobile, Adresse, Date prochain bilan, Equipe."],
+      ["Colonnes reconnues (l'ordre n'a en réalité pas d'importance pour l'import lui-même — il n'a d'importance que si vous collez à la main sans en-têtes ; les colonnes non listées ici, si présentes, sont ignorées sans erreur) :"],
+      ["Nom OA, Nº RPPS, Titre, Nom Prénom, Mode d'exercice, Statut, Dernière date engagement, Dernière date d'accréditation, Lieu d'exercice, Date de sortie, Motif de la sortie, Précision de la sortie, Motif du renoncement, Precision du renoncement, Activité pluridisciplinaire, Activité pluriprofessionnelle, Mail, Numéro de mobile, Code Finess, Entreprise / établissement / organisation, N° et libellé de voie, Complément d'adresse, Code postal, Numéro CEDEX, Ville, Date prochain bilan, Equipe, Niveau intégration équipe."],
       [""],
       ["Statut : « Engagé » ou « Accrédité ». Détermine comment l'échéance est calculée :"],
       ["  - Accrédité (individuel ou équipe) : l'échéance repose sur « Dernière date d'accréditation »."],
@@ -1937,21 +1983,37 @@ function attachEngagesEvents(){
       [""],
       ["Equipe : le code d'équipe (ex. CFAR-27). Laissez vide pour un engagé individuel. Toutes les lignes partageant le même code sont regroupées dans la même équipe ; seule la donnée de la première ligne du groupe (le référent) sert à caler la frise de l'équipe — les dates des autres membres ne sont pas utilisées."],
       [""],
+      ["Une ligne avec une « Date de sortie » renseignée est ignorée à l'import (le médecin a quitté le dispositif) — un compteur vous indique combien de lignes ont été ignorées pour ce motif."],
+      [""],
       ["Dates au format JJ/MM/AAAA (ou AAAA-MM-JJ, les deux sont acceptés)."],
+      [""],
+      ["Corrections manuelles potentielles après import (voir aussi le Mode d'emploi dans l'application) :"],
+      ["  - Un nom tout en majuscules (ex. « DUPONT MARIE ») ne permet pas de séparer nom et prénom de façon fiable — le champ prénom peut rester vide, à corriger à la main sur la fiche."],
+      ["  - Le nombre d'accréditations déjà obtenues (accreditationCount) est fixé par défaut à 1 pour un médecin « Accrédité » — le SIAM n'exporte pas ce nombre exact."],
     ];
     const wsNotice = window.XLSX.utils.aoa_to_sheet(notice);
     wsNotice["!cols"] = [{wch:100}];
     window.XLSX.utils.book_append_sheet(wb, wsNotice, "Notice");
 
-    const headers = ["Nº RPPS","Nom Prénom","Mode d'exercice","Statut","Dernière date engagement","Dernière date d'accréditation","Lieu d'exercice","Mail","Numéro de mobile","Adresse","Date prochain bilan","Equipe"];
+    // Ordre et intitulés strictement identiques à un export SIAM « Recherche de médecins »
+    // (individuel ou équipe), préambule inclus, afin qu'un copier-coller brut depuis le SIAM
+    // (à partir de la ligne d'en-tête) tombe directement dans les bonnes colonnes.
+    const headers = ["Nom OA","Nº RPPS","Titre","Nom Prénom","Mode d'exercice","Statut","Dernière date engagement","Dernière date d'accréditation","Lieu d'exercice","Date de sortie","Motif de la sortie","Précision de la sortie","Motif du renoncement","Precision du renoncement","Activité pluridisciplinaire","Activité pluriprofessionnelle","Mail","Numéro de mobile","Code Finess","Entreprise / établissement / organisation","N° et libellé de voie","Complément d'adresse","Code postal","Numéro CEDEX","Ville","Date prochain bilan","Equipe","Niveau intégration équipe"];
+    const preambule = [
+      ["Nom OA","CFAR"],
+      ["Statut actuel","engagé, accrédité"],
+      ["Demande de renoncement ","non"],
+      [],
+    ];
     const exemples = [
+      ...preambule,
       headers,
-      ["10101234567","DUPONT Marie","Libéral","Engagé","01/09/2025","","Clinique du Parc","marie.dupont@exemple.fr","0612345678","12 rue de la Paix, 75002 Paris","01/09/2026",""],
-      ["10101234568","MARTIN Jean (référent)","Libéral","Accrédité","15/03/2020","10/01/2024","Clinique du Parc","jean.martin@exemple.fr","0612345679","12 rue de la Paix, 75002 Paris","10/01/2025","CFAR-99"],
-      ["10101234569","BERNARD Alice","Salarié","Accrédité","20/06/2021","10/01/2024","Clinique du Parc","alice.bernard@exemple.fr","0612345680","12 rue de la Paix, 75002 Paris","10/01/2025","CFAR-99"],
+      ["CFAR","10101234567","Docteur","DUPONT Marie","Libéral","Engagé","01/09/2025","","Clinique du Parc","","","","","","","","marie.dupont@exemple.fr","0612345678","","","12 rue de la Paix","","75002","","Paris","01/09/2026","",""],
+      ["CFAR","10101234568","Docteur","MARTIN Jean (référent)","Libéral","Accrédité","15/03/2020","10/01/2024","Clinique du Parc","","","","","","","","jean.martin@exemple.fr","0612345679","","","12 rue de la Paix","","75002","","Paris","10/01/2025","CFAR-99",""],
+      ["CFAR","10101234569","Docteur","BERNARD Alice","Salarié","Accrédité","20/06/2021","10/01/2024","Clinique du Parc","","","","","","","","alice.bernard@exemple.fr","0612345680","","","12 rue de la Paix","","75002","","Paris","10/01/2025","CFAR-99",""],
     ];
     const ws = window.XLSX.utils.aoa_to_sheet(exemples);
-    ws["!cols"] = headers.map(()=>({wch:24}));
+    ws["!cols"] = headers.map(()=>({wch:22}));
     window.XLSX.utils.book_append_sheet(wb, ws, "Liste de médecins");
 
     window.XLSX.writeFile(wb, "Modele_import_engages_CFAR.xlsx");
@@ -2033,6 +2095,8 @@ function attachEngagesEvents(){
         const iVille = colIdx("ville");
         const iDateProchainBilan = colIdx("date prochain bilan");
         const iEquipe = colIdx("equipe");
+        const iEtablissement = colIdx("entreprise / etablissement / organisation","entreprise/etablissement/organisation");
+        const iDateSortie = colIdx("date de sortie");
 
         if (iNomPrenom === -1 || iStatut === -1){
           setState({ importEngagesResultMsg: "Fichier non reconnu : colonnes « Nom Prénom » et/ou « Statut » introuvables. Vérifiez qu'il s'agit bien d'un export du module SIAM « Recherche de médecins », ou du modèle fourni." });
@@ -2041,13 +2105,17 @@ function attachEngagesEvents(){
 
         const dataRows = raw.slice(headerRowIdx+1);
         const errors = [];
-        let nbIndiv = 0, nbEquipes = 0, nbMembres = 0, nbIgnoresDoublons = 0;
+        let nbIndiv = 0, nbEquipes = 0, nbMembres = 0, nbIgnoresDoublons = 0, nbIgnoresSorties = 0;
         const rppsExistants = new Set(ENGAGES.filter(e=>e.rpps).map(e=>e.rpps.trim()));
         const equipeIdByCode = {};
 
         dataRows.forEach((r, i)=>{
           const nomPrenomRaw = String(r[iNomPrenom]||"").trim();
           if (!nomPrenomRaw) return;
+          if (iDateSortie!==-1 && String(r[iDateSortie]||"").trim()){
+            nbIgnoresSorties++;
+            return;
+          }
           const rpps = iRpps!==-1 ? String(r[iRpps]||"").trim() : "";
           if (rpps && rppsExistants.has(rpps)){
             nbIgnoresDoublons++;
@@ -2062,7 +2130,7 @@ function attachEngagesEvents(){
           const dateProchainBilan = iDateProchainBilan!==-1 ? parseAnyDate(r[iDateProchainBilan]) : null;
           const equipeCode = iEquipe!==-1 ? String(r[iEquipe]||"").trim() : "";
           const mode = iMode!==-1 ? String(r[iMode]||"").trim() : "";
-          const lieu = iLieu!==-1 ? String(r[iLieu]||"").trim() : "";
+          const lieu = (iLieu!==-1 ? String(r[iLieu]||"").trim() : "") || (iEtablissement!==-1 ? String(r[iEtablissement]||"").trim() : "");
           const mail = iMail!==-1 ? String(r[iMail]||"").trim() : "";
           const mobile = iMobile!==-1 ? String(r[iMobile]||"").trim() : "";
           let adresse = iAdresseUnique!==-1 ? String(r[iAdresseUnique]||"").trim() : "";
@@ -2129,6 +2197,7 @@ function attachEngagesEvents(){
 
         let resultMsg = nbIndiv + " engagé(s) individuel(s), " + nbEquipes + " équipe(s) et " + nbMembres + " membre(s) supplémentaire(s) importés.";
         if (nbIgnoresDoublons) resultMsg += "\n" + nbIgnoresDoublons + " ligne(s) ignorée(s) car déjà présente(s) (même RPPS).";
+        if (nbIgnoresSorties) resultMsg += "\n" + nbIgnoresSorties + " ligne(s) ignorée(s) car « Date de sortie » renseignée (médecin ayant quitté le dispositif).";
         if (errors.length) resultMsg += "\n\n" + errors.length + " ligne(s) en erreur :\n" + errors.join("\n");
         setState({ importEngagesResultMsg: resultMsg });
         if (nbIndiv + nbEquipes + nbMembres > 0) toast("Import terminé — pensez à sauvegarder (⬇️ Exporter .json) pour ne rien perdre.");
@@ -2216,6 +2285,8 @@ function attachEngagesEvents(){
       e.email = document.getElementById("editEmail").value.trim();
       const rppsEl = document.getElementById("editRpps");
       if (rppsEl) e.rpps = rppsEl.value.trim();
+      const qualifsEl = document.getElementById("editQualifs");
+      if (qualifsEl) e.qualifsParticulieres = qualifsEl.value.trim();
       const prenomEl = document.getElementById("editPrenom");
       const nomFamilleEl = document.getElementById("editNomFamille");
       if (prenomEl && nomFamilleEl){
@@ -2367,8 +2438,11 @@ function attachEngagesEvents(){
       const dos = e && (e.dossiersBilan||[]).find(d=>d.id===el.getAttribute("data-recopy-bilan"));
       if (!dos) return;
       if (!dos.appreciation){ toast("Aucune appréciation enregistrée pour ce bilan."); return; }
-      navigator.clipboard && navigator.clipboard.writeText(dos.appreciation).catch(()=>{});
-      toast("Appréciation copiée (prête pour collage dans le SIAM).");
+      const preReq = dos.preReqSnapshot || computeBilanPreReq(e, stagesFor(e).indexOf(dos.etape));
+      const preReqTxt = preReq.map(r=> (r.ok?"✓":"✗") + " " + r.label).join("\n");
+      const text = "Conformité aux pré-requis :\n" + preReqTxt + "\n\nAppréciation de l'expert :\n" + dos.appreciation + "\n\n(Synthèse complète jointe en pièce jointe Word)";
+      navigator.clipboard && navigator.clipboard.writeText(text).catch(()=>{});
+      toast("Synthèse courte (pré-requis + appréciation) copiée (prête pour collage dans le SIAM).");
     };
   });
   document.querySelectorAll("[data-download-bilan]").forEach(el=>{
@@ -2694,6 +2768,26 @@ function getBilanAnnotations(e, year){
   if (!e.bilanAnnotations[key]) e.bilanAnnotations[key] = {};
   return e.bilanAnnotations[key];
 }
+// Activités cochées "à améliorer" par l'expert : distinct de "pour l'engagé" (qui ne fait que
+// joindre les ressources du didacticiel) — ici, l'expert signale explicitement une activité dont
+// la réalisation ou la déclaration doit être reprise l'an prochain, à justifier dans son
+// appréciation libre. Sert de base au message de renvoi vers l'engagé (échange expert ↔ engagé).
+function getBilanAAmeliorer(e, year){
+  if (!e.bilanAAmeliorer) e.bilanAAmeliorer = {};
+  const key = "y"+year;
+  if (!e.bilanAAmeliorer[key]) e.bilanAAmeliorer[key] = {};
+  return e.bilanAAmeliorer[key];
+}
+// Précision de l'expert, activité par activité, sur ce qu'il attend pour la reprise d'une
+// activité cochée "à améliorer" — saisie juste après le contenu SIAM collé (ou importé de
+// l'espace engagé) pour cette même activité, plutôt que noyée dans l'appréciation générale du
+// bilan. Reprise telle quelle dans le message et le retour JSON envoyés à l'engagé.
+function getBilanAAmeliorerJustif(e, year){
+  if (!e.bilanAAmeliorerJustif) e.bilanAAmeliorerJustif = {};
+  const key = "y"+year;
+  if (!e.bilanAAmeliorerJustif[key]) e.bilanAAmeliorerJustif[key] = {};
+  return e.bilanAAmeliorerJustif[key];
+}
 function getBilanAppreciation(e, year){
   if (!e.bilanAppreciations) e.bilanAppreciations = {};
   const key = "y"+year;
@@ -2731,22 +2825,29 @@ function setBilanValidated(e, year, val){
   e.bilanDrafts["y"+year] = Object.assign({}, previous, { validated: val });
 }
 
-// Le message adressé à l'engagé reprend l'appréciation de l'expert au moment où il est généré —
-// si l'expert modifie ensuite son appréciation (ou les activités) sans régénérer ce message, il
-// enverrait par erreur une version périmée (ex. une ancienne demande de complément). On retient
-// donc l'appréciation utilisée, pour pouvoir alerter en cas de décalage avec l'appréciation
-// actuelle.
+// Le message adressé à l'engagé reprend l'appréciation de l'expert, les activités "à améliorer"
+// (+ leur justification) et les suggestions "à travailler l'an prochain" au moment où il est
+// généré — si l'expert modifie ensuite l'un de ces éléments sans régénérer, il enverrait par
+// erreur une version périmée (ex. une ancienne demande de complément, ou une activité qu'il a
+// entre-temps décochée). On retient donc une empreinte de l'ensemble, pour pouvoir alerter en cas
+// de décalage avec l'état actuel.
+function engageMsgFingerprint(e, year){
+  return getBilanAppreciation(e, year)
+    + "||" + JSON.stringify(getBilanAAmeliorer(e, year))
+    + "||" + JSON.stringify(getBilanAAmeliorerJustif(e, year))
+    + "||" + JSON.stringify(getBilanAnnotations(e, year));
+}
 function getEngageMsgSnapshot(e, year){
   if (!e.bilanEngageSnap) e.bilanEngageSnap = {};
   return e.bilanEngageSnap["y"+year];
 }
-function setEngageMsgSnapshot(e, year, appreciationVal){
+function setEngageMsgSnapshot(e, year){
   if (!e.bilanEngageSnap) e.bilanEngageSnap = {};
-  e.bilanEngageSnap["y"+year] = appreciationVal;
+  e.bilanEngageSnap["y"+year] = engageMsgFingerprint(e, year);
 }
 function isEngageMsgStale(e, year){
   const snap = getEngageMsgSnapshot(e, year);
-  return snap !== undefined && snap !== getBilanAppreciation(e, year);
+  return snap !== undefined && snap !== engageMsgFingerprint(e, year);
 }
 
 // Même principe que l'appréciation, mais pour l'ensemble des données du bilan (statuts et
@@ -2756,11 +2857,13 @@ function computeBilanDataFingerprint(e, year){
   const statuts = getBilanStatuts(e, year);
   const contenus = getBilanContenus(e, year);
   const valence = getBilanValence(e, year);
+  const aAmeliorer = getBilanAAmeliorer(e, year);
+  const justif = getBilanAAmeliorerJustif(e, year);
   const parts = [];
   PILIERS.forEach(p=> p.activites.forEach((a,ai)=>{
     const key = p.id+"_"+ai;
     const c = contenus[key];
-    parts.push(key+":"+(statuts[key]||"")+":"+((c&&c.texte)||"").length);
+    parts.push(key+":"+(statuts[key]||"")+":"+((c&&c.texte)||"").length+":"+!!aAmeliorer[key]+":"+((justif&&justif[key])||"").length);
   }));
   parts.push("pluri:"+!!valence.pluridisciplinaire, "prof:"+!!valence.pluriprofessionnelle);
   return parts.join("|");
@@ -2776,6 +2879,61 @@ function setBilanDataSnapshot(e, year){
 function isBilanSynthStale(e, year){
   const snap = getBilanDataSnapshot(e, year);
   return snap !== undefined && snap !== computeBilanDataFingerprint(e, year);
+}
+
+// Conformité d'un pilier : l'activité obligatoire (s'il y en a une) doit être réalisée, ET au
+// moins une activité supplémentaire doit être retenue (« + 1 activité au choix », comme l'indique
+// le champ "req" de chaque pilier) — ou, pour un pilier sans activité obligatoire (Santé du
+// Professionnel, Relation Patient), au moins une activité tout court.
+function computePilierConformite(statuts, p){
+  const obligIdx = p.activites.map((a,i)=> a.obligatoire ? i : -1).filter(i=>i>=0);
+  const obligOk = obligIdx.every(i => statuts[p.id+"_"+i] === "realise");
+  const doneCount = p.activites.filter((a,i)=>{ const v = statuts[p.id+"_"+i]; return v==="realise" || v==="en_cours"; }).length;
+  const minRequired = obligIdx.length > 0 ? obligIdx.length + 1 : 1;
+  return { obligOk, doneCount, minRequired, ok: obligOk && doneCount >= minRequired };
+}
+
+// Les 4 pré-requis HAS (RMM/CREX/REMED, Check-list, Formation Gestion des Risques 12h/4ans, ≥1
+// activité par pilier) + le nombre d'EIAS attendus — calculés une seule fois, et utilisés à la
+// fois pour l'aperçu à l'écran, le document Word et le résumé collé dans le SIAM, afin que les
+// trois ne puissent plus diverger (l'un des points corrigés dans cette version : la Formation
+// Gestion des Risques n'apparaissait, par erreur, que sur l'aperçu à l'écran, jamais dans le Word).
+function computeBilanPreReq(e, year){
+  const statuts = getBilanStatuts(e, year);
+  const attendu = e.type==="equipe" ? eiasAttendus(e.membres.length) : 1;
+  const p1a0 = statuts["p1_0"], p2a0 = statuts["p2_0"], p3a0 = statuts["p3_0"];
+  const pilierConformite = PILIERS.map(p=> ({ pilier:p, c: computePilierConformite(statuts, p) }));
+  const nbPiliersConformes = pilierConformite.filter(x=>x.c.ok).length;
+  return [
+    { key:"rmm", label:"RMM / CREX / REMED réalisée(s)", ok: p1a0==="realise" },
+    { key:"checklist", label:"Check-list sécurité du patient utilisée", ok: p3a0==="realise" },
+    { key:"formation", label:"Formation Gestion des Risques (12h/4ans)", ok: p2a0==="realise" },
+    { key:"eias", label:"EIAS : "+e.eiasRealises+"/"+attendu+" réalisé(s)", ok: e.eiasRealises >= attendu },
+    { key:"activitesPiliers", label:"≥ 1 activité par pilier : "+nbPiliersConformes+"/"+PILIERS.length+" pilier(s) conforme(s)", ok: nbPiliersConformes === PILIERS.length },
+  ];
+}
+
+// Ligne de conclusion, calculée en direct à partir de l'état réel de validation (isBilanValidated)
+// plutôt que figée dans le texte de la synthèse générée : sans cela, la synthèse (texte libre,
+// modifiable, généré une seule fois avant validation) continuait d'afficher "en cours de
+// complétude" même après validation du bilan — contredisant le badge "✓ Bilan validé" affiché
+// juste à côté. Utilisée à la fois par l'aperçu à l'écran et par le document Word, recalculée à
+// chaque affichage/génération pour ne jamais se figer sur un état périmé.
+function bilanConclusionLine(e, year){
+  const dest = isAccreditationStage(e, year) ? "au SIAM et à la HAS" : "au SIAM";
+  return isBilanValidated(e, year)
+    ? "Bilan validé — complet, prêt à être transmis " + dest + "."
+    : "Bilan en cours de complétude — à valider par l'expert avant transmission " + dest + ".";
+}
+
+// Résumé court (pré-requis + appréciation) destiné au collage direct dans le SIAM — la synthèse
+// complète, détaillée (activités par pilier, EIAS de l'année, valence...), n'existe que dans le
+// document Word joint séparément : il est inutile et illisible de tout recopier deux fois.
+function buildSiamAppreciationSummary(e, year){
+  const preReq = computeBilanPreReq(e, year);
+  const preReqTxt = preReq.map(r=> (r.ok?"✓":"✗") + " " + r.label).join("\n");
+  const appreciation = getBilanAppreciation(e, year) || "(aucune appréciation renseignée)";
+  return "Conformité aux pré-requis :\n" + preReqTxt + "\n\nAppréciation de l'expert :\n" + appreciation + "\n\n(Synthèse complète jointe en pièce jointe Word)";
 }
 
 function renderBilan(){
@@ -2801,18 +2959,21 @@ function renderBilan(){
   const yearPills = stagesFor(e).map((s,i)=>`<button class="pill-btn ${year===i?'active':''}" data-year="${i}">${s}</button>`).join("");
 
   const attendu = e.type==="equipe" ? eiasAttendus(e.membres.length) : 1;
-  const rmmOk = Object.values(statuts).some((v,i)=> false); // placeholder, computed below per pillar 1 index0
-  const p1a0 = statuts["p1_0"], p3a0 = statuts["p3_0"];
+  const preReqList = computeBilanPreReq(e, year);
+  const preReqByKey = {}; preReqList.forEach(r=> preReqByKey[r.key] = r);
   const preReqOk = {
-    rmm: p1a0 === "realise",
-    checklist: p3a0 === "realise",
-    formation: true, // demo
-    eias: e.eiasRealises >= attendu,
+    rmm: preReqByKey.rmm.ok,
+    checklist: preReqByKey.checklist.ok,
+    formation: preReqByKey.formation.ok,
+    eias: preReqByKey.eias.ok,
+    activitesPiliers: preReqByKey.activitesPiliers.ok,
   };
 
   const contenus = getBilanContenus(e, year);
   const valence = getBilanValence(e, year);
   const annotations = getBilanAnnotations(e, year);
+  const aAmeliorer = getBilanAAmeliorer(e, year);
+  const justifs = getBilanAAmeliorerJustif(e, year);
   const pilierBlocks = PILIERS.map(p=>{
     const acts = p.activites.map((a,ai)=>{
       const key = p.id+"_"+ai;
@@ -2825,12 +2986,24 @@ function renderBilan(){
           <textarea rows="3" data-contenu="${key}" placeholder="Contenu collé depuis le SIAM…">${escapeHtml(c.texte)}</textarea>
           ${c.simplifie ? `<div class="simplify-preview"><b>Résumé retenu pour la synthèse :</b> ${escapeHtml(c.simplifie)}</div>` : ""}
         </div>` : "";
+      // Champ de précision affiché juste après le contenu SIAM (collé ou importé de l'espace
+      // engagé) dès que l'activité est cochée "à améliorer" : c'est ici, au plus près de ce qui a
+      // été déclaré, que l'expert critique ce qui a été fait et précise ce qu'il attend pour la
+      // reprise — plutôt que noyé dans l'appréciation générale du bilan.
+      const justifBlock = aAmeliorer[key] ? `
+        <div class="activite-detail" style="border-left:3px solid #B33A3A;">
+          <div class="muted-small" style="margin-bottom:6px;">Ce qui doit être repris ou précisé sur cette activité (repris tel quel dans le retour adressé à l'engagé) :</div>
+          <textarea rows="2" data-justif="${key}" placeholder="Ex. : formuler un axe d'amélioration plus concret, joindre le compte-rendu de RMM, préciser le nombre de réunions...">${escapeHtml((justifs&&justifs[key])||"")}</textarea>
+        </div>` : "";
       return `
-      <div class="activite-row">
-        <div class="txt">${a.nom}${a.obligatoire?'<span class="obl-tag">OBLIGATOIRE</span>':''}</div>
+      <div class="activite-row"${aAmeliorer[key] ? ' style="border-left:3px solid #B33A3A; padding-left:8px;"' : ""}>
+        <div class="txt">${a.nom}${a.obligatoire?'<span class="obl-tag">OBLIGATOIRE</span>':''}${aAmeliorer[key]?'<span class="obl-tag" style="background:#B33A3A;">À AMÉLIORER</span>':''}</div>
         <div style="display:flex; align-items:center; gap:10px;">
-          <label class="muted-small" style="display:flex; align-items:center; gap:4px; cursor:pointer;" title="Inclure les attendus/mots-clés/liens du didacticiel pour cette activité dans le message adressé à l'engagé">
-            <input type="checkbox" data-annotate="${key}" ${annotations[key]?"checked":""} /> pour l'engagé
+          <label class="muted-small" style="display:flex; align-items:center; gap:4px; cursor:pointer;" title="Signaler que ce qui a été déclaré pour cette activité doit être repris ou précisé — un champ apparaît ci-dessous pour indiquer quoi ; sera repris dans le message et le retour envoyés à l'engagé, sous « Activités à revoir »">
+            <input type="checkbox" data-toimprove="${key}" ${aAmeliorer[key]?"checked":""} /> à améliorer
+          </label>
+          <label class="muted-small" style="display:flex; align-items:center; gap:4px; cursor:pointer;" title="Proposer cette activité comme piste de travail pour l'année prochaine (avec les attendus/mots-clés/liens du didacticiel) — distinct de « à améliorer », qui porte sur ce qui a déjà été déclaré cette année">
+            <input type="checkbox" data-annotate="${key}" ${annotations[key]?"checked":""} /> à travailler l'an prochain
           </label>
           <a class="linklike" data-toggle-detail="${key}" style="font-size:11.5px;">${isOpen?"▾":"▸"} Contenu SIAM${c.texte?" ✓":""}</a>
           ${(()=>{
@@ -2851,7 +3024,7 @@ function renderBilan(){
           </select>`;
           })()}
         </div>
-      </div>${detail}`;
+      </div>${detail}${justifBlock}`;
     }).join("");
     const doneCount = p.activites.filter((a,ai)=>{ const v = statuts[p.id+"_"+ai]; return v==="realise" || v==="en_cours"; }).length;
     const totalCount = p.activites.length;
@@ -2902,6 +3075,7 @@ function renderBilan(){
         <div style="margin-bottom:6px;"><span class="badge ${preReqOk.checklist?'ok':'warn'}">Check-list utilisée</span></div>
         <div style="margin-bottom:6px;"><span class="badge ${preReqOk.formation?'ok':'warn'}">Formation Gestion des Risques (12h/4ans)</span></div>
         <div style="margin-bottom:6px;"><span class="badge ${preReqOk.eias?'ok':'warn'}">EIAS : ${e.eiasRealises}/${attendu}</span></div>
+        <div style="margin-bottom:6px;"><span class="badge ${preReqOk.activitesPiliers?'ok':'warn'}">${preReqByKey.activitesPiliers.label}</span></div>
       </div>
       <div>
         <div class="section-label">Valence pluridisciplinaire &amp; pluriprofessionnelle</div>
@@ -2917,7 +3091,7 @@ function renderBilan(){
 
     <div class="section-label" style="margin-top:16px;">Appréciation libre de l'expert</div>
     <textarea rows="3" id="bilanAppreciationInput" placeholder="Votre appréciation personnelle sur l'année écoulée, à intégrer dans une synthèse fluide et agréable à lire…">${escapeHtml(getBilanAppreciation(e, year))}</textarea>
-    <div class="muted-small" style="margin:4px 0 0;">Cochez « pour l'engagé » sur les activités pour lesquelles vous voulez renvoyer, dans le message qui lui sera adressé, les attendus/mots-clés/liens du didacticiel (utile pour répondre à une question ou suggérer une activité pour l'année suivante).</div>
+    <div class="muted-small" style="margin:4px 0 0;">Deux cases distinctes sur chaque activité : « à améliorer » signale que ce qui a été déclaré cette année doit être repris — un champ apparaît alors pour préciser quoi ; « à travailler l'an prochain » propose plutôt une piste pour l'année suivante, avec les attendus/mots-clés/liens du didacticiel. Les deux sont reprises séparément dans le message et le retour envoyés à l'engagé.</div>
 
     <div style="margin-top:18px;">
       <button class="btn small" id="genSyntheseBtn">📝 Générer la synthèse</button>
@@ -2949,14 +3123,7 @@ function renderBilanReport(e, year){
   const statuts = getBilanStatuts(e, year);
   const contenus = getBilanContenus(e, year);
   const valence = getBilanValence(e, year);
-  const attendu = e.type==="equipe" ? eiasAttendus(e.membres.length) : 1;
-  const p1a0 = statuts["p1_0"], p3a0 = statuts["p3_0"];
-  const preReq = [
-    { label:"RMM / CREX / REMED réalisée(s)", ok: p1a0==="realise" },
-    { label:"Check-list sécurité du patient utilisée", ok: p3a0==="realise" },
-    { label:"Formation Gestion des Risques (12h/4ans)", ok:true },
-    { label:"EIAS : "+e.eiasRealises+"/"+attendu+" réalisé(s)", ok: e.eiasRealises >= attendu },
-  ];
+  const preReq = computeBilanPreReq(e, year);
   const valenceLignes = [];
   if (valence.pluridisciplinaire) valenceLignes.push("pluridisciplinaire");
   if (valence.pluriprofessionnelle) valenceLignes.push("pluriprofessionnelle");
@@ -2974,7 +3141,6 @@ function renderBilanReport(e, year){
     return `<div class="report-pilier"><div class="pnom">${p.nom}</div>${list}</div>`;
   }).join("");
 
-  const statutLabel = (e.statutBilan==="transmis"||e.statutBilan==="valide") ? "complet" : "en cours de complétude";
 
   return `
   <div class="report-card">
@@ -2982,7 +3148,7 @@ function renderBilanReport(e, year){
       <div>
         <div class="report-eyebrow">CFAR · Accréditation</div>
         <div class="report-title">${stagesFor(e)[year]} — ${e.nom}</div>
-        <div class="report-meta">${e.type==="equipe" ? e.membres.length+" médecins engagés" : "Exercice individuel — "+e.modeExercice} · généré le ${fmtDate(TODAY)}</div>
+        <div class="report-meta">Bilan réalisé en ${e.type==="equipe" ? "équipe ("+e.membres.length+" médecins engagés)" : "individuel"} — mode d'exercice : ${escapeHtml(e.modeExercice||"non précisé")}${e.qualifsParticulieres ? " — qualifications particulières : "+escapeHtml(e.qualifsParticulieres) : ""} · généré le ${fmtDate(TODAY)}</div>
       </div>
     </div>
 
@@ -3000,7 +3166,7 @@ function renderBilanReport(e, year){
 
     <div class="report-section">
       <h4>EIAS de l'année — thèmes déclarés</h4>
-      ${(e.dossiersEias||[]).length ? `<ul>${e.dossiersEias.map(d=>`<li><b>${escapeHtml(d.titre)}</b>${d.motsCles && d.motsCles.length ? " — " + d.motsCles.map(k=>escapeHtml(k)).join(", ") : ""}</li>`).join("")}</ul>` : `<div class="none">Aucune analyse EIAS validée archivée pour l'instant.</div>`}
+      ${(e.dossiersEias||[]).length ? `<ul>${e.dossiersEias.map(d=>`<li><b>${escapeHtml(d.titre)}</b>${d.motsCles && d.motsCles.length ? " — " + d.motsCles.map(k=>escapeHtml(k)).join(", ") : ""}<br/><span style="font-size:12px; color:#667085;">Analysé en RMM/CREX/REMED : ${d.analyseRmm?"Oui":"Non"}${d.axes ? " — Axe d'amélioration retenu : " + escapeHtml(truncateForPrompt(d.axes,160)) : ""}</span></li>`).join("")}</ul>` : `<div class="none">Aucune analyse EIAS validée archivée pour l'instant.</div>`}
     </div>
 
     <div class="report-section">
@@ -3014,18 +3180,22 @@ function renderBilanReport(e, year){
     </div>
 
     <div class="conclusion-box">
-      <b>Conclusion :</b> bilan ${statutLabel} — à valider par l'expert avant transmission au SIAM.
+      <b>Conclusion :</b> ${bilanConclusionLine(e, year)}
     </div>
 
-    <div class="section-label" style="margin-top:18px;">Synthèse (modifiable) — corrigez ou complétez ici avant l'export Word ou l'envoi à l'engagé</div>
+    <div class="badge" style="display:block; margin-top:18px; padding:10px 12px; background:#EEF3FB; border:1px solid #C7D6EC; color:#33475B;">
+      ℹ️ Tout ce qui précède sur cette page (pré-requis, valence, EIAS de l'année, activités par pilier) n'est qu'un <b>aperçu à l'écran</b>, non modifiable ici : il est calculé automatiquement à partir des données saisies plus haut. Il sera reproduit fidèlement dans le document Word téléchargeable ci-dessous, complété par le texte de synthèse et l'appréciation que vous rédigez ci-après. Ce n'est donc <b>pas</b> le document final, et ce n'est pas non plus lui qui est envoyé ou archivé — seul le fichier Word téléchargé (ou envoyé) fait foi.
+    </div>
+
+    <div class="section-label" style="margin-top:18px;">Synthèse rédigée (texte libre, modifiable) — sera insérée dans le document Word, après les éléments ci-dessus</div>
     <textarea rows="9" id="syntheseText">${escapeHtml(STATE.bilanSynthese||"")}</textarea>
     <div class="muted-small" style="margin-top:4px;">Vos modifications sont prises en compte immédiatement dans le document Word téléchargeable, le brouillon enregistré et l'archive — inutile de relancer l'IA après une correction manuelle.</div>
 
     <div class="section-label" style="margin-top:14px;">Message adressé à l'engagé (éditable)</div>
     <textarea rows="6" id="syntheseEngageText">${escapeHtml(STATE.bilanSyntheseEngage||"")}</textarea>
-    <div class="muted-small" style="margin-top:4px;">Les liens du didacticiel (mots-clés cochés « pour l'engagé ») sont ajoutés automatiquement après ce texte lors de l'envoi.</div>
+    <div class="muted-small" style="margin-top:4px;">Deux sections sont ajoutées automatiquement après ce texte lors de l'envoi (mail ou retour JSON), dans cet ordre : « Activités à revoir » (activités « à améliorer », avec votre précision) puis « Propositions de travail pour l'année prochaine » (activités « à travailler l'an prochain », avec les liens du didacticiel).</div>
     <div style="margin-top:6px;"><a class="linklike" id="regenEngageMsgBtn" style="font-size:12.5px;">🔄 Régénérer ce message avec l'appréciation actuelle</a></div>
-    ${isEngageMsgStale(e, year) ? `<div class="badge warn" style="margin-top:8px; display:block; padding:8px 10px;">⚠️ Ce message a été généré avec une appréciation différente de celle actuellement enregistrée — cliquez sur « Régénérer » ci-dessus avant de l'envoyer, sans quoi l'engagé recevra une version périmée (ex. une ancienne demande de complément).</div>` : ""}
+    ${isEngageMsgStale(e, year) ? `<div class="badge warn" style="margin-top:8px; display:block; padding:8px 10px;">⚠️ L'appréciation, les activités « à améliorer » (ou leurs précisions) ou « à travailler l'an prochain » ont changé depuis la génération de ce message — cliquez sur « Régénérer » ci-dessus avant de l'envoyer ou de télécharger le retour JSON, sans quoi l'engagé recevrait une version périmée.</div>` : ""}
 
     <div style="margin-top:14px; background:#FFF8D6; border:2px solid #E8C74A; border-radius:8px; padding:10px 12px;">
       <label style="font-weight:700; color:#8A6D00; font-size:12.8px;">⚠️ N° de bilan (SIAM) — indispensable pour la facturation</label>
@@ -3038,35 +3208,72 @@ function renderBilanReport(e, year){
 
     <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn secondary small" id="saveBilanDraftBtn">💾 Enregistrer le brouillon (sans valider)</button>
-      <button class="btn small" id="copyAppreciationBtn">📋 Copier l'appréciation pour le SIAM</button>
+      <button class="btn small" id="copyAppreciationBtn">📋 Copier la synthèse courte pour le SIAM</button>
       <button class="btn secondary small" id="downloadBilanWordBtn">⬇️ Télécharger la synthèse complète (Word)</button>
       <button class="btn secondary small" id="sendBilanEngageBtn">✉️ Envoyer à l'engagé</button>
+      <button class="btn secondary small" id="downloadRetourExpertBtn">🗂️ Télécharger le retour structuré (JSON)</button>
       ${isBilanValidated(e, year)
         ? `<button class="btn teal" id="archiverBilanBtn">📦 Archiver le bilan</button>`
         : `<button class="btn teal" id="validerBilanBtn">✓ Valider le bilan</button>`}
     </div>
+    <div class="muted-small" style="margin-top:6px;">Le message mail ci-dessus reste utile pour un mot rapide, mais dès qu'il y a plusieurs activités « à améliorer » à faire remonter, préférez le fichier JSON : à charger tel quel dans la section « Retour de mon expert » de son espace engagé (généré via « 📤 Générer l'espace engagé » ci-dessus), qui les mettra en évidence une à une avec vos justifications. Volontairement non chiffré : il ne reprend que ce que vous savez déjà de cet engagé.</div>
   </div>`;
 }
 
 function bilanWordHtml(e, year, syntheseText, appreciation){
-  const attendu = e.type==="equipe" ? eiasAttendus(e.membres.length) : 1;
   const statuts = getBilanStatuts(e, year);
-  const p1a0 = statuts["p1_0"], p3a0 = statuts["p3_0"];
-  const preReq = [
-    { label:"RMM / CREX / REMED réalisée(s)", ok: p1a0==="realise" },
-    { label:"Check-list sécurité du patient utilisée", ok: p3a0==="realise" },
-    { label:"EIAS : "+e.eiasRealises+"/"+attendu+" réalisé(s)", ok: e.eiasRealises >= attendu },
-  ];
+  const contenus = getBilanContenus(e, year);
+  const valence = getBilanValence(e, year);
+  const preReq = computeBilanPreReq(e, year);
+
+  const valenceLignes = [];
+  if (valence.pluridisciplinaire) valenceLignes.push("pluridisciplinaire");
+  if (valence.pluriprofessionnelle) valenceLignes.push("pluriprofessionnelle");
+  const valenceTxt = valenceLignes.length ? "Valence(s) retenue(s) : " + valenceLignes.join(" et ") + "." : "Aucune valence pluridisciplinaire ou pluriprofessionnelle retenue à ce stade.";
+
+  const pilierRows = PILIERS.map(p=>{
+    const items = p.activites.map((a,ai)=>({a, key:p.id+"_"+ai})).filter(o=> statuts[o.key]==="realise" || statuts[o.key]==="en_cours");
+    const list = items.length
+      ? items.map(o=>{
+          const c = contenus[o.key];
+          const label = escapeHtml(o.a.nom.replace(" (OBLIGATOIRE)",""));
+          const detail = c && (c.simplifie || c.texte) ? " — " + escapeHtml(truncateForPrompt(c.simplifie || c.texte)) : "";
+          return "<li style='margin-bottom:4px;'>" + label + detail + "</li>";
+        }).join("")
+      : "<li style='color:#8894A3;'>aucune activité complémentaire retenue à ce stade</li>";
+    return `<p style="font-size:11pt; font-weight:bold; color:#2E5B8A; margin:10px 0 2px;">${escapeHtml(p.nom)}</p><ul style="margin:0 0 6px; font-size:10.5pt;">${list}</ul>`;
+  }).join("");
+
+  const eiasRows = (e.dossiersEias||[]).length
+    ? "<ul>" + e.dossiersEias.map(d=>{
+        const kw = d.motsCles && d.motsCles.length ? " — " + escapeHtml(d.motsCles.join(", ")) : "";
+        const axe = d.axes ? "<br/><span style='font-size:10pt; color:#556070;'>Axe d'amélioration retenu : " + escapeHtml(truncateForPrompt(d.axes,220)) + "</span>" : "";
+        return `<li style="margin-bottom:6px;"><b>${escapeHtml(d.titre)}</b>${kw}<br/><span style="font-size:10pt; color:#556070;">Analysé en RMM/CREX/REMED : ${d.analyseRmm?"Oui":"Non"}</span>${axe}</li>`;
+      }).join("") + "</ul>"
+    : "<p style='color:#8894A3; font-size:10.5pt;'>Aucune analyse EIAS validée archivée pour l'instant.</p>";
 
   return `
   <h1 style="color:#1F3864; font-size:20pt; border-bottom:3px solid #1F3864; padding-bottom:10px; margin-bottom:4px;">${escapeHtml(stagesFor(e)[year])}</h1>
   <p style="color:#1F3864; font-size:14pt; font-weight:bold; margin:6px 0 2px;">${escapeHtml(e.nom)}</p>
-  <p style="color:#8894A3; font-size:10pt; margin:0 0 26px;">CFAR · Accréditation — ${escapeHtml(e.type==="equipe" ? e.membres.length+" médecins engagés" : "Exercice individuel — "+e.modeExercice)} · généré le ${fmtDate(TODAY)} par ${escapeHtml(STATE.currentExpert.name)}</p>
+  <p style="color:#8894A3; font-size:10pt; margin:0 0 6px;">CFAR · Accréditation — généré le ${fmtDate(TODAY)} par ${escapeHtml(STATE.currentExpert.name)}</p>
+
+  <table style="width:100%; border-collapse:collapse; margin:10px 0 26px; font-size:11pt;">
+    <tr><td style="padding:3px 0; width:230px;"><b>Bilan réalisé en :</b></td><td>${e.type==="equipe" ? "Équipe ("+e.membres.length+" médecins engagés)" : "Individuel"}</td></tr>
+    <tr><td style="padding:3px 0;"><b>Mode d'exercice :</b></td><td>${escapeHtml(e.modeExercice||"non précisé")}</td></tr>
+    ${e.qualifsParticulieres ? `<tr><td style="padding:3px 0;"><b>Qualifications particulières :</b></td><td>${escapeHtml(e.qualifsParticulieres)}</td></tr>` : ""}
+    <tr><td style="padding:3px 0;"><b>Valence pluridisciplinaire / pluriprofessionnelle :</b></td><td>${escapeHtml(valenceTxt)}</td></tr>
+  </table>
 
   <h2 style="color:#2E5B8A; font-size:14pt; margin:0 0 12px;">Conformité aux pré-requis</h2>
   <table style="width:100%; border-collapse:collapse; margin-bottom:28px;">
-    ${preReq.map(r=>`<tr><td style="padding:5px 0; font-size:11pt;"><span style="color:${r.ok?'#2F7D5A':'#9A6400'}; font-weight:bold;">${r.ok?'✓':'!'}</span>&nbsp;&nbsp;${r.label}</td></tr>`).join("")}
+    ${preReq.map(r=>`<tr><td style="padding:5px 0; font-size:11pt;"><span style="color:${r.ok?'#2F7D5A':'#9A6400'}; font-weight:bold;">${r.ok?'✓':'!'}</span>&nbsp;&nbsp;${escapeHtml(r.label)}</td></tr>`).join("")}
   </table>
+
+  <h2 style="color:#2E5B8A; font-size:14pt; margin:0 0 12px;">EIAS de l'année — thèmes déclarés</h2>
+  <div style="margin-bottom:24px;">${eiasRows}</div>
+
+  <h2 style="color:#2E5B8A; font-size:14pt; margin:0 0 8px;">Activités par pilier</h2>
+  <div style="margin-bottom:24px;">${pilierRows}</div>
 
   <h2 style="color:#2E5B8A; font-size:14pt; margin:0 0 14px;">Synthèse</h2>
   <p style="font-size:11.5pt; line-height:1.6; margin:0 0 28px;">${escapeHtml(syntheseText||"").replace(/\n/g,"<br/>")}</p>
@@ -3075,7 +3282,9 @@ function bilanWordHtml(e, year, syntheseText, appreciation){
   <div style="background:#E4F4F1; border-left:4px solid #0E7C6E; padding:14px 18px; margin-top:10px; page-break-inside:avoid;">
     <h2 style="color:#0E7C6E; font-size:13pt; margin:0 0 8px;">Appréciation de l'expert</h2>
     <p style="font-size:11.5pt; line-height:1.6; margin:0;">${escapeHtml(appreciation||"Aucune appréciation renseignée.").replace(/\n/g,"<br/>")}</p>
-  </div>`;
+  </div>
+
+  <p style="font-size:11pt; margin-top:18px;"><b>Conclusion :</b> ${escapeHtml(bilanConclusionLine(e, year))}</p>`;
 }
 
 function attachBilanEvents(){
@@ -3125,6 +3334,19 @@ function attachBilanEvents(){
       getBilanAnnotations(e, STATE.bilanYear || 0)[cb.getAttribute("data-annotate")] = cb.checked;
     };
   });
+  document.querySelectorAll("[data-toimprove]").forEach(cb=>{
+    cb.onchange = ()=>{
+      const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
+      getBilanAAmeliorer(e, STATE.bilanYear || 0)[cb.getAttribute("data-toimprove")] = cb.checked;
+      render();
+    };
+  });
+  document.querySelectorAll("[data-justif]").forEach(ta=>{
+    ta.onblur = ()=>{
+      const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
+      getBilanAAmeliorerJustif(e, STATE.bilanYear || 0)[ta.getAttribute("data-justif")] = ta.value;
+    };
+  });
   const appreciationInput = document.getElementById("bilanAppreciationInput");
   if (appreciationInput) appreciationInput.onblur = ()=>{
     const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
@@ -3162,9 +3384,12 @@ ${valenceTxt}
 Thèmes des EIAS de l'année : ${themesEias}
 
 Activités par pilier :
-${lignes}
-
-Conclusion : bilan ${STATE.selectedEngageId && (ENGAGES.find(x=>x.id===STATE.selectedEngageId).statutBilan==="transmis"||ENGAGES.find(x=>x.id===STATE.selectedEngageId).statutBilan==="valide") ? "complet" : "en cours de complétude"} — [à valider par l'expert avant transmission au SIAM]`;
+${lignes}`;
+    // La ligne de conclusion ("bilan complet" / "en cours de complétude") n'est volontairement
+    // plus intégrée ici : générée une seule fois, elle se figeait dans ce texte libre et pouvait
+    // ensuite contredire le badge de validation si le bilan était validé après coup sans
+    // régénération. Elle est désormais calculée en direct (bilanConclusionLine) à l'affichage et
+    // au moment du téléchargement du document Word, jamais figée dans la synthèse elle-même.
   }
   function deterministicBilanAccreditationSynth(e, year){
     const facts = buildBilanFactsAccreditation(e, year);
@@ -3183,14 +3408,19 @@ EIAS sur la période : ${facts.eiasSurLaPeriode}
 Thèmes des EIAS : ${themesEias}
 
 Activités par pilier sur les 3 années précédentes :
-${lignes}
-
-Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periodeCouverte.join(", ")} — [à valider par l'expert avant transmission au SIAM et à la HAS]`;
+${lignes}`;
+    // Même remarque que pour deterministicBilanSynth : la ligne de conclusion n'est plus figée
+    // ici (elle mentionnait toujours "à valider", même après validation) — voir bilanConclusionLine.
   }
   function deterministicEngageMessage(e, year, appreciation){
+    const nbAAmeliorer = Object.values(getBilanAAmeliorer(e, year)).filter(Boolean).length;
+    const nbSuggestions = Object.values(getBilanAnnotations(e, year)).filter(Boolean).length;
     return "Bonjour,\n\nVoici le bilan de votre année " + stagesFor(e)[year] + ". " +
       (appreciation ? appreciation + "\n\n" : "") +
-      "Vous trouverez ci-dessous quelques ressources utiles en fonction des points abordés.\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
+      (nbAAmeliorer ? "Certaines activités doivent être reprises ou précisées — voir la section « Activités à revoir » ci-dessous.\n\n" : "") +
+      (nbSuggestions ? "Vous trouverez aussi quelques pistes de travail pour l'année prochaine — voir « Propositions de travail pour l'année prochaine » ci-dessous.\n\n" : "") +
+      "Important : une fois vos éventuelles corrections apportées, pensez impérativement à recopier vous-même vos réponses (activités et le cas échéant vos corrections) dans le SIAM — ce message ne s'y substitue pas.\n\n" +
+      "Cordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
   }
 
   const genBtn = document.getElementById("genSyntheseBtn");
@@ -3205,7 +3435,7 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
     const syntheseEngage = deterministicEngageMessage(e, year, getBilanAppreciation(e, year));
     setState({ bilanSynthese: syntheseSiam, bilanSyntheseEngage: syntheseEngage });
     setBilanDraft(e, year, syntheseSiam, syntheseEngage);
-    setEngageMsgSnapshot(e, year, getBilanAppreciation(e, year));
+    setEngageMsgSnapshot(e, year);
     setBilanDataSnapshot(e, year);
     toast("Synthèse générée à partir des données saisies — modifiable ci-dessous.");
   };
@@ -3225,7 +3455,7 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
     const siam = document.getElementById("syntheseText") ? document.getElementById("syntheseText").value : (STATE.bilanSynthese || "");
     setState({ bilanSyntheseEngage: syntheseEngage });
     setBilanDraft(e, year, siam, syntheseEngage);
-    setEngageMsgSnapshot(e, year, getBilanAppreciation(e, year));
+    setEngageMsgSnapshot(e, year);
     toast("Message à l'engagé régénéré avec l'appréciation actuelle.");
   };
 
@@ -3242,6 +3472,16 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
     const facts = isAccreditation ? buildBilanFactsAccreditation(e, year) : buildBilanFacts(e, year);
     const { system, userContent } = buildBilanPrompt(facts, activitesEngage, isAccreditation);
     const fullPrompt = system + "\n\n---\n\n" + userContent;
+    // Même contrôle qu'en EIAS : avant la copie du prompt (donc avant toute transmission à une
+    // IA externe), pas seulement à la validation finale.
+    const preHits = scanForIdentifiers(userContent);
+    if (preHits.length){
+      const proceed = window.confirm(
+        "Éléments potentiellement identifiants détectés dans le contenu collé depuis le SIAM (avant copie du prompt) :\n\n- " + preHits.join("\n- ") +
+        "\n\nCe texte est sur le point d'être copié pour être transmis à une IA de votre choix. Ceci est un contrôle basique par mots-clés, pas une garantie d'anonymisation complète — vérifiez et corrigez les contenus d'activités si besoin.\n\nCopier quand même le prompt ?"
+      );
+      if (!proceed) return;
+    }
     if (navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(fullPrompt).then(()=>{ toast("Prompt copié dans le presse-papiers."); }).catch(()=>{
         toast("Copie automatique indisponible ici — utilisez le bouton « Sélectionner tout » ci-dessous.");
@@ -3273,7 +3513,7 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
       if (!syntheseSiam && !syntheseEngage) throw new Error("le JSON ne contient ni \"syntheseSiam\" ni \"syntheseEngage\"");
       setState({ bilanSynthese: syntheseSiam, bilanSyntheseEngage: syntheseEngage, showBilanPaste:false });
       setBilanDraft(e, year, syntheseSiam, syntheseEngage);
-      setEngageMsgSnapshot(e, year, getBilanAppreciation(e, year));
+      setEngageMsgSnapshot(e, year);
       setBilanDataSnapshot(e, year);
       toast("Réponse chargée — vous pouvez maintenant relire et modifier ci-dessous.");
     }catch(err){
@@ -3312,10 +3552,10 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
   if (copyAppreciationBtn) copyAppreciationBtn.onclick = ()=>{
     const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
     const year = STATE.bilanYear || 0;
-    const text = getBilanAppreciation(e, year);
-    if (!text){ toast("Aucune appréciation renseignée pour l'instant."); return; }
+    if (!getBilanAppreciation(e, year)){ toast("Aucune appréciation renseignée pour l'instant."); return; }
+    const text = buildSiamAppreciationSummary(e, year);
     navigator.clipboard && navigator.clipboard.writeText(text).catch(()=>{});
-    toast("Appréciation copiée — prête pour collage dans le SIAM.");
+    toast("Synthèse courte (pré-requis + appréciation) copiée — prête pour collage dans le SIAM. La synthèse complète est à joindre séparément (⬇️ Word).");
   };
 
   const downloadBilanWordBtn = document.getElementById("downloadBilanWordBtn");
@@ -3397,12 +3637,33 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
       if (!proceed) return;
     }
     const bodyMain = document.getElementById("syntheseEngageText").value;
-    const snippet = buildDidacticielSnippetForBilan(e, year);
+    const snippet = buildAmeliorerSnippetForBilan(e, year) + buildDidacticielSnippetForBilan(e, year);
     const subject = "Votre bilan — " + stagesFor(e)[year] + " — Accréditation des Médecins";
     const body = bodyMain + snippet + "\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
     if (!resolveMailRecipient(e)) toast("Astuce : renseignez l'adresse mail de l'engagé (ou du référent d'équipe) pour préremplir le destinataire.");
     window.open(buildMailUrl(resolveMailRecipient(e), subject, body), "_blank");
     toast("Mail ouvert — pensez à joindre manuellement la synthèse Word téléchargée (un lien mailto ne peut pas joindre de fichier automatiquement).");
+  };
+
+  const downloadRetourExpertBtn = document.getElementById("downloadRetourExpertBtn");
+  if (downloadRetourExpertBtn) downloadRetourExpertBtn.onclick = ()=>{
+    const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
+    const year = STATE.bilanYear || 0;
+    if (isEngageMsgStale(e, year)){
+      const proceed = window.confirm("Ce retour serait généré avec une appréciation différente de celle actuellement enregistrée — l'engagé risque de recevoir une version périmée.\n\nTélécharger quand même sans régénérer ?");
+      if (!proceed) return;
+    }
+    const data = buildRetourExpertJson(e, year);
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:"application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "Retour_Expert_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,50) + "_" + data.yearKey + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast("Retour structuré (JSON) téléchargé — à charger dans la section « Retour de mon expert » de l'espace engagé de " + e.nom + " (ou à joindre à un mail). Non chiffré : il ne contient que ce que vous savez déjà de votre engagé.");
   };
 
   const validerBtn = document.getElementById("validerBilanBtn");
@@ -3437,6 +3698,7 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
     if (!ok) return;
     if (!e.dossiersBilan) e.dossiersBilan = [];
     const annotations = getBilanAnnotations(e, year);
+    const aAmeliorer = getBilanAAmeliorer(e, year);
     e.dossiersBilan.push({
       id: "bilan_"+Date.now()+Math.floor(Math.random()*1000),
       etape: stagesFor(e)[year],
@@ -3445,6 +3707,18 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
       syntheseEngage: document.getElementById("syntheseEngageText").value,
       appreciation: getBilanAppreciation(e, year),
       activitesEngage: Object.keys(annotations).filter(k=>annotations[k]),
+      preReqSnapshot: computeBilanPreReq(e, year).map(r=>({ label:r.label, ok:r.ok })),
+      // Archive complète, activité par activité (statuts, contenus, valence, "à améliorer") —
+      // garantit que chaque activité déclarée cette année-là reste consultable pendant les 4 ans
+      // du cycle même après la remise à zéro qui suit le bilan d'accréditation (voir plus bas).
+      activitesSnapshot: {
+        statuts: JSON.parse(JSON.stringify(getBilanStatuts(e, year))),
+        contenus: JSON.parse(JSON.stringify(getBilanContenus(e, year))),
+        valence: JSON.parse(JSON.stringify(getBilanValence(e, year))),
+        aAmeliorer: JSON.parse(JSON.stringify(aAmeliorer)),
+        aAmeliorerJustif: JSON.parse(JSON.stringify(getBilanAAmeliorerJustif(e, year))),
+      },
+      eiasRealisesAuMomentDeLarchivage: e.eiasRealises || 0,
     });
     if (numeroBilan){
       const nbMembres = e.type==="equipe" ? e.membres.length : 1;
@@ -3457,9 +3731,20 @@ Conclusion : bilan d'accréditation compilant les bilans annuels ${facts.periode
         accepte:true, nbMembres,
       });
     }
-    applyEngageAction(e, "valide");
+    const wrapped = applyEngageAction(e, "valide");
     if (e.bilanDrafts) delete e.bilanDrafts["y"+year];
-    toast(numeroBilan ? "Bilan archivé et ajouté à la facturation." : "Bilan archivé — non facturé (aucun N° de bilan renseigné).");
+    if (wrapped){
+      // Le bilan d'accréditation qui vient d'être archivé clôt le cycle de 4 ans : chaque
+      // activité de ce cycle reste consultable pour toujours dans "Bilans archivés" ci-dessus
+      // (activitesSnapshot), mais les données de travail (statuts, contenus, appréciations,
+      // brouillons...) repartent de zéro pour le nouveau cycle — sans cette remise à zéro, le
+      // "Bilan Annuel 1" du nouveau cycle réutiliserait par erreur les données de l'ancien
+      // "Bilan Annuel 1" (les deux partagent le même index d'année en interne).
+      resetBilanCycleWorkingData(e);
+      toast((numeroBilan ? "Bilan d'accréditation archivé et ajouté à la facturation. " : "Bilan d'accréditation archivé — non facturé. ") + "Nouveau cycle de 4 ans entamé : les données de travail ont été remises à zéro (l'historique complet reste consultable dans « Bilans archivés »).", 9000);
+    } else {
+      toast(numeroBilan ? "Bilan archivé et ajouté à la facturation." : "Bilan archivé — non facturé (aucun N° de bilan renseigné).");
+    }
     setState({ bilanSynthese:null, bilanSyntheseEngage:null });
   };
 
@@ -3655,6 +3940,10 @@ function renderEias(){
     <div class="section-label">7. Axes d'amélioration</div>
     <textarea rows="3" id="casAxes" placeholder="Propositions concrètes de l'engagé…">${STATE.eiasInputs.axes || ""}</textarea>
 
+    <label style="display:flex; align-items:center; gap:6px; font-size:12.8px; margin-top:12px;">
+      <input type="checkbox" id="casAnalyseRmm" ${STATE.eiasInputs.analyseRmm?"checked":""} /> Cet EIAS a été (ou sera) analysé en RMM/CREX/REMED
+    </label>
+
     <div class="muted-small" style="margin-top:6px;">Rédigez l'analyse contradictoire vous-même selon le référentiel HAS et la méthode ALARM, ou copiez le prompt pour le soumettre à l'IA de votre choix puis collez sa réponse ci-dessous. Rien n'est transmis à un tiers par cette application, et rien n'est transmis à la base commune tant que l'expert n'a pas validé.</div>
     <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn" id="manualDraftBtn">✎ Analyse de l'expert</button>
@@ -3704,7 +3993,7 @@ function collectEiasFullText(d, cr){
 }
 
 function defaultEiasInputs(){
-  return { titre:"", recit:"", comment:"", pourquoi:"", barrieresEfficaces:"", barrieresInefficaces:"", axes:"" };
+  return { titre:"", recit:"", comment:"", pourquoi:"", barrieresEfficaces:"", barrieresInefficaces:"", axes:"", analyseRmm:false };
 }
 
 // Si un cas a déjà été validé une première fois (comptée/facturée), et que l'expert régénère
@@ -3804,6 +4093,26 @@ ${d.confrontationLitterature ? "Confrontation à la littérature : " + d.confron
 Mots-clés (base commune) : ${kw}`;
 }
 
+// Résumé court (~10 lignes) destiné au collage direct dans le champ "analyse" du SIAM — le
+// compte-rendu complet, lui, est joint séparément en pièce jointe Word : il est donc inutile
+// (et illisible) de recopier deux fois l'intégralité de l'analyse dans le SIAM.
+function eiasSiamSummary(d, cr){
+  cr = cr || {};
+  const kw = (d.motsCles||[]).join(", ") || "—";
+  const lignes = [
+    d.titre || "(sans titre)",
+    "",
+    truncateForPrompt(d.description||"", 240),
+    "Cause immédiate : " + truncateForPrompt(d.causeImmediate||"", 160),
+    "Analysé en RMM/CREX/REMED : " + (d.analyseRmm ? "Oui" : "Non"),
+    "Axes d'amélioration : " + truncateForPrompt(d.axes||"", 220),
+  ];
+  if (cr.pointsAmeliorer) lignes.push("Complément de l'expert : " + truncateForPrompt(cr.pointsAmeliorer, 200));
+  lignes.push("Mots-clés : " + kw);
+  lignes.push("(Compte-rendu complet joint en pièce jointe Word)");
+  return lignes.filter(l=> l !== null && l !== undefined).join("\n");
+}
+
 // Mail didactique vers l'engagé après validation : reprend la critique (points forts /
 // points à compléter / complément de l'expert) — l'intérêt pédagogique de l'analyse
 // contradictoire — puis la synthèse telle que versée au SIAM, sans le jargon "base commune".
@@ -3834,7 +4143,7 @@ function renderEiasReportCard(d, cr){
       <div>
         <div class="report-eyebrow">CFAR · Analyse EIAS — méthode ALARM</div>
         <div class="report-title">${escapeHtml(d.titre||"(sans titre)")}</div>
-        <div class="report-meta">Validé le ${fmtDate(TODAY)} par ${escapeHtml(STATE.currentExpert.name)}${d.numeroSiam ? " — N° EIAS (SIAM) : "+escapeHtml(d.numeroSiam) : ""}</div>
+        <div class="report-meta">Validé le ${fmtDate(TODAY)} par ${escapeHtml(STATE.currentExpert.name)}${d.numeroSiam ? " — N° EIAS (SIAM) : "+escapeHtml(d.numeroSiam) : ""} — Analysé en RMM/CREX/REMED : ${d.analyseRmm ? "Oui" : "Non"}</div>
       </div>
     </div>
 
@@ -3858,10 +4167,11 @@ function renderEiasReportCard(d, cr){
 
     <div class="report-section"><h4>Mots-clés (destinés à la base commune)</h4><div>${kw}</div></div>
 
-    <div class="section-label" style="margin-top:18px;">Version texte (éditable, pour collage SIAM)</div>
+    <div class="section-label" style="margin-top:18px;">Version texte complète (éditable, pour le document Word)</div>
     <textarea rows="8" id="eiasSyntheseText">${eiasPlainText(d, cr)}</textarea>
+    <div class="muted-small" style="margin:6px 0;">« Copier pour le SIAM » ne copie pas ce texte complet mais un résumé d'une dizaine de lignes (titre, cause, axes, mots-clés) : le compte-rendu complet ci-dessus est destiné au document Word, à joindre en pièce jointe dans le SIAM — inutile de tout recopier deux fois.</div>
     <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-      <button class="btn small" id="copyEiasSiamBtn">Copier pour le SIAM</button>
+      <button class="btn small" id="copyEiasSiamBtn">📋 Copier le résumé pour le SIAM</button>
       <button class="btn secondary small" id="downloadWordBtn">⬇️ Word (.doc)</button>
       <button class="btn secondary small" id="sendEiasEngageBtn">✉️ Envoyer le compte-rendu à l'engagé (didactique)</button>
       <a class="linklike" id="unlockEiasBtn" style="margin-left:auto; align-self:center;">✎ Modifier à nouveau</a>
@@ -3944,7 +4254,7 @@ function eiasWordHtml(d, cr){
   const p = (t)=> `<p style="margin:0 0 10px;">${escapeHtml(t||"").replace(/\n/g,"<br/>")}</p>`;
   return `
   <h1 style="color:#1F3864; font-size:18pt; border-bottom:2px solid #1F3864; padding-bottom:8px;">${escapeHtml(d.titre||"(sans titre)")}</h1>
-  <p style="color:#667085; font-size:10pt;">CFAR · Accréditation — Analyse EIAS (méthode ALARM) — validé le ${fmtDate(TODAY)} par ${escapeHtml(STATE.currentExpert.name)}</p>
+  <p style="color:#667085; font-size:10pt;">CFAR · Accréditation — Analyse EIAS (méthode ALARM) — validé le ${fmtDate(TODAY)} par ${escapeHtml(STATE.currentExpert.name)} — Analysé en RMM/CREX/REMED : ${d.analyseRmm ? "Oui" : "Non"}</p>
   <h3 style="color:#2E5B8A;">1. Description</h3>${p(d.description)}
   <h3 style="color:#2E5B8A;">2. Comment ça s'est passé ? (cause immédiate)</h3>${p(d.causeImmediate)}
   <h3 style="color:#2E5B8A;">3. Pourquoi ça s'est passé ? (causes profondes — grille ALARM)</h3>${p(d.causesProfondes)}
@@ -3976,6 +4286,8 @@ function attachEiasEvents(){
     const el = document.getElementById(id);
     if (el) el.onblur = ()=>{ STATE.eiasInputs[fieldMap[id]] = el.value; };
   });
+  const casAnalyseRmm = document.getElementById("casAnalyseRmm");
+  if (casAnalyseRmm) casAnalyseRmm.onchange = ()=>{ STATE.eiasInputs.analyseRmm = casAnalyseRmm.checked; if (STATE.eiasDraft) STATE.eiasDraft.synthese.analyseRmm = casAnalyseRmm.checked; };
 
   const copyPromptBtn = document.getElementById("copyPromptBtn");
   if (copyPromptBtn) copyPromptBtn.onclick = ()=>{
@@ -3988,6 +4300,17 @@ function attachEiasEvents(){
       barrieresInefficaces: (document.getElementById("casBarrieresInefficaces").value||"").trim(),
       axes: (document.getElementById("casAxes").value||"").trim(),
     };
+    // Contrôle réalisé ICI, avant toute transmission à une IA externe — et non plus seulement
+    // au moment de la validation finale, ce qui serait trop tard (le texte aurait déjà quitté
+    // l'application via le copier-coller du prompt).
+    const preHits = scanForIdentifiers(Object.values(inputs).join("\n"));
+    if (preHits.length){
+      const proceed = window.confirm(
+        "Éléments potentiellement identifiants détectés dans le texte déclaratif (avant copie du prompt) :\n\n- " + preHits.join("\n- ") +
+        "\n\nCe texte est sur le point d'être copié pour être transmis à une IA de votre choix. Ceci est un contrôle basique par mots-clés, pas une garantie d'anonymisation complète — vérifiez et corrigez le texte ci-dessus si besoin.\n\nCopier quand même le prompt ?"
+      );
+      if (!proceed) return;
+    }
     const { system, userContent } = buildEiasPrompt(inputs);
     const fullPrompt = system + "\n\n---\n\n" + userContent;
     let copiedOk = false;
@@ -4118,6 +4441,7 @@ function attachEiasEvents(){
       const el = document.getElementById(id);
       if (el) STATE.eiasDraft.synthese[ids[id]] = el.value;
     });
+    STATE.eiasDraft.synthese.analyseRmm = !!STATE.eiasInputs.analyseRmm;
     const crIds = { f_pointsForts:"pointsForts", f_pointsAmeliorer:"pointsAmeliorer", f_complementExpert:"complementExpert" };
     Object.keys(crIds).forEach(id=>{
       const el = document.getElementById(id);
@@ -4149,6 +4473,8 @@ function attachEiasEvents(){
             synthese: JSON.parse(JSON.stringify(d)),
             critique: JSON.parse(JSON.stringify(cr)),
             motsCles: (d.motsCles || []).slice(),
+            analyseRmm: !!d.analyseRmm,
+            axes: d.axes || "",
             date: TODAY.toISOString().slice(0,10),
           });
           const facturationId = "f"+Date.now()+Math.floor(Math.random()*1000);
@@ -4173,6 +4499,8 @@ function attachEiasEvents(){
             dossier.synthese = JSON.parse(JSON.stringify(d));
             dossier.critique = JSON.parse(JSON.stringify(cr));
             dossier.motsCles = (d.motsCles || []).slice();
+            dossier.analyseRmm = !!d.analyseRmm;
+            dossier.axes = d.axes || "";
           }
           const ligne = FACTURATION.find(x=>x.id===STATE.eiasDraft._facturationId);
           if (ligne){
@@ -4199,9 +4527,10 @@ function attachEiasEvents(){
 
   const copyEiasSiamBtn = document.getElementById("copyEiasSiamBtn");
   if (copyEiasSiamBtn) copyEiasSiamBtn.onclick = ()=>{
-    const text = document.getElementById("eiasSyntheseText").value;
+    const d = STATE.eiasDraft.synthese, cr = STATE.eiasDraft.critique;
+    const text = eiasSiamSummary(d, cr);
     navigator.clipboard && navigator.clipboard.writeText(text).catch(()=>{});
-    toast("Synthèse copiée (prête pour collage dans le SIAM).");
+    toast("Résumé (~10 lignes) copié — prêt pour collage dans le SIAM. Le compte-rendu complet est à joindre séparément (⬇️ Word).");
   };
 
   const sendEiasEngageBtn = document.getElementById("sendEiasEngageBtn");
@@ -4523,6 +4852,85 @@ function computeUnknownKeywords(motscles){
 // cliquable ("cliquez ici"). En revanche, la quasi-totalité des messageries transforment
 // automatiquement une URL complète en lien cliquable à l'affichage — on inclut donc les URL
 // telles quelles, ce qui reste fonctionnel pour le destinataire.
+// Section "Activités à revoir" du message renvoyé à l'engagé : reprend les activités cochées
+// "à améliorer" par l'expert — c'est une critique de ce qui a été déclaré cette année, avec la
+// précision saisie juste sous le contenu SIAM de l'activité (voir data-justif) ; strictement
+// distinct des suggestions "à travailler l'an prochain" (buildDidacticielSnippetForBilan), qui ne
+// portent pas de jugement sur l'année écoulée mais proposent des pistes pour la suivante.
+function buildAmeliorerSnippetForBilan(e, year){
+  const aAmeliorer = getBilanAAmeliorer(e, year);
+  const justifs = getBilanAAmeliorerJustif(e, year);
+  const keys = Object.keys(aAmeliorer).filter(k=>aAmeliorer[k]);
+  if (!keys.length) return "";
+  const lines = [];
+  PILIERS.forEach(p=> p.activites.forEach((a,ai)=>{
+    const key = p.id+"_"+ai;
+    if (!aAmeliorer[key]) return;
+    const nom = a.nom.replace(" (OBLIGATOIRE)","");
+    lines.push("• " + nom);
+    const justif = (justifs && justifs[key]) ? justifs[key] : "";
+    lines.push("   → " + (justif || "à revoir (voir mon appréciation ci-dessus pour le détail)"));
+  }));
+  return "\n\nActivités à revoir — ce qui a été déclaré cette année doit être repris ou précisé :\n" + lines.join("\n");
+}
+
+// Retour structuré expert → engagé, au format JSON : reprend le principe déjà utilisé pour la
+// "Mise à jour du référentiel" (un fichier à charger tel quel dans l'espace engagé) plutôt qu'un
+// simple message texte, qui devient vite illisible dès qu'il y a plusieurs dizaines d'items à
+// faire remonter (statuts, activités à améliorer, appréciation, pré-requis). Volontairement non
+// chiffré, comme l'espace engagé lui-même : il ne contient que ce que l'expert sait déjà de son
+// engagé (rien qui ne lui ait pas déjà été communiqué par ailleurs).
+function buildRetourExpertJson(e, year){
+  const stages = stagesFor(e);
+  const aAmeliorer = getBilanAAmeliorer(e, year);
+  const justifs = getBilanAAmeliorerJustif(e, year);
+  const annotations = getBilanAnnotations(e, year);
+  const preReq = computeBilanPreReq(e, year);
+  // Deux listes bien distinctes, à ne jamais fusionner : "activitesAAmeliorer" est une critique de
+  // ce qui a été déclaré cette année (avec la précision de l'expert) ; "suggestionsAnneeSuivante"
+  // ne porte aucun jugement sur l'année écoulée et ne fait que proposer des pistes de travail pour
+  // la suivante (avec les ressources du didacticiel).
+  const activitesAAmeliorer = [];
+  const suggestionsAnneeSuivante = [];
+  PILIERS.forEach(p=> p.activites.forEach((a,ai)=>{
+    const key = p.id+"_"+ai;
+    const nom = a.nom.replace(" (OBLIGATOIRE)","");
+    if (aAmeliorer[key]){
+      activitesAAmeliorer.push({
+        key,
+        pilier: p.nom,
+        nom,
+        justification: (justifs && justifs[key]) || "",
+      });
+    }
+    if (annotations[key]){
+      suggestionsAnneeSuivante.push({
+        key,
+        pilier: p.nom,
+        nom,
+        attendus: a.attendus || "",
+        exemple: a.exemple || "",
+      });
+    }
+  }));
+  return {
+    kind: "retour_expert_bilan",
+    yearKey: "y"+year,
+    etape: stages[year],
+    engageNom: e.nom,
+    appreciation: getBilanAppreciation(e, year),
+    preReq: preReq.map(r=>({ label:r.label, ok:r.ok })),
+    activitesAAmeliorer,
+    suggestionsAnneeSuivante,
+    genereLe: TODAY.toISOString().slice(0,10),
+    generePar: STATE.currentExpert.name,
+  };
+}
+
+// Section "Propositions de travail pour l'année prochaine" : activités cochées "à travailler
+// l'an prochain" (case autrefois nommée "pour l'engagé") — une suggestion, pas une critique de
+// l'année écoulée, d'où les attendus/exemple/liens du didacticiel pour aider l'engagé à s'y
+// projeter, à ne pas confondre avec la section "Activités à revoir" ci-dessus.
 function buildDidacticielSnippetForBilan(e, year){
   const annotations = getBilanAnnotations(e, year);
   const lines = [];
@@ -4539,7 +4947,7 @@ function buildDidacticielSnippetForBilan(e, year){
       }
     });
   }));
-  return lines.length ? "\n\nPour aller plus loin sur les points abordés cette année :\n" + lines.join("\n") : "";
+  return lines.length ? "\n\nPropositions de travail pour l'année prochaine :\n" + lines.join("\n") : "";
 }
 
 // Même principe que buildDidacticielSnippetForBilan, mais pour une sélection libre d'activités
@@ -5290,6 +5698,9 @@ function buildEspaceEngageHtml(e, year){
     frise: { stages: friseStages, todayPct: todayPct, currentIndex: year },
     piliers: piliersData,
     reponses: reponses,
+    // Rempli plus tard, en local dans le navigateur de l'engagé, lorsqu'il charge le fichier
+    // "Retour de mon expert" (JSON) généré depuis l'onglet Bilan — voir eeDoRetourExpertUpdate.
+    retourExpert: {},
     generePar: STATE.currentExpert.name,
     genereLe: TODAY.toISOString().slice(0,10),
   };
@@ -5359,6 +5770,11 @@ body{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-
 .ee-activite-row.ee-highlight{ background:#FFF8E8; transition:background .3s ease; }
 .ee-prerequis{ background:var(--warn-bg); border-color:var(--warn-border); }
 .ee-prerequis-list{ margin:0 0 10px; padding-left:20px; font-size:13.5px; line-height:1.7; }
+.ee-retour-expert{ background:#FBEAEA; border-color:#f0c6c6; }
+.ee-activite-row.ee-retour-flag{ background:#FBEAEA; border-left:4px solid #B33A3A; padding-left:14px; }
+.ee-retour-tag{ background:#B33A3A; color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; margin-left:6px; }
+.ee-activite-row.ee-suggestion-flag{ background:#EAF7F4; border-left:4px solid #0E7C6E; padding-left:14px; }
+.ee-suggestion-tag{ background:#0E7C6E; color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; margin-left:6px; }
 </style></head>
 <body><div id="root"></div>
 <script>
@@ -5421,6 +5837,14 @@ function eeRender(){
   html += "<div id='eeRefMsg' class='ee-muted' style='margin-top:8px;'></div>";
   html += "</div>";
 
+  html += "<div class='ee-card'>";
+  html += "<div class='ee-section-label'>Retour de mon expert</div>";
+  html += "<p class='ee-muted'>Après avoir examiné votre bilan, votre expert peut vous envoyer un fichier « Retour_Expert_....json » : chargez-le ici pour voir directement son appréciation et les activités qu’il vous demande de reprendre, mises en évidence ci-dessous.</p>";
+  html += "<input type='file' id='eeRetourFile' accept='.json,application/json' />";
+  html += "<button class='ee-btn-secondary' id='eeRetourUpdateBtn'>Charger le retour</button>";
+  html += "<div id='eeRetourMsg' class='ee-muted' style='margin-top:8px;'></div>";
+  html += "</div>";
+
   html += eeRenderFrise();
 
   if (EE_DATA.years.length > 1){
@@ -5433,6 +5857,40 @@ function eeRender(){
   }
 
   var yearData = EE_DATA.reponses[EE_STATE.activeYear] || {};
+  var retour = EE_DATA.retourExpert[EE_STATE.activeYear];
+  // Deux listes bien distinctes, jamais fusionnées : "à revoir" est une critique de ce qui a été
+  // déclaré cette année (avec la précision de l'expert), "suggestions" ne porte aucun jugement sur
+  // l'année écoulée et ne fait que proposer des pistes pour la suivante.
+  var revoirKeys = {};
+  var suggestionKeys = {};
+  if (retour){
+    html += "<div class='ee-card ee-retour-expert'>";
+    html += "<div class='ee-section-label'>Retour de mon expert — " + eeEscapeHtml(retour.etape || "") + " (reçu le " + eeEscapeHtml(retour.genereLe || "") + ")</div>";
+    if (retour.appreciation){
+      html += "<p style='white-space:pre-wrap; font-size:13.5px; margin:0 0 10px;'>" + eeEscapeHtml(retour.appreciation) + "</p>";
+    }
+    if (retour.activitesAAmeliorer && retour.activitesAAmeliorer.length){
+      html += "<div class='ee-muted' style='margin-bottom:6px;'><b>Activités à revoir</b> — ce qui a été déclaré cette année doit être repris ou précisé (également signalées ci-dessous) :</div>";
+      html += "<ul class='ee-prerequis-list'>";
+      retour.activitesAAmeliorer.forEach(function(a){
+        revoirKeys[a.key] = true;
+        html += "<li><b>" + eeEscapeHtml(a.nom) + "</b> — " + eeEscapeHtml(a.pilier) + (a.justification ? " : " + eeEscapeHtml(a.justification) : "") + "</li>";
+      });
+      html += "</ul>";
+    } else {
+      html += "<p class='ee-muted' style='margin:0 0 10px;'>Aucune activité signalée à revoir pour cette étape.</p>";
+    }
+    if (retour.suggestionsAnneeSuivante && retour.suggestionsAnneeSuivante.length){
+      html += "<div class='ee-muted' style='margin-bottom:6px;'><b>Propositions de travail pour l'année prochaine</b> (également signalées ci-dessous) :</div>";
+      html += "<ul class='ee-prerequis-list'>";
+      retour.suggestionsAnneeSuivante.forEach(function(a){
+        suggestionKeys[a.key] = true;
+        html += "<li><b>" + eeEscapeHtml(a.nom) + "</b> — " + eeEscapeHtml(a.pilier) + (a.attendus ? " (" + eeEscapeHtml(a.attendus) + ")" : "") + "</li>";
+      });
+      html += "</ul>";
+    }
+    html += "</div>";
+  }
   html += "<div class='ee-reset-row'><a href='#' id='eeResetBtn' class='ee-linklike'>Vider mes réponses pour cette année</a></div>";
 
   EE_DATA.piliers.forEach(function(p){
@@ -5441,8 +5899,9 @@ function eeRender(){
     p.activites.forEach(function(a, ai){
       var key = p.id + "_" + ai;
       var rep = yearData[key] || { texte:"", realise:false };
-      html += "<div class='ee-activite-row' id='act-" + key + "'>";
-      html += "<label class='ee-activite-check'><input type='checkbox' data-check='" + key + "' " + (rep.realise ? "checked" : "") + " /> <b>" + eeEscapeHtml(a.nom) + "</b>" + (a.obligatoire ? " <span class='ee-obl-tag'>OBLIGATOIRE</span>" : "") + "</label>";
+      var rowCls = "ee-activite-row" + (revoirKeys[key] ? " ee-retour-flag" : suggestionKeys[key] ? " ee-suggestion-flag" : "");
+      html += "<div class='" + rowCls + "' id='act-" + key + "'>";
+      html += "<label class='ee-activite-check'><input type='checkbox' data-check='" + key + "' " + (rep.realise ? "checked" : "") + " /> <b>" + eeEscapeHtml(a.nom) + "</b>" + (a.obligatoire ? " <span class='ee-obl-tag'>OBLIGATOIRE</span>" : "") + (revoirKeys[key] ? " <span class='ee-retour-tag'>À REVOIR</span>" : suggestionKeys[key] ? " <span class='ee-suggestion-tag'>PROPOSÉ POUR L'AN PROCHAIN</span>" : "") + "</label>";
       if (a.attendus) html += "<div class='ee-muted'>Attendu : " + eeEscapeHtml(a.attendus) + "</div>";
       if (a.exemple) html += "<div class='ee-exemple'>Exemple : " + eeEscapeHtml(a.exemple) + "</div>";
       if (a.ressources && a.ressources.length){
@@ -5539,6 +5998,8 @@ function eeAttachEvents(){
   if (exportBtn) exportBtn.onclick = function(){ eeDoExport(); };
   var refBtn = document.getElementById("eeRefUpdateBtn");
   if (refBtn) refBtn.onclick = function(){ eeDoRefUpdate(); };
+  var retourBtn = document.getElementById("eeRetourUpdateBtn");
+  if (retourBtn) retourBtn.onclick = function(){ eeDoRetourExpertUpdate(); };
   var searchInput = document.getElementById("eeSearchInput");
   if (searchInput) searchInput.oninput = function(){ eeDoSearch(searchInput.value); };
   document.querySelectorAll("[data-toggle-liens]").forEach(function(chip){
@@ -5643,6 +6104,37 @@ function eeDoRefUpdate(){
       eeRender();
       var newMsg = document.getElementById("eeRefMsg");
       if (newMsg) newMsg.textContent = "Référentiel mis à jour (" + updated + " pilier(s), avec leurs ressources) — vos réponses déjà saisies sont conservées.";
+    }catch(err){
+      msg.textContent = "Fichier non reconnu : " + err.message;
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Charge le fichier "Retour_Expert_....json" (non chiffré, cf. commentaire de buildRetourExpertJson
+// côté Kit CFAR) envoyé par l'expert après examen du bilan : appréciation + activités signalées
+// "à reprendre", mises en évidence dans la liste ci-dessous pour l'année concernée. Comme pour la
+// mise à jour du référentiel, ceci ne touche jamais EE_DATA.reponses : rien de ce que l'engagé a
+// déjà saisi n'est perdu.
+function eeDoRetourExpertUpdate(){
+  var fileInput = document.getElementById("eeRetourFile");
+  var msg = document.getElementById("eeRetourMsg");
+  var file = fileInput.files && fileInput.files[0];
+  if (!file){ msg.textContent = "Choisissez d’abord le fichier reçu de votre expert."; return; }
+  var reader = new FileReader();
+  reader.onload = function(){
+    try{
+      var data = JSON.parse(reader.result);
+      if (!data || data.kind !== "retour_expert_bilan" || !data.yearKey){
+        throw new Error("ce fichier ne ressemble pas à un retour d’expert reconnu");
+      }
+      EE_DATA.retourExpert[data.yearKey] = data;
+      if (EE_DATA.years.some(function(y){ return y.key === data.yearKey; })){
+        EE_STATE.activeYear = data.yearKey;
+      }
+      eeRender();
+      var newMsg = document.getElementById("eeRetourMsg");
+      if (newMsg) newMsg.textContent = "Retour de votre expert chargé pour « " + (data.etape || data.yearKey) + " ».";
     }catch(err){
       msg.textContent = "Fichier non reconnu : " + err.message;
     }
