@@ -4777,7 +4777,14 @@ function sanitizeJsonText(raw){
   t = t.replace(/[\u00A0\u202F]/g, " ");
 
   // Échappe les retours à la ligne / tabulations bruts, mais seulement à l'intérieur
-  // d'une chaîne JSON (sinon on casserait la structure de l'objet).
+  // d'une chaîne JSON (sinon on casserait la structure de l'objet). Répare aussi la cause la
+  // plus fréquente d'échec de lecture, bien avant les guillemets français « » (qui, eux, sont de
+  // simples caractères sans incidence sur la structure JSON, où qu'ils apparaissent dans une
+  // valeur) : un guillemet DROIT employé par l'IA À L'INTÉRIEUR d'un texte pour citer un terme
+  // (ex. l'IA écrit "Never Events" sans l'échapper), que JSON.parse interprète à tort comme la
+  // fin de la valeur. On ne referme donc une chaîne sur un guillemet que si ce qui suit (après un
+  // éventuel espace) ressemble réellement à la suite d'un JSON valide — une virgule, un
+  // deux-points, une accolade/crochet fermant, ou la fin du texte ; sinon, on l'échappe.
   let out = "";
   let inString = false;
   let escaped = false;
@@ -4786,7 +4793,15 @@ function sanitizeJsonText(raw){
     if (inString){
       if (escaped){ out += ch; escaped = false; continue; }
       if (ch === "\\"){ out += ch; escaped = true; continue; }
-      if (ch === '"'){ out += ch; inString = false; continue; }
+      if (ch === '"'){
+        let j = i + 1;
+        while (j < t.length && /\s/.test(t[j])) j++;
+        const next = t[j];
+        const looksLikeRealEnd = next === undefined || ",}]:".indexOf(next) !== -1;
+        if (looksLikeRealEnd){ out += ch; inString = false; }
+        else { out += '\\"'; }
+        continue;
+      }
       if (ch === "\n"){ out += "\\n"; continue; }
       if (ch === "\r"){ continue; }
       if (ch === "\t"){ out += "\\t"; continue; }
