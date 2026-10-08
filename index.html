@@ -430,6 +430,78 @@ let STATUT_BILAN_META = {"a_faire":{"label":"À faire","color":"#5B6472","bg":"#
 let MAIL_TEMPLATES = {"valide":{"label":"Bilan validé","subject":"Validation de votre bilan — Accréditation des Médecins","body":"Bonjour,\n\nJe vous confirme la validation de votre bilan qui permet la poursuite de votre parcours dans l'Accréditation des Médecins. Je vous félicite et vous remercie de votre confiance. Je reste à votre disposition pour toute question durant l'année à venir.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"complement_demande":{"label":"Complément demandé","subject":"Votre bilan nécessite un complément — Accréditation des Médecins","body":"Bonjour,\n\nJ'ai bien pris connaissance de votre bilan dans le cadre de votre parcours dans l'Accréditation des Médecins. Il apparaît que certains pré-requis indispensables ne sont pas remplis, il ne m'est donc pas possible de valider votre bilan en l'état. Votre bilan est de nouveau disponible sur le SIAM pour que vous puissiez le compléter et le renvoyer à l'OA-CFAR. Je reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"information_contradictoire":{"label":"Information contradictoire","subject":"Information contradictoire — Accréditation des Médecins","body":"Bonjour,\n\nVotre bilan dans le cadre de votre parcours dans l'Accréditation des Médecins présente un retard important (> 90 jours) et/ou ne répond pas aux pré-requis du programme de notre spécialité malgré les compléments qui vous ont été demandés. Je suis contraint par la HAS d'avancer dans la procédure en déclenchant une information contradictoire. Vous devez adresser à l'OA-CFAR votre bilan dans un délai de 3 semaines, avant qu'un avis défavorable ne soit émis.\n\nVous pouvez également, si vous souhaitez faire une pause dans votre Accréditation, mettre en place une procédure de renoncement. Cette procédure amiable vous permettra un ré-engagement facilité quand vous le jugerez possible (sans publication sur le site de la HAS).\n\nJe reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"avis_defavorable":{"label":"Avis défavorable (mise en demeure)","subject":"Avis défavorable — Accréditation des Médecins","body":"Bonjour,\n\nVotre bilan, dans le cadre de votre parcours dans l'Accréditation des Médecins, ne progresse pas favorablement malgré nos relances et en particulier l'information contradictoire qui vous a été adressée il y a 3 semaines. Nous sommes contraints par la HAS de prononcer un avis défavorable qui donnera lieu à une mise en demeure. Il vous reste désormais 3 mois pour mettre votre dossier en conformité, faute de quoi un avis défavorable définitif prononcera votre sortie de l'Accréditation des Médecins.\n\nVous pouvez également, si vous souhaitez faire une pause dans votre Accréditation, mettre en place une procédure de renoncement. Cette procédure amiable vous permettra un ré-engagement facilité quand vous le jugerez possible (sans publication sur le site de la HAS).\n\nJe reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"avis_defavorable_definitif":{"label":"Avis défavorable définitif (retrait)","subject":"Avis défavorable définitif — Accréditation des Médecins","body":"Bonjour,\n\nLa HAS nous impose, malheureusement, de prononcer un avis défavorable définitif sur votre bilan dans le cadre de votre parcours dans l'Accréditation des Médecins. Malgré un long processus et la possibilité d'un renoncement amiable, vous n'avez pas donné suite à nos propositions d'aide ; dès lors cet avis définitif vaut pour retrait de l'Accréditation des Médecins.\n\nJe reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"sortie_non_demande":{"label":"Sortie pour non-demande (>18 mois)","subject":"Sortie du dispositif — Accréditation des Médecins","body":"Bonjour,\n\nVous n'avez pas donné suite à votre démarche d'Accréditation des Médecins depuis plus de 18 mois. De fait, la HAS va prononcer une mesure de retrait pour non-demande d'Accréditation. Vous gardez la possibilité de vous ré-engager si vous le souhaitez.\n\nJe reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"bilan_vide":{"label":"Bilan vide (grossesse / longue maladie)","subject":"Bilan vide justifié — Accréditation des Médecins","body":"Bonjour,\n\nCompte tenu de votre situation et de votre volonté de reprendre dès que possible votre parcours dans l'Accréditation des Médecins, je demande un délai de tolérance à la HAS. Dans ce sens, un bilan vide a été déclenché. Je reste à votre disposition pour toute question et vous remercie de me tenir informé de l'évolution de votre situation.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"renoncement":{"label":"Renoncement de l'engagé","subject":"Renoncement à l'Accréditation des Médecins","body":"Bonjour,\n\nJ'ai bien pris connaissance de votre volonté de renoncer à votre parcours dans l'Accréditation des Médecins. Cette procédure amiable vous permettra de vous ré-engager si vous le souhaitez et ne donnera pas lieu à publication sur le site de la HAS. Je vous souhaite le meilleur pour la suite et vous remercie de votre confiance durant ces années d'accompagnement, de collaboration et d'échanges.\n\nJe reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"retraite":{"label":"Retraite de l'engagé","subject":"Sortie du dispositif pour départ à la retraite","body":"Bonjour,\n\nJ'ai bien pris connaissance de votre sortie du parcours de l'Accréditation des Médecins au motif de votre départ à la retraite. Je me charge d'informer la HAS de votre situation ; dans ce cadre, ne vous étonnez pas qu'un bilan défavorable soit émis pour clôturer votre dossier.\n\nJe vous souhaite une retraite épanouie et vous remercie de votre confiance durant ces années de collaboration.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"eias_retour":{"label":"Retour didactique sur un EIAS (à l'engagé)","subject":"Retour sur votre analyse d'EIAS — {{titre}}","body":"Bonjour,\n\nSuite à votre déclaration d'EIAS, voici mon retour à visée didactique, dans l'esprit de l'analyse contradictoire prévue par le référentiel HAS :\n\n{{critique}}\n\nVous trouverez ci-dessous la synthèse telle que versée au SIAM :\n\n{{synthese}}\n\nJe reste à votre disposition pour en échanger de vive voix si vous le souhaitez.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"}};
 /*__MAILTPL_END__*/
 
+// Courriers modifiables par l'administrateur (Didacticiel → ✉️ Modèles de courriers). Chaque
+// modèle utilise des {{variables}} remplacées à l'envoi. Les valeurs d'origine ci-dessous servent
+// (1) de modèle tant que l'administrateur n'a rien changé et (2) au bouton « Rétablir le modèle
+// d'origine ». Elles sont volontairement HORS du bloc MAILTPL ci-dessus, qui est réécrit par
+// l'export de l'application.
+const COURRIERS_DEFAUT = {
+  bilan_engage: {
+    label: "Bilan — message à l'engagé",
+    subject: "Votre bilan — {{etape}} — Accréditation des Médecins",
+    body: "Bonjour,\n\nVoici le bilan de votre année {{etape}}.\n\n{{appreciation}}\n\nImportant : une fois vos éventuelles corrections apportées, pensez impérativement à recopier vous-même vos réponses (activités et le cas échéant vos corrections) dans le SIAM — ce message ne s'y substitue pas.\n\n{{activites_a_revoir}}\n\n{{propositions}}\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
+    vars: { etape:"étape du bilan", engage:"nom de l'engagé", appreciation:"appréciation libre de l'expert", activites_a_revoir:"liste « Activités à revoir » (avec vos précisions)", propositions:"liste « Propositions de travail pour l'année prochaine »", expert:"votre nom" },
+    note: "Point de départ du message généré dans l'onglet Bilan (« Générer la synthèse »), que vous pouvez toujours retoucher engagé par engagé avant envoi. À l'envoi, les deux listes (à revoir / propositions) sont ajoutées en fin de message si elles n'y figurent pas."
+  },
+  retour_json: {
+    label: "Bilan — envoi du retour structuré (JSON)",
+    subject: "Retour sur votre bilan — {{etape}} — Accréditation des Médecins",
+    body: "Bonjour,\n\nVous trouverez en pièce jointe le retour de votre expert sur votre bilan ({{etape}}) : fichier « Retour_Expert_….json ».\n\nPour le consulter : rouvrez votre espace engagé (le fichier HTML reçu précédemment) et chargez ce fichier dans la carte « Retour de mon expert », sous votre frise. Les activités à revoir apparaîtront en rouge, les propositions pour l'année prochaine en vert, avec mon appréciation. Vos réponses déjà saisies sont conservées.\n\nPensez ensuite à recopier vous-même vos réponses corrigées dans le SIAM.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
+    vars: { etape:"étape du bilan", engage:"nom de l'engagé", expert:"votre nom" },
+    note: "Mail ouvert par le bouton « Ouvrir un mail pour lui envoyer le fichier » après le téléchargement du retour structuré."
+  },
+  point_frise: {
+    label: "Point sur le parcours (frise)",
+    subject: "Point sur votre parcours d'Accréditation",
+    body: "Bonjour,\n\nJe reviens vers vous pour faire un point sur votre parcours d'Accréditation{{statut}}. {{frise}}\n\nN'hésitez pas à revenir vers moi si vous avez des questions.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
+    vars: { engage:"nom de l'engagé", statut:"« (statut actuel : …) » si un statut existe", frise:"phrase sur la frise jointe (image copiée ou fichier à joindre)", expert:"votre nom" },
+    note: "Envoyé depuis la fiche d'un engagé (envoi de la frise)."
+  },
+  point_trimestriel: {
+    label: "Point trimestriel (rappel)",
+    subject: "Point trimestriel — Accréditation CFAR",
+    body: "Bonjour,\n\nUn petit point sur votre parcours d'accréditation.\n\n{{activites}}\n\nN'hésitez pas à me contacter pour en discuter.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
+    vars: { engage:"nom de l'engagé", activites:"activités suggérées (ou phrase « rien de particulier »)", expert:"votre nom" },
+    note: "Envoyé depuis le rappel trimestriel (🔔)."
+  },
+  ressources_didacticiel: {
+    label: "Ressources du didacticiel",
+    subject: "Ressources du didacticiel — Accréditation CFAR",
+    body: "Bonjour,\n\nSuite à votre question, voici quelques ressources qui devraient vous être utiles :\n{{ressources}}\n\nN'hésitez pas à revenir vers moi si vous avez besoin de précisions complémentaires.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
+    vars: { engage:"nom de l'engagé", ressources:"activités et liens sélectionnés", expert:"votre nom" },
+    note: "Envoyé depuis l'onglet Didacticiel (envoi de la sélection à un engagé)."
+  },
+  eias_retour: {
+    label: "Retour didactique sur un EIAS (à l'engagé)",
+    subject: "Retour sur votre analyse d'EIAS — {{titre}}",
+    body: "Bonjour,\n\nSuite à votre déclaration d'EIAS, voici mon retour à visée didactique, dans l'esprit de l'analyse contradictoire prévue par le référentiel HAS :\n\n{{critique}}\n\nVous trouverez ci-dessous la synthèse telle que versée au SIAM :\n\n{{synthese}}\n\nJe reste à votre disposition pour en échanger de vive voix si vous le souhaitez.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
+    vars: { titre:"titre de l'EIAS", critique:"points forts / à approfondir / complément de l'expert", synthese:"synthèse telle que versée au SIAM", engage:"nom de l'engagé", expert:"votre nom" },
+    note: "Envoyé après validation d'une analyse EIAS."
+  },
+  espace_engage_intro: {
+    label: "Espace engagé — texte d'accueil",
+    subject: "",
+    body: "Bonjour, votre expert vous invite à compléter ci-dessous les activités que vous avez réalisées, à l’aide des attendus, exemples et ressources du didacticiel. Une fois terminé, exportez votre réponse (bouton en bas de page) et renvoyez le fichier généré à votre expert.",
+    vars: { engage:"nom de l'engagé", etape:"étape du bilan", expert:"votre nom" },
+    note: "Texte affiché en haut de l'espace engagé généré (ce n'est pas un mail) ; s'applique aux prochains espaces générés."
+  }
+};
+// Compléter MAIL_TEMPLATES avec les modèles absents (application exportée avant leur ajout).
+Object.keys(COURRIERS_DEFAUT).forEach(function(k){
+  if (!MAIL_TEMPLATES[k]) MAIL_TEMPLATES[k] = { label:COURRIERS_DEFAUT[k].label, subject:COURRIERS_DEFAUT[k].subject, body:COURRIERS_DEFAUT[k].body };
+});
+// Remplit un modèle : {{variable}} → valeur ; variable inconnue laissée telle quelle (faute de
+// frappe visible) ; lignes vides multiples réduites quand une variable est vide.
+function renderCourrier(key, vars){
+  const tpl = MAIL_TEMPLATES[key] || COURRIERS_DEFAUT[key] || { subject:"", body:"" };
+  const fill = (str)=> String(str||"").replace(/\{\{(\w+)\}\}/g, (m,n)=> (vars && vars[n] !== undefined && vars[n] !== null) ? String(vars[n]) : m);
+  return {
+    subject: fill(tpl.subject),
+    body: fill(tpl.body).replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim()
+  };
+}
+
+
 const PILIER_COLORS = {
   p1: { text:"#C0392B", bg:"#FBEAEA" },   // Sécurité des Patients — rouge/alerte
   p2: { text:"#2E5B8A", bg:"#E9F0F9" },   // Pratiques professionnelles — bleu
@@ -683,6 +755,8 @@ let STATE = {
   showFacturationInfoEdit:false,
   showTarifsEdit:false,
   editingMailTemplate:null,
+  showCourriersEdit:false,
+  editingCourrier:null,
 };
 
 const ANONYMISATION_PARA1 = `Je m'engage personnellement à respecter l'anonymisation de tout élément, retranscrit, copié ou rédigé, dans le Kit CFAR, tant dans les EIAS que dans les bilans.`;
@@ -797,6 +871,8 @@ function renderModeEmploiModal(){
           <br/><br/>
           Pour chaque activité : cochez son statut, collez ou lisez le contenu, puis <i>« 📝 Générer la synthèse »</i> produit un texte structuré instantanément, sans appel à un service extérieur. Pour une synthèse rédigée par une IA, copiez le prompt fourni et soumettez-le à l'outil de votre choix, puis collez sa réponse — l'application ne transmet elle-même aucune donnée à un tiers. <b>Un contrôle basique des éléments identifiants est effectué au moment même où vous copiez le prompt</b> (pas seulement à la validation), pour éviter de transmettre un texte non anonymisé à une IA externe.
           <br/><br/>
+          Juste avant votre appréciation libre, un champ <i>« Résumé du bilan de l'année et activités à développer pour le prochain bilan »</i> reprend l'équivalent du champ du SIAM « Résumé du bilan de votre année » (points positifs, points à améliorer, et pistes pour le bilan suivant). Collez-y le texte du SIAM, ou laissez-le se remplir automatiquement lorsque vous importez la réponse de l'engagé depuis l'espace engagé (voir plus bas) — votre appréciation peut alors s'en nourrir. Ce résumé est repris dans la synthèse (générée par IA ou non) et figure dans une section dédiée du document Word, juste avant l'appréciation de l'expert.
+          <br/><br/>
           Sur chaque activité, deux cases bien distinctes, à ne pas confondre :
           <ul style="margin:6px 0 0; padding-left:20px;">
             <li><i>« à améliorer »</i> — une <b>critique</b> de ce qui a été déclaré <b>cette année</b> : dès que cochée, un champ apparaît juste après le contenu SIAM collé (ou importé de l'espace engagé) pour préciser ce qui doit être repris — c'est là, et non plus dans l'appréciation générale, que l'expert écrit sa précision.</li>
@@ -810,6 +886,8 @@ function renderModeEmploiModal(){
           Dans les deux cas, pensez au rappel de recopier les corrections dans le SIAM une fois celles-ci apportées. Le Didacticiel (onglet séparé) reste, lui, réservé à un envoi ponctuel — à la demande de l'engagé ou lors d'un contact trimestriel — indépendamment du bilan.
           <br/><br/>
           Une fois satisfait : <i>« ✓ Valider le bilan »</i> (relisez, corrigez, copiez ou envoyez autant de fois que nécessaire), puis <i>« 📦 Archiver le bilan »</i> après avoir renseigné le numéro du bilan (indispensable pour la facturation) — cette dernière étape est définitive. La synthèse courte (pré-requis + appréciation) est à recopier dans le SIAM ; la synthèse complète, détaillée, n'existe que dans le document Word à joindre en pièce jointe.
+          <br/><br/>
+          <b>Antériorité sur le bilan d'accréditation.</b> Le suivi porte sur 4 ans : à l'ouverture d'un bilan d'accréditation, les activités déjà réalisées ou en cours lors des 3 bilans annuels précédents sont reprises, <i style="color:#5B4B8A;">en italique violet</i> avec un repère « ANTÉRIORITÉ » et le contenu déclaré à l'époque. Elles comptent dans les pré-requis, les jauges par pilier, la synthèse et le Word (où elles restent signalées en italique violet) ; les EIAS sont cumulés sur la période. Le sélecteur de statut de chaque activité ne concerne que l'année d'accréditation en cours (une activité « en cours » dans le passé n'est pas considérée comme réalisée). Les compteurs repartent à zéro après l'archivage du bilan d'accréditation, pour le Bilan Annuel 1 du cycle suivant.
           <br/><br/>
           <b>Archivage garanti sur les 4 ans du cycle.</b> Chaque bilan archivé conserve pour toujours (consultable dans « Bilans archivés ») le détail complet de l'année : statuts, contenus, valence et activités « à améliorer » de chaque pilier, ainsi que le nombre d'EIAS réalisés à cette date. Lorsque le bilan archivé est un <b>bilan d'accréditation</b> (fin d'un cycle de 4 ans), l'application le détecte automatiquement et remet à zéro les données de travail (activités, contenus, appréciations, brouillons, compteur EIAS) pour repartir sur un cycle neuf — sans jamais toucher à l'historique déjà archivé. Un message à l'écran confirme ce passage à un nouveau cycle.
         `)}
@@ -825,7 +903,9 @@ function renderModeEmploiModal(){
         ${section("📬 Espace Engagé — faire remplir l'engagé lui-même", `
           Depuis un bilan, <i>« 📤 Générer l'espace engagé »</i> produit un fichier autonome, personnalisé pour cet engagé : sa frise, l'intitulé de chaque activité selon l'architecture des 5 piliers du SIAM, les attendus reformulés simplement, un exemple concret, et des mots-clés menant vers des ressources (bibliographie, vidéos...). Une recherche par mot-clé en tête de document l'aide à trouver la bonne case même s'il ne sait pas où classer une activité.
           <br/><br/>
-          L'engagé remplit, puis vous renvoie un fichier chiffré (protégé par un code qu'il choisit et vous communique séparément, par téléphone par exemple). Vous l'importez dans son bilan, corrigez si besoin, et pouvez lui renvoyer une version mise à jour autant de fois que nécessaire.
+          En bas de ce même fichier, un champ <i>« Résumé du bilan de votre année et activités à développer pour le prochain bilan »</i> permet à l'engagé (ou au référent d'équipe) de rédiger lui-même, comme dans le SIAM, ses points positifs, points à améliorer et pistes pour le bilan suivant.
+          <br/><br/>
+          L'engagé remplit, puis vous renvoie un fichier chiffré (protégé par un code qu'il choisit et vous communique séparément, par téléphone par exemple). Vous l'importez dans son bilan — ce qui remplit automatiquement le champ « Résumé du bilan » du bilan avec son texte —, corrigez si besoin, et pouvez lui renvoyer une version mise à jour autant de fois que nécessaire.
           <br/><br/>
           <b>Une fois le bilan jugé satisfaisant, l'engagé doit impérativement recopier lui-même ses réponses dans le SIAM</b> — ce fichier ne s'y substitue pas, c'est à rappeler systématiquement.
           <br/><br/>
@@ -838,6 +918,8 @@ function renderModeEmploiModal(){
           Deux vues : <i>par pilier</i> (intitulé SIAM, attendus détaillés, exemple concret, mots-clés menant à des ressources) et <i>par mots-clés</i> (un répertoire consultable directement). Le didacticiel est évolutif : il est enrichi et corrigé régulièrement par votre administrateur, d'où l'intérêt de recharger le Kit périodiquement.
           <br/><br/>
           Vous pouvez adresser tout ou partie du didacticiel à un engagé (sélection libre par activité), en complément ou à la place de l'espace engagé complet.
+          <br/><br/>
+          <b>Modèles de courriers (administrateur).</b> Dans l'onglet Didacticiel, <i>« ✎ Modifier les modèles de courriers »</i> donne accès à tous les courriers de l'application : message de bilan à l'engagé, envoi du retour structuré, point sur la frise, point trimestriel, ressources du didacticiel, retour sur un EIAS, mails d'actions (bilan validé, complément demandé...) et texte d'accueil de l'espace engagé. Chaque modèle comporte des variables entre doubles accolades (ex. <code>{{etape}}</code>, <code>{{expert}}</code>), listées sous le champ et remplacées à l'envoi ; <i>« ↺ Rétablir le modèle d'origine »</i> annule vos retouches. Vos changements s'appliquent immédiatement ; pour les diffuser à tous les experts, utilisez <i>« 💾 Exporter l'application mise à jour »</i> puis déposez le fichier sur GitHub. Chaque mail reste de toute façon modifiable dans la messagerie, et le message de bilan reste modifiable engagé par engagé avant envoi.
         `)}
 
         ${section("💶 Facturation", `
@@ -1924,8 +2006,8 @@ function resetBilanCycleWorkingData(e){
 function buildMailto(e, actionKey){
   const tpl = MAIL_TEMPLATES[actionKey];
   if (!tpl) return null;
-  const body = tpl.body.replace(/\{\{expert\}\}/g, STATE.currentExpert.name);
-  return buildMailUrl(resolveMailRecipient(e), tpl.subject, body, true);
+  const body = tpl.body.replace(/\{\{expert\}\}/g, STATE.currentExpert.name).replace(/\{\{engage\}\}/g, e.nom || "");
+  return buildMailUrl(resolveMailRecipient(e), tpl.subject.replace(/\{\{engage\}\}/g, e.nom || ""), body, true);
 }
 
 // Dessine la frise dans un canvas (pas de dépendance externe type html2canvas) pour pouvoir
@@ -2055,11 +2137,13 @@ function sendFriseMail(e){
       setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(err){} }, 5000);
     }catch(err){ /* environnement sans téléchargement possible : on continue quand même */ }
 
-    const subject = "Point sur votre parcours d'Accréditation";
-    const body = "Bonjour,\n\nJe reviens vers vous pour faire un point sur votre parcours d'Accréditation" +
-      (STATUT_BILAN_META[e.statutBilan] ? " (statut actuel : " + STATUT_BILAN_META[e.statutBilan].label + ")" : "") +
-      ". Vous trouverez ci-joint un aperçu de votre frise de suivi" + (copied ? " (image déjà copiée, il vous suffit de la coller ici avec Ctrl+V si elle n'apparaît pas automatiquement)" : " — pensez à joindre le fichier " + filename + " téléchargé") +
-      ".\n\nN'hésitez pas à revenir vers moi si vous avez des questions.\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
+    const courrier = renderCourrier("point_frise", {
+      engage: e.nom, expert: STATE.currentExpert.name,
+      statut: STATUT_BILAN_META[e.statutBilan] ? " (statut actuel : " + STATUT_BILAN_META[e.statutBilan].label + ")" : "",
+      frise: "Vous trouverez ci-joint un aperçu de votre frise de suivi" + (copied ? " (image déjà copiée, il vous suffit de la coller ici avec Ctrl+V si elle n'apparaît pas automatiquement)" : " — pensez à joindre le fichier " + filename + " téléchargé") + "."
+    });
+    const subject = courrier.subject;
+    const body = courrier.body;
     const mailto = buildMailUrl(resolveMailRecipient(e), subject, body);
     window.open(mailto, "_blank");
     toast(copied
@@ -2514,10 +2598,14 @@ function attachEngagesEvents(){
       });
       return l.join("\n");
     });
-    const subject = "Point trimestriel — Accréditation CFAR";
-    const body = "Bonjour,\n\nUn petit point sur votre parcours d'accréditation." +
-      (lines.length ? "\n\nQuelques activités qui pourraient vous intéresser pour compléter votre bilan de cette année :\n\n" + lines.join("\n\n") : "\n\nRien de particulier à signaler pour l'instant, n'hésitez pas à revenir vers moi si vous avez des questions.") +
-      "\n\nN'hésitez pas à me contacter pour en discuter.\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
+    const courrier = renderCourrier("point_trimestriel", {
+      engage: e.nom, expert: STATE.currentExpert.name,
+      activites: lines.length
+        ? "Quelques activités qui pourraient vous intéresser pour compléter votre bilan de cette année :\n\n" + lines.join("\n\n")
+        : "Rien de particulier à signaler pour l'instant, n'hésitez pas à revenir vers moi si vous avez des questions."
+    });
+    const subject = courrier.subject;
+    const body = courrier.body;
     if (!resolveMailRecipient(e)) toast("Astuce : renseignez l'adresse mail de l'engagé (ou du référent d'équipe) pour préremplir le destinataire.");
     window.open(buildMailUrl(resolveMailRecipient(e), subject, body), "_blank");
     e.lastRappelDate = TODAY.toISOString().slice(0,10);
@@ -2629,7 +2717,7 @@ function attachEngagesEvents(){
       if (!dos) return;
       const stageIdx = stagesFor(e).indexOf(dos.etape);
       const filename = "Bilan_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".doc";
-      downloadWordDoc(bilanWordHtml(e, stageIdx>=0?stageIdx:0, dos.syntheseSiam, dos.appreciation), filename);
+      downloadWordDoc(bilanWordHtml(e, stageIdx>=0?stageIdx:0, dos.syntheseSiam, dos.appreciation, dos.resumeEngage), filename);
       toast("Synthèse téléchargée (Word).");
     };
   });
@@ -2639,7 +2727,7 @@ function attachEngagesEvents(){
       const dos = e && (e.dossiersBilan||[]).find(d=>d.id===el.getAttribute("data-resend-bilan"));
       if (!e || !dos) return;
       if (!resolveMailRecipient(e)) toast("Astuce : renseignez l'adresse mail de l'engagé (ou du référent d'équipe) pour préremplir le destinataire.");
-      const subject = "Votre bilan — " + dos.etape + " — Accréditation des Médecins";
+      const subject = renderCourrier("bilan_engage", { etape: dos.etape, engage: e.nom, expert: STATE.currentExpert.name }).subject;
       const body = (dos.syntheseEngage||"") + "\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
       window.open(buildMailUrl(resolveMailRecipient(e), subject, body), "_blank");
       toast("Mail ouvert — pensez à joindre manuellement la synthèse Word téléchargée.");
@@ -3021,6 +3109,21 @@ function setBilanAppreciation(e, year, val){
   if (!e.bilanAppreciations) e.bilanAppreciations = {};
   e.bilanAppreciations["y"+year] = val;
 }
+// Résumé du bilan de l'année rédigé par l'engagé (ou le référent d'équipe) lui-même — points
+// positifs et points à améliorer de son point de vue, comme il le ferait dans le SIAM. Saisi
+// directement par l'expert (copié depuis le SIAM) ou importé via la réponse de l'espace engagé
+// (voir eeDoExport/payload.resumeBilan). Affiché juste avant l'appréciation libre de l'expert,
+// qui peut s'en nourrir ; repris tel quel dans le prompt IA et dans la synthèse Word.
+function getBilanResumeEngage(e, year){
+  if (!e.bilanResumeEngage) e.bilanResumeEngage = {};
+  const key = "y"+year;
+  if (e.bilanResumeEngage[key] === undefined) e.bilanResumeEngage[key] = "";
+  return e.bilanResumeEngage[key];
+}
+function setBilanResumeEngage(e, year, val){
+  if (!e.bilanResumeEngage) e.bilanResumeEngage = {};
+  e.bilanResumeEngage["y"+year] = val;
+}
 
 // Brouillon de synthèse (générée et/ou éditée par l'expert), enregistré SANS validation — la
 // validation réelle intervient souvent après un appel téléphonique à l'engagé, un recueil de
@@ -3122,8 +3225,8 @@ function computePilierConformite(statuts, p){
 // trois ne puissent plus diverger (l'un des points corrigés dans cette version : la Formation
 // Gestion des Risques n'apparaissait, par erreur, que sur l'aperçu à l'écran, jamais dans le Word).
 function computeBilanPreReq(e, year){
-  const statuts = getBilanStatuts(e, year);
-  const attendu = e.type==="equipe" ? eiasAttendus(e.membres.length) : 1;
+  const statuts = statutsEffectifs(e, year);
+  const eiasP = eiasCumulPeriode(e, year);
   const p1a0 = statuts["p1_0"], p2a0 = statuts["p2_0"], p3a0 = statuts["p3_0"];
   const pilierConformite = PILIERS.map(p=> ({ pilier:p, c: computePilierConformite(statuts, p) }));
   const nbPiliersConformes = pilierConformite.filter(x=>x.c.ok).length;
@@ -3131,7 +3234,7 @@ function computeBilanPreReq(e, year){
     { key:"rmm", label:"RMM / CREX / REMED réalisée(s)", ok: p1a0==="realise" },
     { key:"checklist", label:"Check-list sécurité du patient utilisée", ok: p3a0==="realise" },
     { key:"formation", label:"Formation Gestion des Risques (12h/4ans)", ok: p2a0==="realise" },
-    { key:"eias", label:"EIAS : "+getEiasRealises(e, year)+"/"+attendu+" réalisé(s)", ok: getEiasRealises(e, year) >= attendu },
+    { key:"eias", label:"EIAS : "+eiasP.realises+"/"+eiasP.attendus+" réalisé(s)"+(eiasP.cumul?" (cumul de la période)":""), ok: eiasP.realises >= eiasP.attendus },
     { key:"activitesPiliers", label:"≥ 1 activité par pilier : "+nbPiliersConformes+"/"+PILIERS.length+" pilier(s) conforme(s)", ok: nbPiliersConformes === PILIERS.length },
   ];
 }
@@ -3197,10 +3300,15 @@ function renderBilan(){
   const annotations = getBilanAnnotations(e, year);
   const aAmeliorer = getBilanAAmeliorer(e, year);
   const justifs = getBilanAAmeliorerJustif(e, year);
+  const statutsEff = statutsEffectifs(e, year);
   const pilierBlocks = PILIERS.map(p=>{
     const acts = p.activites.map((a,ai)=>{
       const key = p.id+"_"+ai;
       const val = statuts[key];
+      // Antériorité (bilan d'accréditation uniquement) : en italique violet pour la distinguer
+      // de ce qui est saisi pour l'année en cours.
+      const ante = antecedentsActivite(e, year, key);
+      const anteBlock = ante.length ? `<div style="font-style:italic; color:#5B4B8A; font-size:11.8px; margin-top:4px;">↳ Antériorité : ${ante.map(x=>escapeHtml(x.label)+" ("+(x.statut==="realise"?"réalisé":"en cours")+")").join(" · ")}${ante.some(x=>x.contenu) ? `<br/>${ante.filter(x=>x.contenu).map(x=>escapeHtml(x.label)+" : "+escapeHtml(x.contenu)).join("<br/>")}` : ""}</div>` : "";
       const c = contenus[key] || { texte:"", simplifie:"" };
       const isOpen = STATE.openActiviteDetail === key;
       const detail = isOpen ? `
@@ -3219,8 +3327,8 @@ function renderBilan(){
           <textarea rows="2" data-justif="${key}" placeholder="Ex. : formuler un axe d'amélioration plus concret, joindre le compte-rendu de RMM, préciser le nombre de réunions...">${escapeHtml((justifs&&justifs[key])||"")}</textarea>
         </div>` : "";
       return `
-      <div class="activite-row"${aAmeliorer[key] ? ' style="border-left:3px solid #B33A3A; padding-left:8px;"' : ""}>
-        <div class="txt">${a.nom}${a.obligatoire?'<span class="obl-tag">OBLIGATOIRE</span>':''}${aAmeliorer[key]?'<span class="obl-tag" style="background:#B33A3A;">À AMÉLIORER</span>':''}</div>
+      <div class="activite-row"${aAmeliorer[key] ? ' style="border-left:3px solid #B33A3A; padding-left:8px;"' : (ante.length ? ' style="border-left:3px solid #8B7BC8; padding-left:8px;"' : "")}>
+        <div class="txt">${a.nom}${a.obligatoire?'<span class="obl-tag">OBLIGATOIRE</span>':''}${aAmeliorer[key]?'<span class="obl-tag" style="background:#B33A3A;">À AMÉLIORER</span>':''}${ante.length?'<span class="obl-tag" style="background:#5B4B8A;">ANTÉRIORITÉ</span>':''}${anteBlock}</div>
         <div style="display:flex; align-items:center; gap:10px;">
           <label class="muted-small" style="display:flex; align-items:center; gap:4px; cursor:pointer;" title="Signaler que ce qui a été déclaré pour cette activité doit être repris ou précisé — un champ apparaît ci-dessous pour indiquer quoi ; sera repris dans le message et le retour envoyés à l'engagé, sous « Activités à revoir »">
             <input type="checkbox" data-toimprove="${key}" ${aAmeliorer[key]?"checked":""} /> à améliorer
@@ -3249,7 +3357,7 @@ function renderBilan(){
         </div>
       </div>${detail}${justifBlock}`;
     }).join("");
-    const doneCount = p.activites.filter((a,ai)=>{ const v = statuts[p.id+"_"+ai]; return v==="realise" || v==="en_cours"; }).length;
+    const doneCount = p.activites.filter((a,ai)=>{ const v = statutsEff[p.id+"_"+ai]; return v==="realise" || v==="en_cours"; }).length;
     const totalCount = p.activites.length;
     const pct = totalCount ? Math.round((doneCount/totalCount)*100) : 0;
     const barColor = pct>=100 ? "#2F7D5A" : pct>=50 ? "#9A6400" : "#B33A3A";
@@ -3270,7 +3378,7 @@ function renderBilan(){
       <a class="linklike" id="backToBilanList">← Changer d'engagé</a>
     </div>
     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px;">${yearPills}</div>
-    ${isAccreditationStage(e, year) ? `<div class="card" style="background:#F2FBF9; border-color:#0E7C6E;"><div style="font-size:12.8px;"><b>📋 Bilan d'accréditation.</b> C'est ce bilan qui est examiné par la HAS et qui délivre ou renouvelle l'accréditation. La synthèse générée ci-dessous compile les 3 bilans annuels précédents${compiledYearsForAccreditation(e, year).length ? " (" + compiledYearsForAccreditation(e, year).map(y=>stagesFor(e)[y]).join(", ") + ")" : ""}, pas seulement l'année en cours.</div></div>` : ""}
+    ${isAccreditationStage(e, year) ? `<div class="card" style="background:#F2FBF9; border-color:#0E7C6E;"><div style="font-size:12.8px;"><b>📋 Bilan d'accréditation.</b> C'est ce bilan qui est examiné par la HAS et qui délivre ou renouvelle l'accréditation. La synthèse générée ci-dessous compile les 3 bilans annuels précédents${compiledYearsForAccreditation(e, year).length ? " (" + compiledYearsForAccreditation(e, year).map(y=>stagesFor(e)[y]).join(", ") + ")" : ""}, pas seulement l'année en cours.<br/><span style="font-style:italic; color:#5B4B8A;">Les activités déjà réalisées ou en cours lors de ces bilans annuels sont reprises ci-dessous en <b>italique violet</b> (« ANTÉRIORITÉ », avec les contenus déclarés) et comptent dans les pré-requis, les jauges par pilier et la synthèse ; le sélecteur de statut ne concerne que l'année d'accréditation en cours. Les EIAS sont cumulés sur la période.</span></div></div>` : ""}
     ${(()=>{
       const propAvant = propositionsAnneePrecedente(e, year);
       if (!propAvant.length) return "";
@@ -3321,6 +3429,10 @@ function renderBilan(){
       </div>
     </div>
 
+    <div class="section-label" style="margin-top:16px;">Résumé du bilan de l'année et activités à développer pour le prochain bilan</div>
+    <textarea rows="3" id="bilanResumeEngageInput" placeholder="Points positifs et points à améliorer de l'année, rédigés par l'engagé ou le référent (reprenez ici le contenu du champ « Résumé du bilan de votre année » du SIAM, ou la réponse importée depuis l'espace engagé)…">${escapeHtml(getBilanResumeEngage(e, year))}</textarea>
+    <div class="muted-small" style="margin:4px 0 10px;">Rempli par l'engagé/le référent (copié du SIAM, ou reçu via l'espace engagé). Ce résumé nourrit l'appréciation ci-dessous, la synthèse (générée par IA ou non) et figure dans la synthèse Word complète.</div>
+
     <div class="section-label" style="margin-top:16px;">Appréciation libre de l'expert</div>
     <textarea rows="3" id="bilanAppreciationInput" placeholder="Votre appréciation personnelle sur l'année écoulée, à intégrer dans une synthèse fluide et agréable à lire…">${escapeHtml(getBilanAppreciation(e, year))}</textarea>
     <div class="muted-small" style="margin:4px 0 0;">Deux cases distinctes sur chaque activité : « à améliorer » signale que ce qui a été déclaré cette année doit être repris — un champ apparaît alors pour préciser quoi ; « à travailler l'an prochain » propose plutôt une piste pour l'année suivante, avec les attendus/mots-clés/liens du didacticiel. Les deux sont reprises séparément dans le message et le retour envoyés à l'engagé.</div>
@@ -3368,13 +3480,13 @@ function renderBilanReport(e, year){
     : dossiersEiasDeAnnee(e, year);
 
   const pilierBlocksHtml = PILIERS.map(p=>{
-    const items = p.activites.map((a,ai)=>({a, key:p.id+"_"+ai})).filter(o=> statuts[o.key]==="realise" || statuts[o.key]==="en_cours");
+    const items = activitesRetenuesPilier(e, year, p);
     const list = items.length
       ? "<ul>" + items.map(o=>{
-          const c = contenus[o.key];
           const label = escapeHtml(o.a.nom.replace(" (OBLIGATOIRE)",""));
-          const detail = c && (c.simplifie || c.texte) ? " — " + escapeHtml(truncateForPrompt(c.simplifie || c.texte)) : "";
-          return "<li>" + label + detail + "</li>";
+          const detail = o.detail ? " — " + escapeHtml(o.detail) : "";
+          const anteTxt = o.ante.length ? ` <span style="font-style:italic; color:#5B4B8A;">[antériorité : ${o.ante.map(escapeHtml).join(", ")}]</span>` : "";
+          return "<li" + (!o.enCours ? ' style="font-style:italic; color:#5B4B8A;"' : "") + ">" + label + detail + anteTxt + "</li>";
         }).join("") + "</ul>"
       : `<div class="none">aucune activité complémentaire retenue à ce stade</div>`;
     return `<div class="report-pilier"><div class="pnom">${p.nom}</div>${list}</div>`;
@@ -3445,6 +3557,19 @@ function renderBilanReport(e, year){
 
     ${isBilanValidated(e, year) ? `<div class="badge ok" style="margin-top:8px; display:block; padding:8px 10px;">✓ Bilan validé — vous pouvez encore le copier, le télécharger ou l'envoyer autant de fois que nécessaire avant de l'archiver.</div>` : ""}
 
+    ${STATE.retourJsonRappel === e.id+"_"+year ? `
+    <div style="margin-top:12px; background:#FFF8E8; border:1px solid #f0dca8; border-left:4px solid #9A6400; border-radius:8px; padding:12px 16px; font-size:13px; line-height:1.55;">
+      <b>📨 Le retour structuré est téléchargé — il reste à le transmettre à ${escapeHtml(e.nom)}.</b>
+      <ol style="margin:8px 0 8px; padding-left:20px;">
+        <li>Envoyez-lui le fichier <i>Retour_Expert_….json</i> (par mail en pièce jointe, ou tout autre moyen). Aucun code n'est nécessaire.</li>
+        <li>Il rouvre son <b>espace engagé</b> (le fichier HTML déjà reçu) et charge ce fichier dans la carte <b>« Retour de mon expert »</b>, sous sa frise.</li>
+        <li>Ses activités « à revoir » apparaissent en rouge, vos propositions en vert, avec votre appréciation — ses réponses déjà saisies ne sont pas effacées.</li>
+      </ol>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn small" id="mailRetourJsonBtn">✉️ Ouvrir un mail pour lui envoyer le fichier</button>
+        <button class="btn secondary small" id="dismissRetourJsonBtn">J'ai transmis le fichier</button>
+      </div>
+    </div>` : ""}
     <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn secondary small" id="saveBilanDraftBtn">💾 Enregistrer le brouillon (sans valider)</button>
       <button class="btn small" id="copyAppreciationBtn">📋 Copier la synthèse courte pour le SIAM</button>
@@ -3459,7 +3584,7 @@ function renderBilanReport(e, year){
   </div>`;
 }
 
-function bilanWordHtml(e, year, syntheseText, appreciation){
+function bilanWordHtml(e, year, syntheseText, appreciation, resumeEngage){
   const statuts = getBilanStatuts(e, year);
   const contenus = getBilanContenus(e, year);
   const valence = getBilanValence(e, year);
@@ -3471,13 +3596,13 @@ function bilanWordHtml(e, year, syntheseText, appreciation){
   const valenceTxt = valenceLignes.length ? "Valence(s) retenue(s) : " + valenceLignes.join(" et ") + "." : "Aucune valence pluridisciplinaire ou pluriprofessionnelle retenue à ce stade.";
 
   const pilierRows = PILIERS.map(p=>{
-    const items = p.activites.map((a,ai)=>({a, key:p.id+"_"+ai})).filter(o=> statuts[o.key]==="realise" || statuts[o.key]==="en_cours");
+    const items = activitesRetenuesPilier(e, year, p);
     const list = items.length
       ? items.map(o=>{
-          const c = contenus[o.key];
           const label = escapeHtml(o.a.nom.replace(" (OBLIGATOIRE)",""));
-          const detail = c && (c.simplifie || c.texte) ? " — " + escapeHtml(truncateForPrompt(c.simplifie || c.texte)) : "";
-          return "<li style='margin-bottom:4px;'>" + label + detail + "</li>";
+          const detail = o.detail ? " — " + escapeHtml(o.detail) : "";
+          const anteTxt = o.ante.length ? " <i style='color:#5B4B8A;'>[antériorité : " + o.ante.map(escapeHtml).join(", ") + "]</i>" : "";
+          return "<li style='margin-bottom:4px;" + (!o.enCours ? " font-style:italic; color:#5B4B8A;" : "") + "'>" + label + detail + anteTxt + "</li>";
         }).join("")
       : "<li style='color:#8894A3;'>aucune activité complémentaire retenue à ce stade</li>";
     return `<p style="font-size:11pt; font-weight:bold; color:#2E5B8A; margin:10px 0 2px;">${escapeHtml(p.nom)}</p><ul style="margin:0 0 6px; font-size:10.5pt;">${list}</ul>`;
@@ -3568,6 +3693,10 @@ ${suiviPropositionsSectionWord}
   <div style="margin-bottom:24px;">${pilierRows}</div>
 
   <div style="height:8px;"></div>
+  ${resumeEngage ? `<div style="background:#EFF3FA; border-left:4px solid #1F3864; padding:14px 18px; margin-top:10px; page-break-inside:avoid;">
+    <h2 style="color:#1F3864; font-size:13pt; margin:0 0 8px;">Résumé du bilan de l'année et activités à développer pour le prochain bilan</h2>
+    <p style="font-size:11.5pt; line-height:1.6; margin:0;">${escapeHtml(resumeEngage).replace(/\n/g,"<br/>")}</p>
+  </div>` : ""}
   <div style="background:#E4F4F1; border-left:4px solid #0E7C6E; padding:14px 18px; margin-top:10px; page-break-inside:avoid;">
     <h2 style="color:#0E7C6E; font-size:13pt; margin:0 0 8px;">Appréciation de l'expert</h2>
     <p style="font-size:11.5pt; line-height:1.6; margin:0;">${escapeHtml(appreciation||"Aucune appréciation renseignée.").replace(/\n/g,"<br/>")}</p>
@@ -3641,6 +3770,11 @@ function attachBilanEvents(){
     const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
     setBilanAppreciation(e, STATE.bilanYear || 0, appreciationInput.value);
   };
+  const resumeEngageInput = document.getElementById("bilanResumeEngageInput");
+  if (resumeEngageInput) resumeEngageInput.onblur = ()=>{
+    const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
+    setBilanResumeEngage(e, STATE.bilanYear || 0, resumeEngageInput.value);
+  };
 
   function deterministicBilanSynth(e, year){
     const statuts = getBilanStatuts(e, year);
@@ -3666,6 +3800,7 @@ function attachBilanEvents(){
       ? dossiersAnnee.map(d=>d.titre + (d.motsCles&&d.motsCles.length?" ("+d.motsCles.join(", ")+")":"")).join(" ; ")
       : "aucune analyse EIAS validée archivée pour l'instant";
     const appreciation = getBilanAppreciation(e, year);
+    const resumeEngage = getBilanResumeEngage(e, year);
     return `${stagesFor(e)[year]} — ${e.nom}
 Composition : ${e.type==="equipe" ? e.membres.length+" médecins engagés (mouvements de l'année à préciser)" : "exercice individuel — "+e.modeExercice}
 EIAS : ${getEiasRealises(e, year)} réalisé(s) sur ${attendu} attendu(s)
@@ -3674,7 +3809,10 @@ ${valenceTxt}
 Thèmes des EIAS de l'année : ${themesEias}
 
 Activités par pilier :
-${lignes}`;
+${lignes}${resumeEngage ? `
+
+Résumé du bilan par l'engagé/le référent :
+${resumeEngage}` : ""}`;
     // La ligne de conclusion ("bilan complet" / "en cours de complétude") n'est volontairement
     // plus intégrée ici : générée une seule fois, elle se figeait dans ce texte libre et pouvait
     // ensuite contredire le badge de validation si le bilan était validé après coup sans
@@ -3698,7 +3836,10 @@ EIAS sur la période : ${facts.eiasSurLaPeriode}
 Thèmes des EIAS : ${themesEias}
 
 Activités par pilier sur les 3 années précédentes :
-${lignes}`;
+${lignes}${facts.resumeEngage ? `
+
+Résumé du bilan par l'engagé/le référent :
+${facts.resumeEngage}` : ""}`;
     // Même remarque que pour deterministicBilanSynth : la ligne de conclusion n'est plus figée
     // ici (elle mentionnait toujours "à valider", même après validation) — voir bilanConclusionLine.
   }
@@ -3708,13 +3849,12 @@ ${lignes}`;
   // tout lire directement dans ce message, et l'expert doit voir exactement ce qui sera envoyé
   // avant de cliquer sur « Envoyer ». Le même texte est aussi ce qui reste archivé avec le bilan.
   function deterministicEngageMessage(e, year, appreciation){
-    const revoirSnippet = buildAmeliorerSnippetForBilan(e, year);
-    const propositionsSnippet = buildDidacticielSnippetForBilan(e, year);
-    return "Bonjour,\n\nVoici le bilan de votre année " + stagesFor(e)[year] + ". " +
-      (appreciation ? appreciation + "\n\n" : "") +
-      "Important : une fois vos éventuelles corrections apportées, pensez impérativement à recopier vous-même vos réponses (activités et le cas échéant vos corrections) dans le SIAM — ce message ne s'y substitue pas." +
-      revoirSnippet + propositionsSnippet +
-      "\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
+    return renderCourrier("bilan_engage", {
+      etape: stagesFor(e)[year], engage: e.nom, appreciation: appreciation || "",
+      activites_a_revoir: buildAmeliorerSnippetForBilan(e, year).trim(),
+      propositions: buildDidacticielSnippetForBilan(e, year).trim(),
+      expert: STATE.currentExpert.name
+    }).body;
   }
 
   const genBtn = document.getElementById("genSyntheseBtn");
@@ -3723,6 +3863,8 @@ ${lignes}`;
     const year = STATE.bilanYear || 0;
     const appreciationInput = document.getElementById("bilanAppreciationInput");
     if (appreciationInput) setBilanAppreciation(e, year, appreciationInput.value);
+    const resumeEngageInput = document.getElementById("bilanResumeEngageInput");
+    if (resumeEngageInput) setBilanResumeEngage(e, year, resumeEngageInput.value);
 
     const isAccreditation = isAccreditationStage(e, year);
     const syntheseSiam = isAccreditation ? deterministicBilanAccreditationSynth(e, year) : deterministicBilanSynth(e, year);
@@ -3745,6 +3887,8 @@ ${lignes}`;
     const year = STATE.bilanYear || 0;
     const appreciationInput = document.getElementById("bilanAppreciationInput");
     if (appreciationInput) setBilanAppreciation(e, year, appreciationInput.value);
+    const resumeEngageInput = document.getElementById("bilanResumeEngageInput");
+    if (resumeEngageInput) setBilanResumeEngage(e, year, resumeEngageInput.value);
     const syntheseEngage = deterministicEngageMessage(e, year, getBilanAppreciation(e, year));
     const siam = document.getElementById("syntheseText") ? document.getElementById("syntheseText").value : (STATE.bilanSynthese || "");
     setState({ bilanSyntheseEngage: syntheseEngage });
@@ -3759,6 +3903,8 @@ ${lignes}`;
     const year = STATE.bilanYear || 0;
     const appreciationInput = document.getElementById("bilanAppreciationInput");
     if (appreciationInput) setBilanAppreciation(e, year, appreciationInput.value);
+    const resumeEngageInput = document.getElementById("bilanResumeEngageInput");
+    if (resumeEngageInput) setBilanResumeEngage(e, year, resumeEngageInput.value);
     const annotations = getBilanAnnotations(e, year);
     const activitesEngage = [];
     PILIERS.forEach(p=> p.activites.forEach((a,ai)=>{ if (annotations[p.id+"_"+ai]) activitesEngage.push(a.nom.replace(" (OBLIGATOIRE)","")); }));
@@ -3834,6 +3980,8 @@ ${lignes}`;
     const year = STATE.bilanYear || 0;
     const appreciationInput = document.getElementById("bilanAppreciationInput");
     if (appreciationInput) setBilanAppreciation(e, year, appreciationInput.value);
+    const resumeEngageInput = document.getElementById("bilanResumeEngageInput");
+    if (resumeEngageInput) setBilanResumeEngage(e, year, resumeEngageInput.value);
     const siam = document.getElementById("syntheseText") ? document.getElementById("syntheseText").value : (STATE.bilanSynthese || "");
     const engage = document.getElementById("syntheseEngageText").value;
     const numeroBilan = document.getElementById("f_numeroSiamBilan") ? document.getElementById("f_numeroSiamBilan").value : "";
@@ -3862,8 +4010,9 @@ ${lignes}`;
     }
     const syntheseText = document.getElementById("syntheseText") ? document.getElementById("syntheseText").value : (STATE.bilanSynthese || "");
     const appreciation = getBilanAppreciation(e, year);
+    const resumeEngage = getBilanResumeEngage(e, year);
     const filename = "Bilan_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".doc";
-    downloadWordDoc(bilanWordHtml(e, year, syntheseText, appreciation), filename);
+    downloadWordDoc(bilanWordHtml(e, year, syntheseText, appreciation, resumeEngage), filename);
     toast("Synthèse téléchargée (Word) — à joindre manuellement au SIAM et/ou au mail (les liens mailto ne permettent pas de joindre un fichier automatiquement).");
   };
 
@@ -3913,6 +4062,9 @@ ${lignes}`;
             nbMaj++;
           });
         });
+        if (payload.resumeBilan && payload.resumeBilan.trim()){
+          setBilanResumeEngage(e, STATE.bilanYear || 0, payload.resumeBilan.trim());
+        }
         setState({ showImportEngage:false });
         toast("Réponse de " + payload.engageNom + " chargée (" + nbMaj + " activité(s) mise(s) à jour) — relisez avant de régénérer la synthèse.");
       }catch(err){
@@ -3937,7 +4089,7 @@ ${lignes}`;
     if (!body.includes("Activités à revoir")) body += buildAmeliorerSnippetForBilan(e, year);
     if (!body.includes("Propositions de travail pour l'année prochaine")) body += buildDidacticielSnippetForBilan(e, year);
     if (!/Cordialement/.test(body)) body += "\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
-    const subject = "Votre bilan — " + stagesFor(e)[year] + " — Accréditation des Médecins";
+    const subject = renderCourrier("bilan_engage", { etape: stagesFor(e)[year], engage: e.nom, expert: STATE.currentExpert.name }).subject;
     if (!resolveMailRecipient(e)) toast("Astuce : renseignez l'adresse mail de l'engagé (ou du référent d'équipe) pour préremplir le destinataire.");
     window.open(buildMailUrl(resolveMailRecipient(e), subject, body), "_blank");
     toast("Mail ouvert — pensez à joindre manuellement la synthèse Word téléchargée (un lien mailto ne peut pas joindre de fichier automatiquement).");
@@ -3961,8 +4113,23 @@ ${lignes}`;
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast("Retour structuré (JSON) téléchargé — à charger dans la section « Retour de mon expert » de l'espace engagé de " + e.nom + " (ou à joindre à un mail). Non chiffré : il ne contient que ce que vous savez déjà de votre engagé.");
+    setState({ retourJsonRappel: e.id+"_"+year });
+    toast("Retour structuré (JSON) téléchargé — il reste à l'envoyer à l'engagé (voir le rappel ci-dessous).");
   };
+
+  const mailRetourJsonBtn = document.getElementById("mailRetourJsonBtn");
+  if (mailRetourJsonBtn) mailRetourJsonBtn.onclick = ()=>{
+    const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
+    const year = STATE.bilanYear || 0;
+    const courrier = renderCourrier("retour_json", { etape: stagesFor(e)[year], engage: e.nom, expert: STATE.currentExpert.name });
+    const subject = courrier.subject;
+    const body = courrier.body;
+    if (!resolveMailRecipient(e)) toast("Astuce : renseignez l'adresse mail de l'engagé (ou du référent d'équipe) pour préremplir le destinataire.");
+    window.open(buildMailUrl(resolveMailRecipient(e), subject, body), "_blank");
+    toast("Mail ouvert — joignez manuellement le fichier JSON téléchargé (un lien mailto ne peut pas joindre de fichier).");
+  };
+  const dismissRetourJsonBtn = document.getElementById("dismissRetourJsonBtn");
+  if (dismissRetourJsonBtn) dismissRetourJsonBtn.onclick = ()=> setState({ retourJsonRappel:null });
 
   const validerBtn = document.getElementById("validerBilanBtn");
   if (validerBtn) validerBtn.onclick = ()=>{
@@ -4004,6 +4171,7 @@ ${lignes}`;
       syntheseSiam: document.getElementById("syntheseText") ? document.getElementById("syntheseText").value : (STATE.bilanSynthese || ""),
       syntheseEngage: document.getElementById("syntheseEngageText").value,
       appreciation: getBilanAppreciation(e, year),
+      resumeEngage: getBilanResumeEngage(e, year),
       activitesEngage: Object.keys(annotations).filter(k=>annotations[k]),
       preReqSnapshot: computeBilanPreReq(e, year).map(r=>({ label:r.label, ok:r.ok })),
       // Archive complète, activité par activité (statuts, contenus, valence, "à améliorer") —
@@ -4416,18 +4584,15 @@ function eiasSiamSummary(d, cr){
 // contradictoire — puis la synthèse telle que versée au SIAM, sans le jargon "base commune".
 function buildEiasEngageMailto(e, d, cr){
   cr = cr || {};
-  const tpl = MAIL_TEMPLATES.eias_retour;
   const critiqueTxt = [
     cr.pointsForts ? "Points forts de votre analyse : " + cr.pointsForts : "",
     cr.pointsAmeliorer ? "Points à approfondir : " + cr.pointsAmeliorer : "",
     cr.complementExpert ? "Complément apporté par l'expert : " + cr.complementExpert : "",
   ].filter(Boolean).join("\n\n") || "—";
   const syntheseTxt = eiasPlainText(d, {});
-  const subject = tpl.subject.replace("{{titre}}", d.titre || "votre EIAS");
-  const body = tpl.body
-    .replace("{{critique}}", critiqueTxt)
-    .replace("{{synthese}}", syntheseTxt)
-    .replace(/\{\{expert\}\}/g, STATE.currentExpert.name);
+  const courrier = renderCourrier("eias_retour", { titre: d.titre || "votre EIAS", critique: critiqueTxt, synthese: syntheseTxt, expert: STATE.currentExpert.name, engage: e.nom });
+  const subject = courrier.subject;
+  const body = courrier.body;
   return buildMailUrl(resolveMailRecipient(e), subject, body);
 }
 
@@ -4862,6 +5027,70 @@ function isAccreditationStage(e, year){
 function compiledYearsForAccreditation(e, year){
   return [year-3, year-2, year-1].filter(y=>y>=0);
 }
+// Antériorité du bilan d'accréditation : le suivi porte sur 4 ans, donc ce bilan doit reprendre
+// ce qui a été déclaré lors des 3 bilans annuels précédents (et non repartir d'une page blanche).
+// Statut "effectif" d'une activité = le meilleur statut atteint sur la période compilée + l'année
+// en cours (réalisé > en cours > statut de l'année en cours). Pour tout autre bilan, c'est
+// simplement le statut de l'année.
+function statutsEffectifs(e, year){
+  const cur = getBilanStatuts(e, year);
+  if (!isAccreditationStage(e, year)) return cur;
+  const years = compiledYearsForAccreditation(e, year);
+  if (!years.length) return cur;
+  const out = Object.assign({}, cur);
+  Object.keys(cur).forEach(key=>{
+    if (cur[key]==="realise") return;
+    let best = cur[key];
+    years.forEach(y=>{
+      const s = getBilanStatuts(e, y)[key];
+      if (s==="realise") best = "realise";
+      else if (s==="en_cours" && best!=="realise" && best!=="en_cours") best = "en_cours";
+    });
+    out[key] = best;
+  });
+  return out;
+}
+// Années antérieures où cette activité a été réalisée / est en cours, avec le contenu déclaré.
+function antecedentsActivite(e, year, key){
+  if (!isAccreditationStage(e, year)) return [];
+  const stages = stagesFor(e);
+  const out = [];
+  compiledYearsForAccreditation(e, year).forEach(y=>{
+    const s = getBilanStatuts(e, y)[key];
+    if (s==="realise" || s==="en_cours"){
+      const c = getBilanContenus(e, y)[key];
+      out.push({ y, label: stages[y], statut: s, contenu: truncateForPrompt((c && (c.simplifie || c.texte)) || "", 220) });
+    }
+  });
+  return out;
+}
+// Activités retenues d'un pilier pour l'aperçu et le Word : année en cours + (accréditation)
+// antériorité. `ante` = libellés des bilans annuels antérieurs où elle figurait ; `enCours` =
+// retenue pour l'année en cours elle-même ; `detail` = contenu de l'année, à défaut le plus récent.
+function activitesRetenuesPilier(e, year, p){
+  const statuts = getBilanStatuts(e, year);
+  const contenus = getBilanContenus(e, year);
+  const out = [];
+  p.activites.forEach((a,ai)=>{
+    const key = p.id+"_"+ai;
+    const enCours = statuts[key]==="realise" || statuts[key]==="en_cours";
+    const ante = antecedentsActivite(e, year, key);
+    if (!enCours && !ante.length) return;
+    const c = contenus[key];
+    let detail = truncateForPrompt((c && (c.simplifie || c.texte)) || "");
+    if (!detail) { const withC = ante.filter(x=>x.contenu); if (withC.length) detail = withC[withC.length-1].contenu; }
+    out.push({ a, key, enCours, ante: ante.map(x=>x.label), detail });
+  });
+  return out;
+}
+// EIAS : par année pour un bilan annuel ; cumulés sur la période (3 bilans annuels + année en
+// cours) pour le bilan d'accréditation, attendu = attendu annuel x nombre d'années compilées.
+function eiasCumulPeriode(e, year){
+  const attendu = e.type==="equipe" ? eiasAttendus(e.membres.length) : 1;
+  const years = isAccreditationStage(e, year) ? compiledYearsForAccreditation(e, year) : [];
+  if (!years.length) return { realises: getEiasRealises(e, year), attendus: attendu, cumul:false };
+  return { realises: years.concat([year]).reduce((s,y)=> s + getEiasRealises(e, y), 0), attendus: attendu * years.length, cumul:true };
+}
 
 // Le contenu collé depuis le SIAM peut être long, et un bilan (surtout un bilan
 // d'accréditation, qui compile 3 années) peut compter jusqu'à 63 activités : sans plafond, le
@@ -4882,7 +5111,7 @@ function buildBilanFactsAccreditation(e, year){
   const compiledYears = compiledYearsForAccreditation(e, year);
   const activitesParPilier = PILIERS.map(p=>{
     const parActivite = {};
-    compiledYears.forEach(y=>{
+    compiledYears.concat([year]).forEach(y=>{
       const statuts = getBilanStatuts(e, y);
       const contenus = getBilanContenus(e, y);
       p.activites.forEach((a,ai)=>{
@@ -4902,12 +5131,13 @@ function buildBilanFactsAccreditation(e, year){
       activites: Object.entries(parActivite).map(([nom,v])=>({ nom, annees:v.annees, contenu:v.contenu })),
     };
   });
-  const attendu = e.type==="equipe" ? eiasAttendus(e.membres.length) : 1;
-  const attenduPeriode = attendu * (compiledYears.length || 1);
-  // Cumul EXPLICITE des compteurs annuels des 3 années compilées (et non un total glissant
-  // jamais remis à zéro) — chaque année du cycle a son propre compteur, remis à zéro au bilan
-  // annuel suivant (voir getEiasRealises / resetBilanCycleWorkingData).
-  const eiasRealisesPeriode = compiledYears.reduce((s,y)=> s + getEiasRealises(e, y), 0);
+  // Cumul EXPLICITE des compteurs annuels des 3 années compilées + de l'année d'accréditation en
+  // cours (et non un total glissant jamais remis à zéro) — chaque année du cycle a son propre
+  // compteur, remis à zéro après le bilan d'accréditation (voir getEiasRealises /
+  // resetBilanCycleWorkingData).
+  const eiasP = eiasCumulPeriode(e, year);
+  const attenduPeriode = eiasP.attendus;
+  const eiasRealisesPeriode = eiasP.realises;
   const themesEias = compiledYears
     .reduce((acc,y)=> acc.concat(dossiersEiasDeAnnee(e, y)), [])
     .map(d=> d.titre + (d.motsCles&&d.motsCles.length ? " ("+d.motsCles.join(", ")+")" : ""));
@@ -4916,9 +5146,10 @@ function buildBilanFactsAccreditation(e, year){
     periodeCouverte: compiledYears.map(y=>stages[y]),
     engage: e.nom,
     composition: e.type==="equipe" ? e.membres.length+" médecins engagés" : "exercice individuel — "+e.modeExercice,
-    eiasSurLaPeriode: eiasRealisesPeriode + "/" + attenduPeriode + " (cumul des 3 bilans annuels compilés)",
+    eiasSurLaPeriode: eiasRealisesPeriode + "/" + attenduPeriode + " (cumul des 3 bilans annuels compilés et de l'année d'accréditation)",
     themesEias,
     activitesParPilier,
+    resumeEngage: getBilanResumeEngage(e, year),
     appreciation: getBilanAppreciation(e, year),
   };
 }
@@ -4954,6 +5185,7 @@ function buildBilanFacts(e, year){
     valence: valenceLignes,
     themesEias,
     activitesParPilier,
+    resumeEngage: getBilanResumeEngage(e, year),
     appreciation: getBilanAppreciation(e, year),
   };
 }
@@ -4987,7 +5219,7 @@ Contraintes impératives de forme, à respecter strictement :
   const system = isAccreditation ? `Tu es l'expert d'Accréditation du CFAR (anesthésie-réanimation) qui rédige la synthèse du BILAN D'ACCRÉDITATION d'un médecin engagé — c'est précisément ce bilan qui est examiné par la HAS et qui délivre ou renouvelle l'accréditation pour les années à venir. À la différence d'un bilan annuel, il compile les 3 bilans annuels précédents (${facts.periodeCouverte.join(", ")}), pas seulement la dernière année, à partir de données factuelles déjà établies (ne rien inventer).
 
 Rédige DEUX textes distincts :
-1. "syntheseSiam" : synthèse complète et fluide, dans un style professionnel, destinée à la HAS. Reprend, pilier par pilier, la CONTINUITÉ du parcours sur l'ensemble de la période (pas seulement la dernière année) — mentionne dans quelles années chaque activité a été menée si cela éclaire la régularité de l'engagement. Mentionne les EIAS réalisés sur la période. Termine par une conclusion explicite sur le fait que le parcours justifie le renouvellement de l'accréditation, ou signale sans détour les points qui pourraient faire obstacle si des pré-requis manquent. N'inclus PAS l'appréciation libre de l'expert dans ce texte : elle est présentée séparément, dans un encart dédié, juste après ta synthèse — la répéter ferait doublon.
+1. "syntheseSiam" : synthèse complète et fluide, dans un style professionnel, destinée à la HAS. Reprend, pilier par pilier, la CONTINUITÉ du parcours sur l'ensemble de la période (pas seulement la dernière année) — mentionne dans quelles années chaque activité a été menée si cela éclaire la régularité de l'engagement. Mentionne les EIAS réalisés sur la période. Si "resumeEngage" est fourni (résumé rédigé par l'engagé/le référent lui-même), appuie-toi sur ces éléments factuels pour enrichir ta synthèse, sans le citer ni le paraphraser littéralement. Termine par une conclusion explicite sur le fait que le parcours justifie le renouvellement de l'accréditation, ou signale sans détour les points qui pourraient faire obstacle si des pré-requis manquent. N'inclus PAS l'appréciation libre de l'expert dans ce texte : elle est présentée séparément, dans un encart dédié, juste après ta synthèse — la répéter ferait doublon.
 2. "syntheseEngage" : un message chaleureux et clair adressé DIRECTEMENT au médecin engagé (vouvoiement), qui valorise l'ensemble du travail accompli sur les 3 années, reprend l'appréciation libre de l'expert si elle est fournie, et amène naturellement (sans les détailler toi-même) les quelques activités signalées comme « à développer » — une liste précise de ressources sera ajoutée après ton texte, contente-toi d'une phrase de transition du type « pour vous accompagner sur les points suivants, vous trouverez ci-dessous quelques ressources utiles ».
 ${concisionRules}
 
@@ -4997,7 +5229,7 @@ Réponds UNIQUEMENT avec un objet JSON valide (sans balises markdown), en franç
 ${jsonFormatRulesBlock()}` : `Tu es l'expert d'Accréditation du CFAR (anesthésie-réanimation) qui rédige la synthèse d'un bilan annuel pour un médecin engagé dans l'Accréditation, à partir de données factuelles déjà établies (ne rien inventer).
 
 Rédige DEUX textes distincts :
-1. "syntheseSiam" : synthèse complète et fluide, dans un style professionnel et agréable à lire, destinée au dossier/SIAM. Reprend tous les éléments factuels fournis (composition, pré-requis, EIAS, valence, activités par pilier) mais sous forme de paragraphes bien écrits — surtout pas un simple listing à puces des activités, qui est rébarbatif à lire. N'inclus PAS l'appréciation libre de l'expert dans ce texte : elle est présentée séparément, dans un encart dédié, juste après ta synthèse — la répéter ferait doublon.
+1. "syntheseSiam" : synthèse complète et fluide, dans un style professionnel et agréable à lire, destinée au dossier/SIAM. Reprend tous les éléments factuels fournis (composition, pré-requis, EIAS, valence, activités par pilier) mais sous forme de paragraphes bien écrits — surtout pas un simple listing à puces des activités, qui est rébarbatif à lire. Si "resumeEngage" est fourni (résumé rédigé par l'engagé/le référent lui-même, points positifs et à améliorer), appuie-toi sur ces éléments factuels pour enrichir ta synthèse, sans le citer ni le paraphraser littéralement. N'inclus PAS l'appréciation libre de l'expert dans ce texte : elle est présentée séparément, dans un encart dédié, juste après ta synthèse — la répéter ferait doublon.
 2. "syntheseEngage" : un message chaleureux, clair et personnel adressé DIRECTEMENT au médecin engagé (vouvoiement), qui reprend l'appréciation libre de l'expert si elle est fournie, valorise le travail réalisé sur l'année, et amène naturellement (sans les détailler toi-même) les quelques activités signalées comme « à développer » — une liste précise de ressources sera ajoutée après ton texte, contente-toi d'une phrase de transition du type « pour vous accompagner sur les points suivants, vous trouverez ci-dessous quelques ressources utiles ».
 ${concisionRules}
 
@@ -5348,6 +5580,52 @@ function buildDidacticielSnippetForSelection(selection){
   return lines.join("\n").trim();
 }
 
+// Éditeur de TOUS les courriers (administrateur) : mails d'actions (bilan validé, complément
+// demandé...), messages de bilan, retour structuré, points de suivi, EIAS, texte d'accueil de
+// l'espace engagé. Chaque modèle reste de toute façon modifiable dans la messagerie avant envoi.
+function courrierKeysList(){
+  const base = Object.keys(COURRIERS_DEFAUT);
+  const actions = Object.keys(MAIL_TEMPLATES).filter(k=> STATUT_BILAN_META[k] && !COURRIERS_DEFAUT[k]);
+  return base.concat(actions);
+}
+function renderCourriersEditor(){
+  if (!STATE.showCourriersEdit){
+    return `<div class="card"><div class="muted-small">✉️ <b>Modèles de courriers</b> — tous les mails et messages envoyés aux engagés (bilan, retour structuré, validation, complément demandé, EIAS, points de suivi, texte d'accueil de l'espace engagé) sont modifiables.
+      <a class="linklike" id="toggleCourriersBtn" style="font-size:11.5px; margin-left:8px;">✎ Modifier les modèles de courriers</a></div></div>`;
+  }
+  const items = courrierKeysList().map(key=>{
+    const tpl = MAIL_TEMPLATES[key] || COURRIERS_DEFAUT[key];
+    const def = COURRIERS_DEFAUT[key];
+    const meta = def || {};
+    const isIntro = key === "espace_engage_intro";
+    const varsDoc = def && def.vars
+      ? Object.keys(def.vars).map(v=>`<code>{{${v}}}</code> ${escapeHtml(def.vars[v])}`).join(" · ")
+      : "<code>{{expert}}</code> votre nom · <code>{{engage}}</code> nom de l'engagé";
+    if (STATE.editingCourrier !== key){
+      return `<div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
+        <b style="font-size:12.5px;">${escapeHtml(tpl.label)}</b> — <a class="linklike" data-edit-courrier="${key}" style="font-size:11.5px;">✎ Modifier</a>
+        ${meta.note ? `<div class="muted-small" style="margin-top:2px;">${escapeHtml(meta.note)}</div>` : ""}
+      </div>`;
+    }
+    return `<div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
+      <b style="font-size:12.5px;">${escapeHtml(tpl.label)}</b>
+      ${meta.note ? `<div class="muted-small" style="margin:2px 0 6px;">${escapeHtml(meta.note)}</div>` : ""}
+      ${isIntro ? "" : `<div class="field" style="margin-top:6px;"><label>Objet</label><input type="text" id="courrierSubject_${key}" value="${escapeHtml(tpl.subject)}" /></div>`}
+      <div class="field"><label>${isIntro ? "Texte" : "Corps du message"}</label><textarea rows="${isIntro ? 4 : 12}" id="courrierBody_${key}">${escapeHtml(tpl.body)}</textarea></div>
+      <div class="muted-small" style="margin-bottom:8px;">Variables utilisables (remplacées à l'envoi) : ${varsDoc}</div>
+      <button class="btn small" data-save-courrier="${key}">Enregistrer</button>
+      ${def ? `<a class="linklike" data-reset-courrier="${key}" style="margin-left:10px;">↺ Rétablir le modèle d'origine</a>` : ""}
+      <a class="linklike" data-cancel-courrier style="margin-left:10px;">Annuler</a>
+    </div>`;
+  }).join("");
+  return `<div class="card">
+    <div class="card-title" style="margin-bottom:4px;">✉️ Modèles de courriers (administrateur)</div>
+    <div class="muted-small">Les modifications s'appliquent immédiatement dans cette session. Pour les diffuser à tous les experts, utilisez ensuite <b>« 💾 Exporter l'application mise à jour (index.html) »</b> ci-dessous et déposez le fichier sur GitHub. Chaque mail reste librement modifiable dans la messagerie avant envoi.</div>
+    ${items}
+    <div style="margin-top:12px;"><a class="linklike" id="toggleCourriersBtn">Masquer</a></div>
+  </div>`;
+}
+
 function renderDidacticiel(){
   const view = STATE.didacticielView || "piliers";
   const isAdmin = STATE.currentExpert && STATE.currentExpert.isAdmin;
@@ -5628,7 +5906,7 @@ function renderDidacticiel(){
     </div>`;
   }
 
-  return `${pillsHtml}${selectionBar}${adminBanner}${reglesGestionBlock}${referentielBar}${exportBar}${body}`;
+  return `${pillsHtml}${selectionBar}${adminBanner}${reglesGestionBlock}${isAdmin ? renderCourriersEditor() : ""}${referentielBar}${exportBar}${body}`;
 }
 
 function attachDidacticielEvents(){
@@ -5896,6 +6174,36 @@ function attachDidacticielEvents(){
     };
   });
 
+  const toggleCourriersBtn = document.getElementById("toggleCourriersBtn");
+  if (toggleCourriersBtn) toggleCourriersBtn.onclick = ()=> setState({ showCourriersEdit: !STATE.showCourriersEdit, editingCourrier:null });
+  document.querySelectorAll("[data-edit-courrier]").forEach(el=>{
+    el.onclick = ()=> setState({ editingCourrier: el.getAttribute("data-edit-courrier") });
+  });
+  const cancelCourrierBtn = document.querySelector("[data-cancel-courrier]");
+  if (cancelCourrierBtn) cancelCourrierBtn.onclick = ()=> setState({ editingCourrier:null });
+  document.querySelectorAll("[data-save-courrier]").forEach(el=>{
+    el.onclick = ()=>{
+      const key = el.getAttribute("data-save-courrier");
+      if (!MAIL_TEMPLATES[key]) MAIL_TEMPLATES[key] = { label:(COURRIERS_DEFAUT[key]||{}).label || key, subject:"", body:"" };
+      const subjEl = document.getElementById("courrierSubject_"+key);
+      if (subjEl) MAIL_TEMPLATES[key].subject = subjEl.value;
+      MAIL_TEMPLATES[key].body = document.getElementById("courrierBody_"+key).value;
+      setState({ editingCourrier:null });
+      toast("Modèle enregistré — pensez à exporter l'application mise à jour pour le diffuser aux autres experts.");
+    };
+  });
+  document.querySelectorAll("[data-reset-courrier]").forEach(el=>{
+    el.onclick = ()=>{
+      const key = el.getAttribute("data-reset-courrier");
+      const def = COURRIERS_DEFAUT[key];
+      if (!def) return;
+      if (!window.confirm("Rétablir le modèle d'origine « " + def.label + " » ? Votre version personnalisée sera perdue.")) return;
+      MAIL_TEMPLATES[key] = { label:def.label, subject:def.subject, body:def.body };
+      setState({ editingCourrier:null });
+      toast("Modèle d'origine rétabli.");
+    };
+  });
+
   const exportUpdatedAppBtn = document.getElementById("exportUpdatedAppBtn");
   if (exportUpdatedAppBtn) exportUpdatedAppBtn.onclick = ()=>{
     try{
@@ -6013,9 +6321,9 @@ function attachDidacticielEvents(){
     if (!target){ toast("Choisissez un engagé destinataire."); return; }
     const snippet = buildDidacticielSnippetForSelection(STATE.didacticielSelection);
     if (!snippet){ toast("Aucune activité sélectionnée."); return; }
-    const subject = "Ressources du didacticiel — Accréditation CFAR";
-    const body = "Bonjour,\n\nSuite à votre question, voici quelques ressources qui devraient vous être utiles :\n" + snippet +
-      "\n\nN'hésitez pas à revenir vers moi si vous avez besoin de précisions complémentaires.\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
+    const courrier = renderCourrier("ressources_didacticiel", { engage: target.nom, expert: STATE.currentExpert.name, ressources: snippet });
+    const subject = courrier.subject;
+    const body = courrier.body;
     if (!resolveMailRecipient(target)) toast("Astuce : renseignez l'adresse mail de cet engagé (ou du référent d'équipe) pour préremplir le destinataire.");
     window.open(buildMailUrl(resolveMailRecipient(target), subject, body), "_blank");
   };
@@ -6070,11 +6378,16 @@ function buildEspaceEngageHtml(e, year){
     frise: { stages: friseStages, todayPct: todayPct, currentIndex: year },
     piliers: piliersData,
     reponses: reponses,
+    // Résumé du bilan de l'année rédigé par l'engagé/le référent lui-même (points positifs et à
+    // améliorer, à la manière du champ correspondant du SIAM) — pré-rempli si l'expert avait déjà
+    // saisi quelque chose, modifiable ici par l'engagé puis renvoyé via l'export chiffré.
+    resumeBilan: getBilanResumeEngage(e, year),
     // Rempli plus tard, en local dans le navigateur de l'engagé, lorsqu'il charge le fichier
     // "Retour de mon expert" (JSON) généré depuis l'onglet Bilan — voir eeDoRetourExpertUpdate.
     retourExpert: {},
     generePar: STATE.currentExpert.name,
     genereLe: TODAY.toISOString().slice(0,10),
+    introTexte: renderCourrier("espace_engage_intro", { engage: e.nom, etape: stages[year], expert: STATE.currentExpert.name }).body,
   };
 
   return ESPACE_ENGAGE_TEMPLATE.replace("__EE_DATA_JSON__", JSON.stringify(eeData));
@@ -6181,7 +6494,7 @@ function eeRender(){
   html += "</div>";
 
   html += "<div class='ee-card ee-info'>";
-  html += "<p>Bonjour, votre expert vous invite à compléter ci-dessous les activités que vous avez réalisées, à l’aide des attendus, exemples et ressources du didacticiel. Une fois terminé, exportez votre réponse (bouton en bas de page) et renvoyez le fichier généré à votre expert.</p>";
+  html += "<p>" + eeEscapeHtml(EE_DATA.introTexte || "Bonjour, votre expert vous invite à compléter ci-dessous les activités que vous avez réalisées, à l’aide des attendus, exemples et ressources du didacticiel. Une fois terminé, exportez votre réponse (bouton en bas de page) et renvoyez le fichier généré à votre expert.").split(String.fromCharCode(10)).join("<br/>") + "</p>";
   html += "</div>";
 
   html += "<div class='ee-card'>";
@@ -6306,6 +6619,12 @@ function eeRender(){
     html += "</div>";
   });
 
+  html += "<div class='ee-card'>";
+  html += "<div class='ee-section-label'>Résumé du bilan de votre année et activités à développer pour le prochain bilan</div>";
+  html += "<p class='ee-muted' style='margin:0 0 8px;'>Comme dans le SIAM : quels sont les points positifs de votre année, les points à améliorer, et ce que vous souhaitez développer pour le prochain bilan ?</p>";
+  html += "<textarea rows='5' id='eeResumeBilan' placeholder='Ex. : accueil de nouveaux médecins dans le service, amélioration du circuit de signalement des EIAS, projet d’EPP à venir sur...'>" + eeEscapeHtml(EE_DATA.resumeBilan || "") + "</textarea>";
+  html += "</div>";
+
   html += "<div class='ee-card ee-siam-reminder'>";
   html += "<b>Important :</b> une fois que votre expert vous aura confirmé que votre bilan est complet, pensez impérativement à recopier vous-même vos réponses validées dans le SIAM. Ce fichier ne s’y substitue pas.";
   html += "</div>";
@@ -6357,6 +6676,8 @@ function eeAttachEvents(){
       }
     };
   });
+  var resumeBilanTa = document.getElementById("eeResumeBilan");
+  if (resumeBilanTa) resumeBilanTa.onblur = function(){ EE_DATA.resumeBilan = resumeBilanTa.value; };
   var resetBtn = document.getElementById("eeResetBtn");
   if (resetBtn) resetBtn.onclick = function(ev){
     ev.preventDefault();
@@ -6541,10 +6862,12 @@ function eeDoExport(){
 
   var salt = crypto.getRandomValues(new Uint8Array(16));
   var iv = crypto.getRandomValues(new Uint8Array(12));
+  var resumeBilanEl = document.getElementById("eeResumeBilan");
   var payload = {
     engageNom: EE_DATA.engageNom,
     etapeActuelle: EE_DATA.etapeActuelle,
     reponses: EE_DATA.reponses,
+    resumeBilan: resumeBilanEl ? resumeBilanEl.value : (EE_DATA.resumeBilan || ""),
     exporteLe: new Date().toISOString().slice(0,10)
   };
   var enc = new TextEncoder();
