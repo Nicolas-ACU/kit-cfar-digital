@@ -173,6 +173,9 @@
   .activite-row .obl-tag{ font-size:10px; font-weight:800; color:var(--warning); margin-left:6px;}
   .activite-detail{ padding:10px 14px 14px; border-top:1px dashed var(--border); background:#fbfcfe; }
   .activite-detail textarea{ font-size:12.5px; }
+  /* Zone « Contenu SIAM » ouverte : fond coloré pour la retrouver facilement pendant les copier-coller */
+  .activite-detail:has(textarea[data-contenu]){ background:#FFF4CC; border-left:4px solid #E0A800; border-top:1px solid #E8CF7A; }
+  .activite-detail textarea[data-contenu]{ background:#FFFBE8; border:2px solid #E0A800; }
   .simplify-preview{ font-size:12px; color:var(--teal); background:var(--teal-bg); border-radius:8px; padding:8px 10px; margin-top:8px; }
 
   .report-card{ background:#fff; border:1px solid var(--border); border-radius:10px; padding:26px 30px; margin-top:16px; }
@@ -430,78 +433,6 @@ let STATUT_BILAN_META = {"a_faire":{"label":"À faire","color":"#5B6472","bg":"#
 let MAIL_TEMPLATES = {"valide":{"label":"Bilan validé","subject":"Validation de votre bilan — Accréditation des Médecins","body":"Bonjour,\n\nJe vous confirme la validation de votre bilan qui permet la poursuite de votre parcours dans l'Accréditation des Médecins. Je vous félicite et vous remercie de votre confiance. Je reste à votre disposition pour toute question durant l'année à venir.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"complement_demande":{"label":"Complément demandé","subject":"Votre bilan nécessite un complément — Accréditation des Médecins","body":"Bonjour,\n\nJ'ai bien pris connaissance de votre bilan dans le cadre de votre parcours dans l'Accréditation des Médecins. Il apparaît que certains pré-requis indispensables ne sont pas remplis, il ne m'est donc pas possible de valider votre bilan en l'état. Votre bilan est de nouveau disponible sur le SIAM pour que vous puissiez le compléter et le renvoyer à l'OA-CFAR. Je reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"information_contradictoire":{"label":"Information contradictoire","subject":"Information contradictoire — Accréditation des Médecins","body":"Bonjour,\n\nVotre bilan dans le cadre de votre parcours dans l'Accréditation des Médecins présente un retard important (> 90 jours) et/ou ne répond pas aux pré-requis du programme de notre spécialité malgré les compléments qui vous ont été demandés. Je suis contraint par la HAS d'avancer dans la procédure en déclenchant une information contradictoire. Vous devez adresser à l'OA-CFAR votre bilan dans un délai de 3 semaines, avant qu'un avis défavorable ne soit émis.\n\nVous pouvez également, si vous souhaitez faire une pause dans votre Accréditation, mettre en place une procédure de renoncement. Cette procédure amiable vous permettra un ré-engagement facilité quand vous le jugerez possible (sans publication sur le site de la HAS).\n\nJe reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"avis_defavorable":{"label":"Avis défavorable (mise en demeure)","subject":"Avis défavorable — Accréditation des Médecins","body":"Bonjour,\n\nVotre bilan, dans le cadre de votre parcours dans l'Accréditation des Médecins, ne progresse pas favorablement malgré nos relances et en particulier l'information contradictoire qui vous a été adressée il y a 3 semaines. Nous sommes contraints par la HAS de prononcer un avis défavorable qui donnera lieu à une mise en demeure. Il vous reste désormais 3 mois pour mettre votre dossier en conformité, faute de quoi un avis défavorable définitif prononcera votre sortie de l'Accréditation des Médecins.\n\nVous pouvez également, si vous souhaitez faire une pause dans votre Accréditation, mettre en place une procédure de renoncement. Cette procédure amiable vous permettra un ré-engagement facilité quand vous le jugerez possible (sans publication sur le site de la HAS).\n\nJe reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"avis_defavorable_definitif":{"label":"Avis défavorable définitif (retrait)","subject":"Avis défavorable définitif — Accréditation des Médecins","body":"Bonjour,\n\nLa HAS nous impose, malheureusement, de prononcer un avis défavorable définitif sur votre bilan dans le cadre de votre parcours dans l'Accréditation des Médecins. Malgré un long processus et la possibilité d'un renoncement amiable, vous n'avez pas donné suite à nos propositions d'aide ; dès lors cet avis définitif vaut pour retrait de l'Accréditation des Médecins.\n\nJe reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"sortie_non_demande":{"label":"Sortie pour non-demande (>18 mois)","subject":"Sortie du dispositif — Accréditation des Médecins","body":"Bonjour,\n\nVous n'avez pas donné suite à votre démarche d'Accréditation des Médecins depuis plus de 18 mois. De fait, la HAS va prononcer une mesure de retrait pour non-demande d'Accréditation. Vous gardez la possibilité de vous ré-engager si vous le souhaitez.\n\nJe reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"bilan_vide":{"label":"Bilan vide (grossesse / longue maladie)","subject":"Bilan vide justifié — Accréditation des Médecins","body":"Bonjour,\n\nCompte tenu de votre situation et de votre volonté de reprendre dès que possible votre parcours dans l'Accréditation des Médecins, je demande un délai de tolérance à la HAS. Dans ce sens, un bilan vide a été déclenché. Je reste à votre disposition pour toute question et vous remercie de me tenir informé de l'évolution de votre situation.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"renoncement":{"label":"Renoncement de l'engagé","subject":"Renoncement à l'Accréditation des Médecins","body":"Bonjour,\n\nJ'ai bien pris connaissance de votre volonté de renoncer à votre parcours dans l'Accréditation des Médecins. Cette procédure amiable vous permettra de vous ré-engager si vous le souhaitez et ne donnera pas lieu à publication sur le site de la HAS. Je vous souhaite le meilleur pour la suite et vous remercie de votre confiance durant ces années d'accompagnement, de collaboration et d'échanges.\n\nJe reste à votre disposition pour toute question.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"retraite":{"label":"Retraite de l'engagé","subject":"Sortie du dispositif pour départ à la retraite","body":"Bonjour,\n\nJ'ai bien pris connaissance de votre sortie du parcours de l'Accréditation des Médecins au motif de votre départ à la retraite. Je me charge d'informer la HAS de votre situation ; dans ce cadre, ne vous étonnez pas qu'un bilan défavorable soit émis pour clôturer votre dossier.\n\nJe vous souhaite une retraite épanouie et vous remercie de votre confiance durant ces années de collaboration.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"},"eias_retour":{"label":"Retour didactique sur un EIAS (à l'engagé)","subject":"Retour sur votre analyse d'EIAS — {{titre}}","body":"Bonjour,\n\nSuite à votre déclaration d'EIAS, voici mon retour à visée didactique, dans l'esprit de l'analyse contradictoire prévue par le référentiel HAS :\n\n{{critique}}\n\nVous trouverez ci-dessous la synthèse telle que versée au SIAM :\n\n{{synthese}}\n\nJe reste à votre disposition pour en échanger de vive voix si vous le souhaitez.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}"}};
 /*__MAILTPL_END__*/
 
-// Courriers modifiables par l'administrateur (Didacticiel → ✉️ Modèles de courriers). Chaque
-// modèle utilise des {{variables}} remplacées à l'envoi. Les valeurs d'origine ci-dessous servent
-// (1) de modèle tant que l'administrateur n'a rien changé et (2) au bouton « Rétablir le modèle
-// d'origine ». Elles sont volontairement HORS du bloc MAILTPL ci-dessus, qui est réécrit par
-// l'export de l'application.
-const COURRIERS_DEFAUT = {
-  bilan_engage: {
-    label: "Bilan — message à l'engagé",
-    subject: "Votre bilan — {{etape}} — Accréditation des Médecins",
-    body: "Bonjour,\n\nVoici le bilan de votre année {{etape}}.\n\n{{appreciation}}\n\nImportant : une fois vos éventuelles corrections apportées, pensez impérativement à recopier vous-même vos réponses (activités et le cas échéant vos corrections) dans le SIAM — ce message ne s'y substitue pas.\n\n{{activites_a_revoir}}\n\n{{propositions}}\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
-    vars: { etape:"étape du bilan", engage:"nom de l'engagé", appreciation:"appréciation libre de l'expert", activites_a_revoir:"liste « Activités à revoir » (avec vos précisions)", propositions:"liste « Propositions de travail pour l'année prochaine »", expert:"votre nom" },
-    note: "Point de départ du message généré dans l'onglet Bilan (« Générer la synthèse »), que vous pouvez toujours retoucher engagé par engagé avant envoi. À l'envoi, les deux listes (à revoir / propositions) sont ajoutées en fin de message si elles n'y figurent pas."
-  },
-  retour_json: {
-    label: "Bilan — envoi du retour structuré (JSON)",
-    subject: "Retour sur votre bilan — {{etape}} — Accréditation des Médecins",
-    body: "Bonjour,\n\nVous trouverez en pièce jointe le retour de votre expert sur votre bilan ({{etape}}) : fichier « Retour_Expert_….json ».\n\nPour le consulter : rouvrez votre espace engagé (le fichier HTML reçu précédemment) et chargez ce fichier dans la carte « Retour de mon expert », sous votre frise. Les activités à revoir apparaîtront en rouge, les propositions pour l'année prochaine en vert, avec mon appréciation. Vos réponses déjà saisies sont conservées.\n\nPensez ensuite à recopier vous-même vos réponses corrigées dans le SIAM.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
-    vars: { etape:"étape du bilan", engage:"nom de l'engagé", expert:"votre nom" },
-    note: "Mail ouvert par le bouton « Ouvrir un mail pour lui envoyer le fichier » après le téléchargement du retour structuré."
-  },
-  point_frise: {
-    label: "Point sur le parcours (frise)",
-    subject: "Point sur votre parcours d'Accréditation",
-    body: "Bonjour,\n\nJe reviens vers vous pour faire un point sur votre parcours d'Accréditation{{statut}}. {{frise}}\n\nN'hésitez pas à revenir vers moi si vous avez des questions.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
-    vars: { engage:"nom de l'engagé", statut:"« (statut actuel : …) » si un statut existe", frise:"phrase sur la frise jointe (image copiée ou fichier à joindre)", expert:"votre nom" },
-    note: "Envoyé depuis la fiche d'un engagé (envoi de la frise)."
-  },
-  point_trimestriel: {
-    label: "Point trimestriel (rappel)",
-    subject: "Point trimestriel — Accréditation CFAR",
-    body: "Bonjour,\n\nUn petit point sur votre parcours d'accréditation.\n\n{{activites}}\n\nN'hésitez pas à me contacter pour en discuter.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
-    vars: { engage:"nom de l'engagé", activites:"activités suggérées (ou phrase « rien de particulier »)", expert:"votre nom" },
-    note: "Envoyé depuis le rappel trimestriel (🔔)."
-  },
-  ressources_didacticiel: {
-    label: "Ressources du didacticiel",
-    subject: "Ressources du didacticiel — Accréditation CFAR",
-    body: "Bonjour,\n\nSuite à votre question, voici quelques ressources qui devraient vous être utiles :\n{{ressources}}\n\nN'hésitez pas à revenir vers moi si vous avez besoin de précisions complémentaires.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
-    vars: { engage:"nom de l'engagé", ressources:"activités et liens sélectionnés", expert:"votre nom" },
-    note: "Envoyé depuis l'onglet Didacticiel (envoi de la sélection à un engagé)."
-  },
-  eias_retour: {
-    label: "Retour didactique sur un EIAS (à l'engagé)",
-    subject: "Retour sur votre analyse d'EIAS — {{titre}}",
-    body: "Bonjour,\n\nSuite à votre déclaration d'EIAS, voici mon retour à visée didactique, dans l'esprit de l'analyse contradictoire prévue par le référentiel HAS :\n\n{{critique}}\n\nVous trouverez ci-dessous la synthèse telle que versée au SIAM :\n\n{{synthese}}\n\nJe reste à votre disposition pour en échanger de vive voix si vous le souhaitez.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
-    vars: { titre:"titre de l'EIAS", critique:"points forts / à approfondir / complément de l'expert", synthese:"synthèse telle que versée au SIAM", engage:"nom de l'engagé", expert:"votre nom" },
-    note: "Envoyé après validation d'une analyse EIAS."
-  },
-  espace_engage_intro: {
-    label: "Espace engagé — texte d'accueil",
-    subject: "",
-    body: "Bonjour, votre expert vous invite à compléter ci-dessous les activités que vous avez réalisées, à l’aide des attendus, exemples et ressources du didacticiel. Une fois terminé, exportez votre réponse (bouton en bas de page) et renvoyez le fichier généré à votre expert.",
-    vars: { engage:"nom de l'engagé", etape:"étape du bilan", expert:"votre nom" },
-    note: "Texte affiché en haut de l'espace engagé généré (ce n'est pas un mail) ; s'applique aux prochains espaces générés."
-  }
-};
-// Compléter MAIL_TEMPLATES avec les modèles absents (application exportée avant leur ajout).
-Object.keys(COURRIERS_DEFAUT).forEach(function(k){
-  if (!MAIL_TEMPLATES[k]) MAIL_TEMPLATES[k] = { label:COURRIERS_DEFAUT[k].label, subject:COURRIERS_DEFAUT[k].subject, body:COURRIERS_DEFAUT[k].body };
-});
-// Remplit un modèle : {{variable}} → valeur ; variable inconnue laissée telle quelle (faute de
-// frappe visible) ; lignes vides multiples réduites quand une variable est vide.
-function renderCourrier(key, vars){
-  const tpl = MAIL_TEMPLATES[key] || COURRIERS_DEFAUT[key] || { subject:"", body:"" };
-  const fill = (str)=> String(str||"").replace(/\{\{(\w+)\}\}/g, (m,n)=> (vars && vars[n] !== undefined && vars[n] !== null) ? String(vars[n]) : m);
-  return {
-    subject: fill(tpl.subject),
-    body: fill(tpl.body).replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim()
-  };
-}
-
-
 const PILIER_COLORS = {
   p1: { text:"#C0392B", bg:"#FBEAEA" },   // Sécurité des Patients — rouge/alerte
   p2: { text:"#2E5B8A", bg:"#E9F0F9" },   // Pratiques professionnelles — bleu
@@ -755,8 +686,6 @@ let STATE = {
   showFacturationInfoEdit:false,
   showTarifsEdit:false,
   editingMailTemplate:null,
-  showCourriersEdit:false,
-  editingCourrier:null,
 };
 
 const ANONYMISATION_PARA1 = `Je m'engage personnellement à respecter l'anonymisation de tout élément, retranscrit, copié ou rédigé, dans le Kit CFAR, tant dans les EIAS que dans les bilans.`;
@@ -887,8 +816,6 @@ function renderModeEmploiModal(){
           <br/><br/>
           Une fois satisfait : <i>« ✓ Valider le bilan »</i> (relisez, corrigez, copiez ou envoyez autant de fois que nécessaire), puis <i>« 📦 Archiver le bilan »</i> après avoir renseigné le numéro du bilan (indispensable pour la facturation) — cette dernière étape est définitive. La synthèse courte (pré-requis + appréciation) est à recopier dans le SIAM ; la synthèse complète, détaillée, n'existe que dans le document Word à joindre en pièce jointe.
           <br/><br/>
-          <b>Antériorité sur le bilan d'accréditation.</b> Le suivi porte sur 4 ans : à l'ouverture d'un bilan d'accréditation, les activités déjà réalisées ou en cours lors des 3 bilans annuels précédents sont reprises, <i style="color:#5B4B8A;">en italique violet</i> avec un repère « ANTÉRIORITÉ » et le contenu déclaré à l'époque. Elles comptent dans les pré-requis, les jauges par pilier, la synthèse et le Word (où elles restent signalées en italique violet) ; les EIAS sont cumulés sur la période. Le sélecteur de statut de chaque activité ne concerne que l'année d'accréditation en cours (une activité « en cours » dans le passé n'est pas considérée comme réalisée). Les compteurs repartent à zéro après l'archivage du bilan d'accréditation, pour le Bilan Annuel 1 du cycle suivant.
-          <br/><br/>
           <b>Archivage garanti sur les 4 ans du cycle.</b> Chaque bilan archivé conserve pour toujours (consultable dans « Bilans archivés ») le détail complet de l'année : statuts, contenus, valence et activités « à améliorer » de chaque pilier, ainsi que le nombre d'EIAS réalisés à cette date. Lorsque le bilan archivé est un <b>bilan d'accréditation</b> (fin d'un cycle de 4 ans), l'application le détecte automatiquement et remet à zéro les données de travail (activités, contenus, appréciations, brouillons, compteur EIAS) pour repartir sur un cycle neuf — sans jamais toucher à l'historique déjà archivé. Un message à l'écran confirme ce passage à un nouveau cycle.
         `)}
 
@@ -918,8 +845,6 @@ function renderModeEmploiModal(){
           Deux vues : <i>par pilier</i> (intitulé SIAM, attendus détaillés, exemple concret, mots-clés menant à des ressources) et <i>par mots-clés</i> (un répertoire consultable directement). Le didacticiel est évolutif : il est enrichi et corrigé régulièrement par votre administrateur, d'où l'intérêt de recharger le Kit périodiquement.
           <br/><br/>
           Vous pouvez adresser tout ou partie du didacticiel à un engagé (sélection libre par activité), en complément ou à la place de l'espace engagé complet.
-          <br/><br/>
-          <b>Modèles de courriers (administrateur).</b> Dans l'onglet Didacticiel, <i>« ✎ Modifier les modèles de courriers »</i> donne accès à tous les courriers de l'application : message de bilan à l'engagé, envoi du retour structuré, point sur la frise, point trimestriel, ressources du didacticiel, retour sur un EIAS, mails d'actions (bilan validé, complément demandé...) et texte d'accueil de l'espace engagé. Chaque modèle comporte des variables entre doubles accolades (ex. <code>{{etape}}</code>, <code>{{expert}}</code>), listées sous le champ et remplacées à l'envoi ; <i>« ↺ Rétablir le modèle d'origine »</i> annule vos retouches. Vos changements s'appliquent immédiatement ; pour les diffuser à tous les experts, utilisez <i>« 💾 Exporter l'application mise à jour »</i> puis déposez le fichier sur GitHub. Chaque mail reste de toute façon modifiable dans la messagerie, et le message de bilan reste modifiable engagé par engagé avant envoi.
         `)}
 
         ${section("💶 Facturation", `
@@ -1098,6 +1023,7 @@ function renderApp(){
         </div>
         <button class="btn secondary block small" id="openModeEmploiBtn" style="margin-bottom:8px;">📖 Mode d'emploi</button>
         <button class="btn secondary block small" id="logoutBtn">Se déconnecter</button>
+        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 27/10/2026 (d)</div>
       </div>
     </div>
     ${STATE.showModeEmploi ? renderModeEmploiModal() : ""}
@@ -1422,6 +1348,7 @@ function renderEngages(){
   </div>`;
 
   return `
+  ${renderEngageDetail()}
   ${dashboard}
   ${searchCard}
   ${doublonsCard}
@@ -1450,10 +1377,23 @@ function renderEngages(){
       <tbody>${rows}</tbody>
     </table>
   </div>
-  ${renderEngageDetail()}
   ${STATE.showAddEngageModal ? renderAddEngageModal() : ""}
   `;
 }
+
+// La fiche d'un engagé s'affiche désormais EN TÊTE de l'onglet (auparavant sous la liste, hors de
+// l'écran : « Ouvrir » semblait ne rien faire) ; on remonte en haut de page pour la voir.
+function scrollToEl(id, offset){
+  const go = ()=>{
+    const el = document.getElementById(id);
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop || 0) - (offset === undefined ? 12 : offset);
+    window.scrollTo({ top: Math.max(0, y), behavior:"smooth" });
+  };
+  setTimeout(go, 40);
+  setTimeout(go, 350);   // second passage : filet si un nouveau rendu a décalé la page entre-temps
+}
+function scrollToEngageDetail(){ window.scrollTo({ top:0, behavior:"smooth" }); setTimeout(()=>window.scrollTo({ top:0, behavior:"smooth" }), 350); }
 
 function renderEngageDetail(){
   if (!STATE.selectedEngageId) return "";
@@ -1660,7 +1600,7 @@ function renderEngageDetail(){
     </div>` : "";
 
   return `
-  <div class="card">
+  <div class="card" id="engageDetailCard">
     <div class="card-head">
       <div><div class="card-title">${e.nom}</div><div class="card-desc">Entré dans le dispositif le ${fmtDate(e.dateEntree)}</div></div>
       <div style="display:flex; gap:12px; align-items:center;">
@@ -2006,8 +1946,8 @@ function resetBilanCycleWorkingData(e){
 function buildMailto(e, actionKey){
   const tpl = MAIL_TEMPLATES[actionKey];
   if (!tpl) return null;
-  const body = tpl.body.replace(/\{\{expert\}\}/g, STATE.currentExpert.name).replace(/\{\{engage\}\}/g, e.nom || "");
-  return buildMailUrl(resolveMailRecipient(e), tpl.subject.replace(/\{\{engage\}\}/g, e.nom || ""), body, true);
+  const body = tpl.body.replace(/\{\{expert\}\}/g, STATE.currentExpert.name);
+  return buildMailUrl(resolveMailRecipient(e), tpl.subject, body, true);
 }
 
 // Dessine la frise dans un canvas (pas de dépendance externe type html2canvas) pour pouvoir
@@ -2137,13 +2077,11 @@ function sendFriseMail(e){
       setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(err){} }, 5000);
     }catch(err){ /* environnement sans téléchargement possible : on continue quand même */ }
 
-    const courrier = renderCourrier("point_frise", {
-      engage: e.nom, expert: STATE.currentExpert.name,
-      statut: STATUT_BILAN_META[e.statutBilan] ? " (statut actuel : " + STATUT_BILAN_META[e.statutBilan].label + ")" : "",
-      frise: "Vous trouverez ci-joint un aperçu de votre frise de suivi" + (copied ? " (image déjà copiée, il vous suffit de la coller ici avec Ctrl+V si elle n'apparaît pas automatiquement)" : " — pensez à joindre le fichier " + filename + " téléchargé") + "."
-    });
-    const subject = courrier.subject;
-    const body = courrier.body;
+    const subject = "Point sur votre parcours d'Accréditation";
+    const body = "Bonjour,\n\nJe reviens vers vous pour faire un point sur votre parcours d'Accréditation" +
+      (STATUT_BILAN_META[e.statutBilan] ? " (statut actuel : " + STATUT_BILAN_META[e.statutBilan].label + ")" : "") +
+      ". Vous trouverez ci-joint un aperçu de votre frise de suivi" + (copied ? " (image déjà copiée, il vous suffit de la coller ici avec Ctrl+V si elle n'apparaît pas automatiquement)" : " — pensez à joindre le fichier " + filename + " téléchargé") +
+      ".\n\nN'hésitez pas à revenir vers moi si vous avez des questions.\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
     const mailto = buildMailUrl(resolveMailRecipient(e), subject, body);
     window.open(mailto, "_blank");
     toast(copied
@@ -2411,7 +2349,7 @@ function attachEngagesEvents(){
     reader.readAsArrayBuffer(file);
   };
   document.querySelectorAll("tr.clickable").forEach(tr=>{
-    tr.onclick = ()=> setState({ selectedEngageId: tr.getAttribute("data-id") });
+    tr.onclick = ()=> { setState({ selectedEngageId: tr.getAttribute("data-id") }); scrollToEngageDetail(); };
   });
   const closeBtn = document.getElementById("closeEngageBtn");
   if (closeBtn) closeBtn.onclick = ()=> setState({ selectedEngageId:null });
@@ -2431,6 +2369,7 @@ function attachEngagesEvents(){
       if (!target) return;
       const openId = target.type === "membre_equipe" ? target.equipeId : target.id;
       setState({ selectedEngageId: openId, engageSearchQuery:"" });
+      scrollToEngageDetail();
     };
   });
   const toggleDoublonsBtn = document.getElementById("toggleDoublonsBtn");
@@ -2447,6 +2386,7 @@ function attachEngagesEvents(){
       const year = target ? target.cycleIndex : 0;
       const draft = target ? getBilanDraft(target, year) : null;
       setState({ activeTab:"bilan", selectedEngageId: targetId, bilanYear: year, bilanSynthese: draft ? draft.siam : null, bilanSyntheseEngage: draft ? draft.engage : null });
+      window.scrollTo({ top:0, behavior:"smooth" });
     };
   });
   document.querySelectorAll("[data-goto-eias]").forEach(el=>{
@@ -2598,14 +2538,10 @@ function attachEngagesEvents(){
       });
       return l.join("\n");
     });
-    const courrier = renderCourrier("point_trimestriel", {
-      engage: e.nom, expert: STATE.currentExpert.name,
-      activites: lines.length
-        ? "Quelques activités qui pourraient vous intéresser pour compléter votre bilan de cette année :\n\n" + lines.join("\n\n")
-        : "Rien de particulier à signaler pour l'instant, n'hésitez pas à revenir vers moi si vous avez des questions."
-    });
-    const subject = courrier.subject;
-    const body = courrier.body;
+    const subject = "Point trimestriel — Accréditation CFAR";
+    const body = "Bonjour,\n\nUn petit point sur votre parcours d'accréditation." +
+      (lines.length ? "\n\nQuelques activités qui pourraient vous intéresser pour compléter votre bilan de cette année :\n\n" + lines.join("\n\n") : "\n\nRien de particulier à signaler pour l'instant, n'hésitez pas à revenir vers moi si vous avez des questions.") +
+      "\n\nN'hésitez pas à me contacter pour en discuter.\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
     if (!resolveMailRecipient(e)) toast("Astuce : renseignez l'adresse mail de l'engagé (ou du référent d'équipe) pour préremplir le destinataire.");
     window.open(buildMailUrl(resolveMailRecipient(e), subject, body), "_blank");
     e.lastRappelDate = TODAY.toISOString().slice(0,10);
@@ -2717,7 +2653,7 @@ function attachEngagesEvents(){
       if (!dos) return;
       const stageIdx = stagesFor(e).indexOf(dos.etape);
       const filename = "Bilan_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".doc";
-      downloadWordDoc(bilanWordHtml(e, stageIdx>=0?stageIdx:0, dos.syntheseSiam, dos.appreciation, dos.resumeEngage), filename);
+      downloadWordDoc(bilanWordHtml(e, stageIdx>=0?stageIdx:0, dos.syntheseSiam, dos.appreciation, dos.resumeEngage, true), filename);
       toast("Synthèse téléchargée (Word).");
     };
   });
@@ -2727,7 +2663,7 @@ function attachEngagesEvents(){
       const dos = e && (e.dossiersBilan||[]).find(d=>d.id===el.getAttribute("data-resend-bilan"));
       if (!e || !dos) return;
       if (!resolveMailRecipient(e)) toast("Astuce : renseignez l'adresse mail de l'engagé (ou du référent d'équipe) pour préremplir le destinataire.");
-      const subject = renderCourrier("bilan_engage", { etape: dos.etape, engage: e.nom, expert: STATE.currentExpert.name }).subject;
+      const subject = "Votre bilan — " + dos.etape + " — Accréditation des Médecins";
       const body = (dos.syntheseEngage||"") + "\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
       window.open(buildMailUrl(resolveMailRecipient(e), subject, body), "_blank");
       toast("Mail ouvert — pensez à joindre manuellement la synthèse Word téléchargée.");
@@ -3245,9 +3181,9 @@ function computeBilanPreReq(e, year){
 // complétude" même après validation du bilan — contredisant le badge "✓ Bilan validé" affiché
 // juste à côté. Utilisée à la fois par l'aperçu à l'écran et par le document Word, recalculée à
 // chaque affichage/génération pour ne jamais se figer sur un état périmé.
-function bilanConclusionLine(e, year){
+function bilanConclusionLine(e, year, forceValidated){
   const dest = isAccreditationStage(e, year) ? "au SIAM et à la HAS" : "au SIAM";
-  return isBilanValidated(e, year)
+  return (forceValidated || isBilanValidated(e, year))
     ? "Bilan validé — complet, prêt à être transmis " + dest + "."
     : "Bilan en cours de complétude — à valider par l'expert avant transmission " + dest + ".";
 }
@@ -3397,7 +3333,7 @@ function renderBilan(){
         <button class="btn secondary small" id="toggleImportEngageBtn">${STATE.showImportEngage?"Masquer":"📥 Importer sa réponse"}</button>
       </div>
       ${STATE.showImportEngage ? `
-      <div style="margin-top:12px; border-top:1px dashed var(--border); padding-top:12px; max-width:420px;">
+      <div id="importEngagePanel" style="margin-top:12px; border-top:1px dashed var(--border); padding-top:12px; max-width:420px;">
         <div class="field"><label>Fichier reçu de l'engagé (.json)</label><input type="file" id="importEngageFile" accept=".json,application/json" /></div>
         <div class="field"><label>Code qu'il vous a communiqué séparément</label><input type="password" id="importEngageCode" autocomplete="off" /></div>
         <button class="btn small" id="loadEngageResponseBtn">Charger sa réponse</button>
@@ -3584,7 +3520,9 @@ function renderBilanReport(e, year){
   </div>`;
 }
 
-function bilanWordHtml(e, year, syntheseText, appreciation, resumeEngage){
+// `archive` = true pour un bilan déjà archivé : l'archivage efface le brouillon (et donc l'indicateur
+// « validé » de l'année), mais un bilan archivé est par définition validé.
+function bilanWordHtml(e, year, syntheseText, appreciation, resumeEngage, archive){
   const statuts = getBilanStatuts(e, year);
   const contenus = getBilanContenus(e, year);
   const valence = getBilanValence(e, year);
@@ -3702,7 +3640,7 @@ ${suiviPropositionsSectionWord}
     <p style="font-size:11.5pt; line-height:1.6; margin:0;">${escapeHtml(appreciation||"Aucune appréciation renseignée.").replace(/\n/g,"<br/>")}</p>
   </div>
 ${revoirSectionWord}${suggestionsSectionWord}
-  <p style="font-size:11pt; margin-top:18px;"><b>Conclusion :</b> ${escapeHtml(bilanConclusionLine(e, year))}</p>`;
+  <p style="font-size:11pt; margin-top:18px;"><b>Conclusion :</b> ${escapeHtml(bilanConclusionLine(e, year, !!archive))}</p>`;
 }
 
 function attachBilanEvents(){
@@ -3712,6 +3650,7 @@ function attachBilanEvents(){
       const year = target ? target.cycleIndex : 0;
       const draft = target ? getBilanDraft(target, year) : null;
       setState({ selectedEngageId: tr.getAttribute("data-id"), bilanYear: year, bilanSynthese: draft ? draft.siam : null, bilanSyntheseEngage: draft ? draft.engage : null });
+      window.scrollTo({ top:0, behavior:"smooth" });
     };
   });
   const back = document.getElementById("backToBilanList");
@@ -3849,12 +3788,13 @@ ${facts.resumeEngage}` : ""}`;
   // tout lire directement dans ce message, et l'expert doit voir exactement ce qui sera envoyé
   // avant de cliquer sur « Envoyer ». Le même texte est aussi ce qui reste archivé avec le bilan.
   function deterministicEngageMessage(e, year, appreciation){
-    return renderCourrier("bilan_engage", {
-      etape: stagesFor(e)[year], engage: e.nom, appreciation: appreciation || "",
-      activites_a_revoir: buildAmeliorerSnippetForBilan(e, year).trim(),
-      propositions: buildDidacticielSnippetForBilan(e, year).trim(),
-      expert: STATE.currentExpert.name
-    }).body;
+    const revoirSnippet = buildAmeliorerSnippetForBilan(e, year);
+    const propositionsSnippet = buildDidacticielSnippetForBilan(e, year);
+    return "Bonjour,\n\nVoici le bilan de votre année " + stagesFor(e)[year] + ". " +
+      (appreciation ? appreciation + "\n\n" : "") +
+      "Important : une fois vos éventuelles corrections apportées, pensez impérativement à recopier vous-même vos réponses (activités et le cas échéant vos corrections) dans le SIAM — ce message ne s'y substitue pas." +
+      revoirSnippet + propositionsSnippet +
+      "\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
   }
 
   const genBtn = document.getElementById("genSyntheseBtn");
@@ -4031,7 +3971,7 @@ ${facts.resumeEngage}` : ""}`;
   };
 
   const toggleImportEngageBtn = document.getElementById("toggleImportEngageBtn");
-  if (toggleImportEngageBtn) toggleImportEngageBtn.onclick = ()=> setState({ showImportEngage: !STATE.showImportEngage });
+  if (toggleImportEngageBtn) toggleImportEngageBtn.onclick = ()=>{ setState({ showImportEngage: !STATE.showImportEngage }); if (STATE.showImportEngage) scrollToEl("importEngagePanel", 120); };
 
   const loadEngageResponseBtn = document.getElementById("loadEngageResponseBtn");
   if (loadEngageResponseBtn) loadEngageResponseBtn.onclick = ()=>{
@@ -4089,7 +4029,7 @@ ${facts.resumeEngage}` : ""}`;
     if (!body.includes("Activités à revoir")) body += buildAmeliorerSnippetForBilan(e, year);
     if (!body.includes("Propositions de travail pour l'année prochaine")) body += buildDidacticielSnippetForBilan(e, year);
     if (!/Cordialement/.test(body)) body += "\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
-    const subject = renderCourrier("bilan_engage", { etape: stagesFor(e)[year], engage: e.nom, expert: STATE.currentExpert.name }).subject;
+    const subject = "Votre bilan — " + stagesFor(e)[year] + " — Accréditation des Médecins";
     if (!resolveMailRecipient(e)) toast("Astuce : renseignez l'adresse mail de l'engagé (ou du référent d'équipe) pour préremplir le destinataire.");
     window.open(buildMailUrl(resolveMailRecipient(e), subject, body), "_blank");
     toast("Mail ouvert — pensez à joindre manuellement la synthèse Word téléchargée (un lien mailto ne peut pas joindre de fichier automatiquement).");
@@ -4121,9 +4061,8 @@ ${facts.resumeEngage}` : ""}`;
   if (mailRetourJsonBtn) mailRetourJsonBtn.onclick = ()=>{
     const e = ENGAGES.find(x=>x.id===STATE.selectedEngageId);
     const year = STATE.bilanYear || 0;
-    const courrier = renderCourrier("retour_json", { etape: stagesFor(e)[year], engage: e.nom, expert: STATE.currentExpert.name });
-    const subject = courrier.subject;
-    const body = courrier.body;
+    const subject = "Retour sur votre bilan — " + stagesFor(e)[year] + " — Accréditation des Médecins";
+    const body = "Bonjour,\n\nVous trouverez en pièce jointe le retour de votre expert sur votre bilan (" + stagesFor(e)[year] + ") : fichier « Retour_Expert_….json ».\n\nPour le consulter : rouvrez votre espace engagé (le fichier HTML reçu précédemment) et chargez ce fichier dans la carte « Retour de mon expert », sous votre frise. Les activités à revoir apparaîtront en rouge, les propositions pour l'année prochaine en vert, avec mon appréciation. Vos réponses déjà saisies sont conservées.\n\nPensez ensuite à recopier vous-même vos réponses corrigées dans le SIAM.\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
     if (!resolveMailRecipient(e)) toast("Astuce : renseignez l'adresse mail de l'engagé (ou du référent d'équipe) pour préremplir le destinataire.");
     window.open(buildMailUrl(resolveMailRecipient(e), subject, body), "_blank");
     toast("Mail ouvert — joignez manuellement le fichier JSON téléchargé (un lien mailto ne peut pas joindre de fichier).");
@@ -4584,15 +4523,18 @@ function eiasSiamSummary(d, cr){
 // contradictoire — puis la synthèse telle que versée au SIAM, sans le jargon "base commune".
 function buildEiasEngageMailto(e, d, cr){
   cr = cr || {};
+  const tpl = MAIL_TEMPLATES.eias_retour;
   const critiqueTxt = [
     cr.pointsForts ? "Points forts de votre analyse : " + cr.pointsForts : "",
     cr.pointsAmeliorer ? "Points à approfondir : " + cr.pointsAmeliorer : "",
     cr.complementExpert ? "Complément apporté par l'expert : " + cr.complementExpert : "",
   ].filter(Boolean).join("\n\n") || "—";
   const syntheseTxt = eiasPlainText(d, {});
-  const courrier = renderCourrier("eias_retour", { titre: d.titre || "votre EIAS", critique: critiqueTxt, synthese: syntheseTxt, expert: STATE.currentExpert.name, engage: e.nom });
-  const subject = courrier.subject;
-  const body = courrier.body;
+  const subject = tpl.subject.replace("{{titre}}", d.titre || "votre EIAS");
+  const body = tpl.body
+    .replace("{{critique}}", critiqueTxt)
+    .replace("{{synthese}}", syntheseTxt)
+    .replace(/\{\{expert\}\}/g, STATE.currentExpert.name);
   return buildMailUrl(resolveMailRecipient(e), subject, body);
 }
 
@@ -5111,7 +5053,7 @@ function buildBilanFactsAccreditation(e, year){
   const compiledYears = compiledYearsForAccreditation(e, year);
   const activitesParPilier = PILIERS.map(p=>{
     const parActivite = {};
-    compiledYears.concat([year]).forEach(y=>{
+    compiledYears.forEach(y=>{
       const statuts = getBilanStatuts(e, y);
       const contenus = getBilanContenus(e, y);
       p.activites.forEach((a,ai)=>{
@@ -5131,13 +5073,12 @@ function buildBilanFactsAccreditation(e, year){
       activites: Object.entries(parActivite).map(([nom,v])=>({ nom, annees:v.annees, contenu:v.contenu })),
     };
   });
-  // Cumul EXPLICITE des compteurs annuels des 3 années compilées + de l'année d'accréditation en
-  // cours (et non un total glissant jamais remis à zéro) — chaque année du cycle a son propre
-  // compteur, remis à zéro après le bilan d'accréditation (voir getEiasRealises /
-  // resetBilanCycleWorkingData).
-  const eiasP = eiasCumulPeriode(e, year);
-  const attenduPeriode = eiasP.attendus;
-  const eiasRealisesPeriode = eiasP.realises;
+  const attendu = e.type==="equipe" ? eiasAttendus(e.membres.length) : 1;
+  const attenduPeriode = attendu * (compiledYears.length || 1);
+  // Cumul EXPLICITE des compteurs annuels des 3 années compilées (et non un total glissant
+  // jamais remis à zéro) — chaque année du cycle a son propre compteur, remis à zéro au bilan
+  // annuel suivant (voir getEiasRealises / resetBilanCycleWorkingData).
+  const eiasRealisesPeriode = compiledYears.reduce((s,y)=> s + getEiasRealises(e, y), 0);
   const themesEias = compiledYears
     .reduce((acc,y)=> acc.concat(dossiersEiasDeAnnee(e, y)), [])
     .map(d=> d.titre + (d.motsCles&&d.motsCles.length ? " ("+d.motsCles.join(", ")+")" : ""));
@@ -5146,7 +5087,7 @@ function buildBilanFactsAccreditation(e, year){
     periodeCouverte: compiledYears.map(y=>stages[y]),
     engage: e.nom,
     composition: e.type==="equipe" ? e.membres.length+" médecins engagés" : "exercice individuel — "+e.modeExercice,
-    eiasSurLaPeriode: eiasRealisesPeriode + "/" + attenduPeriode + " (cumul des 3 bilans annuels compilés et de l'année d'accréditation)",
+    eiasSurLaPeriode: eiasRealisesPeriode + "/" + attenduPeriode + " (cumul des 3 bilans annuels compilés)",
     themesEias,
     activitesParPilier,
     resumeEngage: getBilanResumeEngage(e, year),
@@ -5580,52 +5521,6 @@ function buildDidacticielSnippetForSelection(selection){
   return lines.join("\n").trim();
 }
 
-// Éditeur de TOUS les courriers (administrateur) : mails d'actions (bilan validé, complément
-// demandé...), messages de bilan, retour structuré, points de suivi, EIAS, texte d'accueil de
-// l'espace engagé. Chaque modèle reste de toute façon modifiable dans la messagerie avant envoi.
-function courrierKeysList(){
-  const base = Object.keys(COURRIERS_DEFAUT);
-  const actions = Object.keys(MAIL_TEMPLATES).filter(k=> STATUT_BILAN_META[k] && !COURRIERS_DEFAUT[k]);
-  return base.concat(actions);
-}
-function renderCourriersEditor(){
-  if (!STATE.showCourriersEdit){
-    return `<div class="card"><div class="muted-small">✉️ <b>Modèles de courriers</b> — tous les mails et messages envoyés aux engagés (bilan, retour structuré, validation, complément demandé, EIAS, points de suivi, texte d'accueil de l'espace engagé) sont modifiables.
-      <a class="linklike" id="toggleCourriersBtn" style="font-size:11.5px; margin-left:8px;">✎ Modifier les modèles de courriers</a></div></div>`;
-  }
-  const items = courrierKeysList().map(key=>{
-    const tpl = MAIL_TEMPLATES[key] || COURRIERS_DEFAUT[key];
-    const def = COURRIERS_DEFAUT[key];
-    const meta = def || {};
-    const isIntro = key === "espace_engage_intro";
-    const varsDoc = def && def.vars
-      ? Object.keys(def.vars).map(v=>`<code>{{${v}}}</code> ${escapeHtml(def.vars[v])}`).join(" · ")
-      : "<code>{{expert}}</code> votre nom · <code>{{engage}}</code> nom de l'engagé";
-    if (STATE.editingCourrier !== key){
-      return `<div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
-        <b style="font-size:12.5px;">${escapeHtml(tpl.label)}</b> — <a class="linklike" data-edit-courrier="${key}" style="font-size:11.5px;">✎ Modifier</a>
-        ${meta.note ? `<div class="muted-small" style="margin-top:2px;">${escapeHtml(meta.note)}</div>` : ""}
-      </div>`;
-    }
-    return `<div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
-      <b style="font-size:12.5px;">${escapeHtml(tpl.label)}</b>
-      ${meta.note ? `<div class="muted-small" style="margin:2px 0 6px;">${escapeHtml(meta.note)}</div>` : ""}
-      ${isIntro ? "" : `<div class="field" style="margin-top:6px;"><label>Objet</label><input type="text" id="courrierSubject_${key}" value="${escapeHtml(tpl.subject)}" /></div>`}
-      <div class="field"><label>${isIntro ? "Texte" : "Corps du message"}</label><textarea rows="${isIntro ? 4 : 12}" id="courrierBody_${key}">${escapeHtml(tpl.body)}</textarea></div>
-      <div class="muted-small" style="margin-bottom:8px;">Variables utilisables (remplacées à l'envoi) : ${varsDoc}</div>
-      <button class="btn small" data-save-courrier="${key}">Enregistrer</button>
-      ${def ? `<a class="linklike" data-reset-courrier="${key}" style="margin-left:10px;">↺ Rétablir le modèle d'origine</a>` : ""}
-      <a class="linklike" data-cancel-courrier style="margin-left:10px;">Annuler</a>
-    </div>`;
-  }).join("");
-  return `<div class="card">
-    <div class="card-title" style="margin-bottom:4px;">✉️ Modèles de courriers (administrateur)</div>
-    <div class="muted-small">Les modifications s'appliquent immédiatement dans cette session. Pour les diffuser à tous les experts, utilisez ensuite <b>« 💾 Exporter l'application mise à jour (index.html) »</b> ci-dessous et déposez le fichier sur GitHub. Chaque mail reste librement modifiable dans la messagerie avant envoi.</div>
-    ${items}
-    <div style="margin-top:12px;"><a class="linklike" id="toggleCourriersBtn">Masquer</a></div>
-  </div>`;
-}
-
 function renderDidacticiel(){
   const view = STATE.didacticielView || "piliers";
   const isAdmin = STATE.currentExpert && STATE.currentExpert.isAdmin;
@@ -5906,7 +5801,7 @@ function renderDidacticiel(){
     </div>`;
   }
 
-  return `${pillsHtml}${selectionBar}${adminBanner}${reglesGestionBlock}${isAdmin ? renderCourriersEditor() : ""}${referentielBar}${exportBar}${body}`;
+  return `${pillsHtml}${selectionBar}${adminBanner}${reglesGestionBlock}${referentielBar}${exportBar}${body}`;
 }
 
 function attachDidacticielEvents(){
@@ -6174,36 +6069,6 @@ function attachDidacticielEvents(){
     };
   });
 
-  const toggleCourriersBtn = document.getElementById("toggleCourriersBtn");
-  if (toggleCourriersBtn) toggleCourriersBtn.onclick = ()=> setState({ showCourriersEdit: !STATE.showCourriersEdit, editingCourrier:null });
-  document.querySelectorAll("[data-edit-courrier]").forEach(el=>{
-    el.onclick = ()=> setState({ editingCourrier: el.getAttribute("data-edit-courrier") });
-  });
-  const cancelCourrierBtn = document.querySelector("[data-cancel-courrier]");
-  if (cancelCourrierBtn) cancelCourrierBtn.onclick = ()=> setState({ editingCourrier:null });
-  document.querySelectorAll("[data-save-courrier]").forEach(el=>{
-    el.onclick = ()=>{
-      const key = el.getAttribute("data-save-courrier");
-      if (!MAIL_TEMPLATES[key]) MAIL_TEMPLATES[key] = { label:(COURRIERS_DEFAUT[key]||{}).label || key, subject:"", body:"" };
-      const subjEl = document.getElementById("courrierSubject_"+key);
-      if (subjEl) MAIL_TEMPLATES[key].subject = subjEl.value;
-      MAIL_TEMPLATES[key].body = document.getElementById("courrierBody_"+key).value;
-      setState({ editingCourrier:null });
-      toast("Modèle enregistré — pensez à exporter l'application mise à jour pour le diffuser aux autres experts.");
-    };
-  });
-  document.querySelectorAll("[data-reset-courrier]").forEach(el=>{
-    el.onclick = ()=>{
-      const key = el.getAttribute("data-reset-courrier");
-      const def = COURRIERS_DEFAUT[key];
-      if (!def) return;
-      if (!window.confirm("Rétablir le modèle d'origine « " + def.label + " » ? Votre version personnalisée sera perdue.")) return;
-      MAIL_TEMPLATES[key] = { label:def.label, subject:def.subject, body:def.body };
-      setState({ editingCourrier:null });
-      toast("Modèle d'origine rétabli.");
-    };
-  });
-
   const exportUpdatedAppBtn = document.getElementById("exportUpdatedAppBtn");
   if (exportUpdatedAppBtn) exportUpdatedAppBtn.onclick = ()=>{
     try{
@@ -6321,9 +6186,9 @@ function attachDidacticielEvents(){
     if (!target){ toast("Choisissez un engagé destinataire."); return; }
     const snippet = buildDidacticielSnippetForSelection(STATE.didacticielSelection);
     if (!snippet){ toast("Aucune activité sélectionnée."); return; }
-    const courrier = renderCourrier("ressources_didacticiel", { engage: target.nom, expert: STATE.currentExpert.name, ressources: snippet });
-    const subject = courrier.subject;
-    const body = courrier.body;
+    const subject = "Ressources du didacticiel — Accréditation CFAR";
+    const body = "Bonjour,\n\nSuite à votre question, voici quelques ressources qui devraient vous être utiles :\n" + snippet +
+      "\n\nN'hésitez pas à revenir vers moi si vous avez besoin de précisions complémentaires.\n\nCordialement.\nVotre Expert au CFAR : " + STATE.currentExpert.name;
     if (!resolveMailRecipient(target)) toast("Astuce : renseignez l'adresse mail de cet engagé (ou du référent d'équipe) pour préremplir le destinataire.");
     window.open(buildMailUrl(resolveMailRecipient(target), subject, body), "_blank");
   };
@@ -6387,7 +6252,6 @@ function buildEspaceEngageHtml(e, year){
     retourExpert: {},
     generePar: STATE.currentExpert.name,
     genereLe: TODAY.toISOString().slice(0,10),
-    introTexte: renderCourrier("espace_engage_intro", { engage: e.nom, etape: stages[year], expert: STATE.currentExpert.name }).body,
   };
 
   return ESPACE_ENGAGE_TEMPLATE.replace("__EE_DATA_JSON__", JSON.stringify(eeData));
@@ -6494,7 +6358,7 @@ function eeRender(){
   html += "</div>";
 
   html += "<div class='ee-card ee-info'>";
-  html += "<p>" + eeEscapeHtml(EE_DATA.introTexte || "Bonjour, votre expert vous invite à compléter ci-dessous les activités que vous avez réalisées, à l’aide des attendus, exemples et ressources du didacticiel. Une fois terminé, exportez votre réponse (bouton en bas de page) et renvoyez le fichier généré à votre expert.").split(String.fromCharCode(10)).join("<br/>") + "</p>";
+  html += "<p>Bonjour, votre expert vous invite à compléter ci-dessous les activités que vous avez réalisées, à l’aide des attendus, exemples et ressources du didacticiel. Une fois terminé, exportez votre réponse (bouton en bas de page) et renvoyez le fichier généré à votre expert.</p>";
   html += "</div>";
 
   html += "<div class='ee-card'>";
