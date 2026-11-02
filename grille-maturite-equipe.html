@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grille de maturité de l'équipe</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
+<style>
+/* Mise en page : une colonne de lecture (max 880px), six cartes de lignes à 4 niveaux en grille, radar et résumé en fin de page. */
+:root{
+  --bg:#F2F5F4; --surface:#FFFFFF; --fg:#17292A; --muted:#566B6B; --line:#D3DDDB;
+  --accent:#0C6A62; --accent-soft:#DDF0ED; --accent-fg:#FFFFFF;
+  --before:#B4602B; --before-soft:#F8E9DD;
+  --ok:#2F7D4F;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101A1A; --surface:#172424; --fg:#E4EEEC; --muted:#9DB2B0; --line:#2E4443;
+    --accent:#4FC2B6; --accent-soft:#1B3836; --accent-fg:#06201D;
+    --before:#E39A67; --before-soft:#3A2A1E; --ok:#6FCB92; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101A1A; --surface:#172424; --fg:#E4EEEC; --muted:#9DB2B0; --line:#2E4443;
+  --accent:#4FC2B6; --accent-soft:#1B3836; --accent-fg:#06201D;
+  --before:#E39A67; --before-soft:#3A2A1E; --ok:#6FCB92; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5;
+  padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--serif);font-weight:600;text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(26px,5vw,36px)}
+h2{font-size:22px}
+h3{font-size:18px}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.tag{display:inline-block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--accent);border:1px solid var(--accent);padding:2px 8px;border-radius:3px}
+header{display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.intro ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500;min-width:0}
+input[type=text],input[type=date],input[type=number],select,textarea{font:inherit;font-weight:400;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:8px 10px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:64px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.modebar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:14px;font-weight:500;border:0;background:transparent;color:var(--fg);padding:8px 14px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-fg)}
+.seg button.b[aria-pressed=true]{background:var(--before);color:#fff}
+.dim{display:flex;flex-direction:column;gap:12px}
+.dim-head{display:flex;flex-direction:column;gap:2px}
+.dim-head .q{font-size:14px;color:var(--muted)}
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.lv{position:relative;text-align:left;font:inherit;font-size:13.5px;line-height:1.4;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:10px 10px 10px;cursor:pointer;min-width:0;display:flex;flex-direction:column;gap:6px}
+.lv .n{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em}
+.lv:hover{border-color:var(--accent)}
+.lv.now{background:var(--accent-soft);border:2px solid var(--accent);padding:9px}
+.lv.was{border:2px dashed var(--before);background:var(--before-soft);padding:9px}
+.lv.now.was{border:2px solid var(--accent);box-shadow:inset 0 0 0 3px var(--before-soft)}
+.badges{display:flex;gap:6px;min-height:18px}
+.bd{font-size:11px;font-weight:600;border-radius:3px;padding:1px 6px}
+.bd.now{background:var(--accent);color:var(--accent-fg)}
+.bd.was{background:var(--before);color:#fff}
+@media (max-width:640px){.levels{grid-template-columns:1fr 1fr}}
+@media (max-width:380px){.levels{grid-template-columns:1fr}}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.checks label{display:flex;gap:8px;align-items:flex-start;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:5px;background:var(--bg);cursor:pointer}
+.checks input{margin-top:3px;accent-color:var(--accent)}
+.resgrid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:700px){.resgrid{grid-template-columns:1fr}}
+svg.radar{width:100%;height:auto;display:block}
+.radar .ring{fill:none;stroke:var(--line);stroke-width:1}
+.radar .axis{stroke:var(--line);stroke-width:1}
+.radar .lab{fill:var(--fg);font-size:12px;font-family:var(--sans)}
+.radar .tick{fill:var(--muted);font-size:10px;font-family:var(--sans)}
+.radar .now{fill:var(--accent);fill-opacity:.18;stroke:var(--accent);stroke-width:2.5}
+.radar .was{fill:none;stroke:var(--before);stroke-width:2;stroke-dasharray:6 4}
+.radar .dnow{fill:var(--accent)}
+.radar .dwas{fill:var(--surface);stroke:var(--before);stroke-width:2}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px}
+.legend i{display:inline-block;width:18px;height:0;border-top:3px solid var(--accent);vertical-align:middle;margin-right:6px}
+.legend i.w{border-top:3px dashed var(--before)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+td.num{font-variant-numeric:tabular-nums;text-align:center;white-space:nowrap}
+.up{color:var(--ok);font-weight:600}
+.tablewrap{overflow-x:auto}
+.btn{font:inherit;font-weight:500;font-size:14px;border-radius:5px;padding:9px 16px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg)}
+.btn.sec{background:transparent;color:var(--accent)}
+.btn.danger{border-color:var(--before);color:var(--before);background:transparent}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.rating{display:flex;gap:6px}
+.rating button{font:inherit;font-weight:600;width:42px;height:38px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:5px;cursor:pointer}
+.rating button[aria-pressed=true]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.status{font-size:13px;color:var(--ok);min-height:20px}
+#outText{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;min-height:160px;background:var(--bg)}
+footer{font-size:12.5px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.lv{transition:border-color .15s,background .15s}}
+body{margin:0}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Version test</span>
+    <h1>Grille de maturité de l'équipe</h1>
+    <p class="muted">Six lignes, quatre niveaux, une dizaine de minutes. Elle décrit comment l'équipe travaille depuis son entrée dans le programme d'accréditation, à remplir ensemble, en réunion ou au staff.</p>
+  </header>
+
+  <section class="panel intro" aria-labelledby="how">
+    <h2 id="how">Comment la remplir</h2>
+    <ol>
+      <li>Choisissez, pour chaque ligne, la description qui ressemble le plus à votre équipe <b>aujourd'hui</b>. Un seul niveau par ligne, celui qui est vrai le plus souvent.</li>
+      <li>Si vous le pouvez, passez sur « À l'entrée » et marquez aussi où vous en étiez avant l'accréditation. Cela permet de voir le chemin parcouru.</li>
+      <li>Ajoutez un exemple concret quand il vous vient. Une phrase suffit.</li>
+    </ol>
+    <p class="small muted">Aucune donnée patient ni nom de personne ne doit figurer dans cette page. Rien n'est envoyé automatiquement : vos réponses restent sur votre appareil jusqu'à ce que vous copiez le résumé à la fin.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="ctx">
+    <h2 id="ctx">Votre équipe</h2>
+    <div class="fields">
+      <label class="f">Équipe ou service (facultatif)<input type="text" id="equipe" placeholder="Ex. bloc de cardiologie interventionnelle"></label>
+      <label class="f">Spécialité<input type="text" id="specialite" placeholder="Ex. anesthésie, cardiologie…"></label>
+      <label class="f">Date<input type="date" id="date"></label>
+      <label class="f">Personnes ayant participé<input type="number" id="nbpart" min="1" max="60" inputmode="numeric" placeholder="Ex. 6"></label>
+      <label class="f">Dans le programme depuis
+        <select id="anciennete">
+          <option value="">À préciser</option>
+          <option>moins d'un an</option><option>1 à 2 ans</option><option>2 à 3 ans</option><option>3 à 4 ans</option><option>plus de 4 ans</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <div>
+    <div class="modebar" role="group" aria-label="Que renseignez-vous ?">
+      <span class="small muted">Je renseigne :</span>
+      <div class="seg">
+        <button type="button" id="modeNow" aria-pressed="true">Aujourd'hui</button>
+        <button type="button" id="modeWas" class="b" aria-pressed="false">À l'entrée dans le programme</button>
+      </div>
+      <span class="small muted" id="progress"></span>
+    </div>
+  </div>
+
+  <div id="dims" style="display:flex;flex-direction:column;gap:20px"></div>
+
+  <section class="panel" aria-labelledby="acc">
+    <h2 id="acc">Ce que l'accréditation a changé</h2>
+    <p class="muted">Quelles activités ont le plus fait évoluer votre manière de travailler ?</p>
+    <div class="checks" id="acts"></div>
+    <label class="f">Un changement concret, visible dans votre quotidien
+      <textarea id="changement" placeholder="Ex. nous faisons maintenant un débriefing de 2 minutes après chaque cas difficile."></textarea>
+    </label>
+  </section>
+
+  <section class="panel" aria-labelledby="res">
+    <h2 id="res">Votre profil</h2>
+    <div class="resgrid">
+      <div>
+        <svg class="radar" id="radar" viewBox="0 0 400 340" role="img" aria-label="Radar des six lignes de la grille"></svg>
+        <div class="legend"><span><i></i>Aujourd'hui</span><span><i class="w"></i>À l'entrée</span></div>
+      </div>
+      <div class="tablewrap"><table id="tbl"></table></div>
+    </div>
+    <p class="small muted" id="resNote"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="fb">
+    <h2 id="fb">Votre avis sur cette grille</h2>
+    <p class="muted">Elle est en test. Dites-nous si elle est utilisable sur le terrain.</p>
+    <div class="fields">
+      <label class="f">Temps passé
+        <select id="duree"><option value="">À préciser</option><option>moins de 5 min</option><option>5 à 10 min</option><option>10 à 20 min</option><option>plus de 20 min</option></select>
+      </label>
+      <div class="f" style="font-weight:500">Clarté des descriptions
+        <div class="rating" id="clarte" role="group" aria-label="Clarté de 1 à 4"></div>
+        <span class="small muted" style="font-weight:400">1 confus, 4 très clair</span>
+      </div>
+    </div>
+    <label class="f">Ce qui manque, gêne ou pourrait être reformulé
+      <textarea id="remarque" placeholder="Une ligne absente, un niveau mal décrit, une formulation trop théorique…"></textarea>
+    </label>
+  </section>
+
+  <section class="panel" aria-labelledby="out">
+    <h2 id="out">Envoyer vos réponses</h2>
+    <p class="muted">Copiez le résumé ci-dessous et collez-le dans un mail à la personne qui vous a transmis cette page.</p>
+    <div class="row">
+      <button class="btn" type="button" id="copyBtn">Copier le résumé</button>
+      <button class="btn danger" type="button" id="resetBtn">Tout effacer</button>
+      <span class="status" id="status" role="status"></span>
+    </div>
+    <textarea id="outText" readonly aria-label="Résumé à copier"></textarea>
+  </section>
+
+  <footer>
+    Les six lignes sont inspirées des principes des organisations hautement fiables (Weick et Sutcliffe) et des matrices de maturité de la HAS. Outil d'auto-évaluation pour progresser, pas un outil de contrôle ni de notation.
+  </footer>
+</div>
+
+<script>
+(function(){
+  var DIMS=[
+    {id:"anticiper",court:"Anticiper",titre:"Anticiper les risques",q:"Avant un acte ou une journée à risque, que fait l'équipe ?",lv:[
+      "Chacun gère les risques au fil de l'eau.",
+      "Certains évoquent les risques avant un acte à risque, sans règle commune.",
+      "L'équipe anticipe ensemble, à chaque fois : briefing, check-list réellement vécue.",
+      "En plus, nous revoyons nos protocoles dès que le risque change."]},
+    {id:"analyser",court:"Analyser",titre:"Tirer les leçons des événements",q:"Que devient un événement indésirable ou évité de justesse ?",lv:[
+      "Peu déclaré, peu analysé.",
+      "Déclaré, analysé par une personne ou de temps en temps en RMM.",
+      "Analysé en équipe pluriprofessionnelle, des actions sont décidées.",
+      "Les actions sont suivies et évaluées, et nous constatons moins de récidives."]},
+    {id:"signaux",court:"Signaux faibles",titre:"Repérer les signaux faibles",q:"Comment circulent les doutes, les presque-incidents, les « ça ne sent pas bon » ?",lv:[
+      "Nous réagissons surtout quand c'est grave.",
+      "Certains alertent, mais cela n'a pas toujours de suite.",
+      "Les doutes et presque-incidents remontent sans crainte de reproche, et sont traités.",
+      "Nous les cherchons activement : revues de cas, indicateurs, tour de salle."]},
+    {id:"communiquer",court:"Communiquer",titre:"Communiquer dans l'équipe",q:"Comment l'information circule-t-elle pendant la prise en charge ?",lv:[
+      "De façon informelle, selon les affinités.",
+      "Check-list et transmissions faites, parfois pour la forme.",
+      "Communication structurée (time-out, débriefing). Chacun peut prendre la parole.",
+      "Tous les métiers, y compris internes et paramédicaux, expriment un écart et sont entendus."]},
+    {id:"rebondir",court:"Rebondir",titre:"S'adapter et rebondir",q:"Quand l'imprévu survient (panne, complication, urgence), où en est l'équipe ?",lv:[
+      "Nous improvisons.",
+      "Nous avons des protocoles pour quelques urgences.",
+      "Les scénarios sont connus, le matériel de secours est repéré et accessible.",
+      "Entraînement régulier (simulation, exercices) et retour d'expérience après chaque situation critique."]},
+    {id:"expertise",court:"Expertise",titre:"Mobiliser la bonne expertise",q:"Qui décide quand la situation devient difficile ?",lv:[
+      "La décision suit la hiérarchie ou l'habitude.",
+      "On demande un avis en cas de doute, selon la personne présente.",
+      "On appelle sans délai la personne la plus compétente, et l'alerte de tout membre est écoutée.",
+      "L'expertise se partage en routine : staffs pluriprofessionnels, avis du réseau."]}
+  ];
+  var ACTS=["RMM, CREX, REMED","Analyse des EIAS","Check-list sécurité du patient","Staff pluriprofessionnel","Simulation, formation en équipe","Revue de pratiques, audit, EPP","Facteurs humains, compétences non techniques","Autre"];
+  var KEY="grille-maturite-equipe-test-v1";
+  var S={mode:"now",now:{},was:{},preuve:{},acts:[],clarte:0};
+  var ids=["equipe","specialite","date","nbpart","anciennete","changement","duree","remarque"];
+
+  function $(i){return document.getElementById(i)}
+  function load(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);for(var k in o)S[k]=o[k]}}catch(e){}}
+  function save(){try{var o={};for(var k in S)o[k]=S[k];o.f={};ids.forEach(function(i){o.f[i]=$(i).value});localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+  function restoreFields(){var f=S.f||{};ids.forEach(function(i){if(f[i]!==undefined)$(i).value=f[i]})}
+
+  /* Construction des lignes */
+  var host=$("dims");
+  DIMS.forEach(function(d,di){
+    var sec=document.createElement("section");sec.className="panel dim";sec.setAttribute("aria-labelledby","h_"+d.id);
+    var html='<div class="dim-head"><h3 id="h_'+d.id+'">'+d.titre+'</h3><p class="q">'+d.q+'</p></div><div class="levels" id="lv_'+d.id+'"></div>'+
+      '<label class="f">Un exemple concret (facultatif)<textarea id="p_'+d.id+'" placeholder="Ce qui illustre votre niveau, en une phrase."></textarea></label>';
+    sec.innerHTML=html;host.appendChild(sec);
+    var lvHost=sec.querySelector(".levels");
+    d.lv.forEach(function(t,li){
+      var b=document.createElement("button");b.type="button";b.className="lv";b.dataset.d=d.id;b.dataset.l=li+1;
+      b.innerHTML='<span class="n">Niveau '+(li+1)+'</span><span>'+t+'</span><span class="badges"></span>';
+      b.addEventListener("click",function(){
+        var m=S.mode;var cur=S[m][d.id];
+        S[m][d.id]=(cur===li+1)?0:li+1;
+        refresh();save();
+      });
+      lvHost.appendChild(b);
+    });
+    var ta=sec.querySelector("textarea");
+    ta.addEventListener("input",function(){S.preuve[d.id]=ta.value;buildOut();save()});
+  });
+
+  var actsHost=$("acts");
+  ACTS.forEach(function(a,i){
+    var l=document.createElement("label");l.innerHTML='<input type="checkbox" value="'+i+'"><span>'+a+'</span>';
+    l.firstChild.addEventListener("change",function(){
+      var v=a;var ix=S.acts.indexOf(v);
+      if(this.checked&&ix<0)S.acts.push(v);if(!this.checked&&ix>=0)S.acts.splice(ix,1);
+      buildOut();save();
+    });
+    actsHost.appendChild(l);
+  });
+
+  var rt=$("clarte");
+  for(var i=1;i<=4;i++){(function(n){
+    var b=document.createElement("button");b.type="button";b.textContent=n;
+    b.addEventListener("click",function(){S.clarte=(S.clarte===n)?0:n;paintRating();buildOut();save()});
+    rt.appendChild(b);
+  })(i)}
+  function paintRating(){[].forEach.call(rt.children,function(b,i){b.setAttribute("aria-pressed",String(S.clarte===i+1))})}
+
+  $("modeNow").addEventListener("click",function(){S.mode="now";paintMode();save()});
+  $("modeWas").addEventListener("click",function(){S.mode="was";paintMode();save()});
+  function paintMode(){
+    $("modeNow").setAttribute("aria-pressed",String(S.mode==="now"));
+    $("modeWas").setAttribute("aria-pressed",String(S.mode==="was"));
+  }
+
+  function paintLevels(){
+    DIMS.forEach(function(d){
+      [].forEach.call($("lv_"+d.id).children,function(b){
+        var l=+b.dataset.l;var isNow=S.now[d.id]===l,isWas=S.was[d.id]===l;
+        b.className="lv"+(isNow?" now":"")+(isWas?" was":"");
+        var bd=b.querySelector(".badges");bd.innerHTML=(isWas?'<span class="bd was">À l\'entrée</span>':"")+(isNow?'<span class="bd now">Aujourd\'hui</span>':"");
+        b.setAttribute("aria-pressed",String(isNow||isWas));
+      });
+    });
+  }
+
+  /* Radar */
+  var NS="http://www.w3.org/2000/svg",CX=200,CY=170,R=112,N=DIMS.length;
+  function pt(i,v){var a=-Math.PI/2+i*2*Math.PI/N;var r=R*v/4;return [CX+r*Math.cos(a),CY+r*Math.sin(a)]}
+  function el(n,at,txt){var e=document.createElementNS(NS,n);for(var k in at)e.setAttribute(k,at[k]);if(txt!==undefined)e.textContent=txt;return e}
+  function drawRadar(){
+    var s=$("radar");s.innerHTML="";
+    for(var r=1;r<=4;r++){
+      var p=[];for(var i=0;i<N;i++){var q=pt(i,r);p.push(q[0].toFixed(1)+","+q[1].toFixed(1))}
+      s.appendChild(el("polygon",{"class":"ring",points:p.join(" ")}));
+      var t=pt(0,r);s.appendChild(el("text",{"class":"tick",x:CX+4,y:t[1]-2},r));
+    }
+    DIMS.forEach(function(d,i){
+      var e=pt(i,4);s.appendChild(el("line",{"class":"axis",x1:CX,y1:CY,x2:e[0],y2:e[1]}));
+      var a=-Math.PI/2+i*2*Math.PI/N,lx=CX+(R+16)*Math.cos(a),ly=CY+(R+16)*Math.sin(a)+4;
+      var anchor=Math.abs(Math.cos(a))<0.2?"middle":(Math.cos(a)>0?"start":"end");
+      s.appendChild(el("text",{"class":"lab",x:lx.toFixed(1),y:ly.toFixed(1),"text-anchor":anchor},d.court));
+    });
+    function series(data,cls,dcls){
+      var pts=[];DIMS.forEach(function(d,i){if(data[d.id]>0){pts.push(pt(i,data[d.id]))}});
+      if(pts.length>=3)s.appendChild(el("polygon",{"class":cls,points:pts.map(function(q){return q[0].toFixed(1)+","+q[1].toFixed(1)}).join(" ")}));
+      pts.forEach(function(q){s.appendChild(el("circle",{"class":dcls,cx:q[0].toFixed(1),cy:q[1].toFixed(1),r:4}))});
+    }
+    series(S.was,"was","dwas");series(S.now,"now","dnow");
+  }
+
+  function count(o){return DIMS.filter(function(d){return o[d.id]>0}).length}
+  function paintTable(){
+    var h='<thead><tr><th>Ligne</th><th>Entrée</th><th>Auj.</th><th>Écart</th></tr></thead><tbody>';
+    DIMS.forEach(function(d){
+      var a=S.was[d.id]||0,b=S.now[d.id]||0;
+      var diff=(a&&b)?(b-a):null;
+      h+='<tr><td>'+d.titre+'</td><td class="num">'+(a||"–")+'</td><td class="num">'+(b||"–")+'</td><td class="num">'+(diff===null?"–":(diff>0?'<span class="up">+'+diff+'</span>':diff))+'</td></tr>';
+    });
+    $("tbl").innerHTML=h+'</tbody>';
+    var n=count(S.now),w=count(S.was);
+    $("progress").textContent="Aujourd'hui : "+n+"/6 · À l'entrée : "+w+"/6";
+    $("resNote").textContent=n<6?"Complétez les six lignes pour obtenir un profil complet.":(w<6?"Profil complet. Ajoutez le niveau à l'entrée pour voir le chemin parcouru.":"Profil complet. Les écarts positifs indiquent une progression depuis l'entrée dans le programme.");
+  }
+
+  /* Résumé */
+  function buildOut(){
+    var L=[];
+    L.push("GRILLE DE MATURITÉ DE L'ÉQUIPE (test)");
+    L.push("Équipe : "+($("equipe").value||"non précisée")+" | Spécialité : "+($("specialite").value||"non précisée"));
+    L.push("Date : "+($("date").value||"non précisée")+" | Participants : "+($("nbpart").value||"?")+" | Dans le programme depuis : "+($("anciennete").value||"non précisé"));
+    L.push("");
+    DIMS.forEach(function(d){
+      var a=S.was[d.id]||0,b=S.now[d.id]||0;
+      L.push("- "+d.titre+" : entrée "+(a||"?")+" -> aujourd'hui "+(b||"?"));
+      if((S.preuve[d.id]||"").trim())L.push("  Exemple : "+S.preuve[d.id].trim());
+    });
+    L.push("");
+    L.push("Activités qui ont fait évoluer l'équipe : "+(S.acts.length?S.acts.join(", "):"non précisé"));
+    if($("changement").value.trim())L.push("Changement concret : "+$("changement").value.trim());
+    L.push("");
+    L.push("AVIS SUR LA GRILLE");
+    L.push("Temps passé : "+($("duree").value||"non précisé")+" | Clarté (1 à 4) : "+(S.clarte||"non précisée"));
+    if($("remarque").value.trim())L.push("Remarques : "+$("remarque").value.trim());
+    $("outText").value=L.join("\n");
+  }
+
+  function refresh(){paintLevels();drawRadar();paintTable();buildOut()}
+
+  ids.forEach(function(i){$(i).addEventListener("input",function(){buildOut();save()});$(i).addEventListener("change",function(){buildOut();save()})});
+
+  $("copyBtn").addEventListener("click",function(){
+    var t=$("outText");buildOut();
+    function done(msg){$("status").textContent=msg}
+    function fallback(){t.focus();t.select();done("Texte sélectionné : copiez-le avec Ctrl+C ou Cmd+C.")}
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(t.value).then(function(){done("Résumé copié. Collez-le dans un mail.")},fallback);
+      }else fallback();
+    }catch(e){fallback()}
+  });
+
+  var armed=false,timer=null;
+  $("resetBtn").addEventListener("click",function(){
+    var b=this;
+    if(!armed){armed=true;b.textContent="Confirmer : tout effacer";timer=setTimeout(function(){armed=false;b.textContent="Tout effacer"},4000);return}
+    clearTimeout(timer);armed=false;b.textContent="Tout effacer";
+    S={mode:"now",now:{},was:{},preuve:{},acts:[],clarte:0};
+    try{localStorage.removeItem(KEY)}catch(e){}
+    ids.forEach(function(i){$(i).value=""});
+    DIMS.forEach(function(d){$("p_"+d.id).value=""});
+    [].forEach.call(actsHost.querySelectorAll("input"),function(c){c.checked=false});
+    paintMode();paintRating();refresh();$("status").textContent="Réponses effacées.";
+  });
+
+  /* Démarrage */
+  load();restoreFields();
+  if(!$("date").value){var n=new Date();$("date").value=n.getFullYear()+"-"+("0"+(n.getMonth()+1)).slice(-2)+"-"+("0"+n.getDate()).slice(-2)}
+  DIMS.forEach(function(d){if(S.preuve[d.id])$("p_"+d.id).value=S.preuve[d.id]});
+  [].forEach.call(actsHost.querySelectorAll("input"),function(c){c.checked=S.acts.indexOf(ACTS[+c.value])>=0});
+  paintMode();paintRating();refresh();
+})();
+</script>
+</body>
+</html>
