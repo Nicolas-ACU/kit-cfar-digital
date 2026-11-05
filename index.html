@@ -1126,7 +1126,7 @@ function renderApp(){
         </div>
         <button class="btn secondary block small" id="openModeEmploiBtn" style="margin-bottom:8px;">📖 Mode d'emploi</button>
         <button class="btn secondary block small" id="logoutBtn">Se déconnecter</button>
-        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 02/11/2026 (a)</div>
+        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 05/11/2026 (a)</div>
       </div>
     </div>
     ${STATE.showModeEmploi ? renderModeEmploiModal() : ""}
@@ -2731,7 +2731,7 @@ function attachEngagesEvents(){
       const e = ENGAGES.find(x=>x.id===el.getAttribute("data-engage"));
       const dos = e && (e.dossiersEias||[]).find(d=>d.id===el.getAttribute("data-redownload-eias"));
       if (!dos) return;
-      const filename = "Analyse_EIAS_" + (dos.titre||"sans_titre").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".doc";
+      const filename = "Analyse_EIAS_" + (dos.titre||"sans_titre").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".docx";
       downloadWordDoc(eiasWordHtml(dos.synthese, dos.critique), filename);
       toast("Téléchargement lancé — ouvrable directement dans Word.");
     };
@@ -2771,7 +2771,7 @@ function attachEngagesEvents(){
       const dos = e && (e.dossiersBilan||[]).find(d=>d.id===el.getAttribute("data-download-bilan"));
       if (!dos) return;
       const stageIdx = stagesFor(e).indexOf(dos.etape);
-      const filename = "Bilan_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".doc";
+      const filename = "Bilan_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".docx";
       downloadWordDoc(bilanWordHtml(e, stageIdx>=0?stageIdx:0, dos.syntheseSiam, dos.appreciation, dos.resumeEngage, true), filename);
       toast("Synthèse téléchargée (Word).");
     };
@@ -4088,7 +4088,7 @@ ${facts.resumeEngage}` : ""}`;
     const syntheseText = document.getElementById("syntheseText") ? document.getElementById("syntheseText").value : (STATE.bilanSynthese || "");
     const appreciation = getBilanAppreciation(e, year);
     const resumeEngage = getBilanResumeEngage(e, year);
-    const filename = "Bilan_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".doc";
+    const filename = "Bilan_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".docx";
     downloadWordDoc(bilanWordHtml(e, year, syntheseText, appreciation, resumeEngage), filename);
     toast("Synthèse téléchargée (Word) — à joindre manuellement au SIAM et/ou au mail (les liens mailto ne permettent pas de joindre un fichier automatiquement).");
   };
@@ -4757,7 +4757,7 @@ function renderEiasReportCard(d, cr){
     <div class="muted-small" style="margin:6px 0;">« Copier pour le SIAM » ne copie pas ce texte complet mais un résumé d'une dizaine de lignes (titre, cause, axes, mots-clés) : le compte-rendu complet ci-dessus est destiné au document Word, à joindre en pièce jointe dans le SIAM — inutile de tout recopier deux fois.</div>
     <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn small" id="copyEiasSiamBtn">📋 Copier le résumé pour le SIAM</button>
-      <button class="btn secondary small" id="downloadWordBtn">⬇️ Word (.doc)</button>
+      <button class="btn secondary small" id="downloadWordBtn">⬇️ Word (.docx)</button>
       <button class="btn secondary small" id="sendEiasEngageBtn">✉️ Envoyer le compte-rendu à l'engagé (didactique)</button>
       <button class="btn secondary small" id="askEiasComplementBtn">✉️ Demander un complément à l'engagé</button>
       <a class="linklike" id="unlockEiasBtn" style="margin-left:auto; align-self:center;">✎ Modifier à nouveau</a>
@@ -4822,16 +4822,301 @@ async function decryptEspacePackage(pack, code){
   return JSON.parse(new TextDecoder().decode(plainBuf));
 }
 
+/* ---------- Export Word : vrai fichier .docx, généré dans le navigateur (sans bibliothèque) ----------
+   Convertit le HTML des documents (EIAS, bilan, annexe de facturation) en WordprocessingML, puis
+   l'empaquette dans une archive ZIP (méthode "stockée", sans compression). Prend en charge les
+   titres, paragraphes, listes à puces, tableaux, gras/italique, couleurs, encadrés colorés. */
+function docxEsc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function docxParseStyle(el){
+  const o = {}; const raw = (el.getAttribute && el.getAttribute("style")) || "";
+  raw.split(";").forEach(function(part){ const i = part.indexOf(":"); if (i>0) o[part.slice(0,i).trim().toLowerCase()] = part.slice(i+1).trim(); });
+  return o;
+}
+function docxLen(v){
+  if (!v) return null;
+  const m = /^(-?[\d.]+)\s*(px|pt)?$/i.exec(String(v).trim()); if (!m) return null;
+  const n = parseFloat(m[1]); return Math.round(/pt/i.test(m[2]||"") ? n*20 : n*15);
+}
+function docxBox(st, prop){
+  const out = { t:null, r:null, b:null, l:null };
+  if (st[prop]){
+    const p = st[prop].split(/\s+/).map(docxLen);
+    if (p.length===1){ out.t = out.r = out.b = out.l = p[0]; }
+    else if (p.length===2){ out.t = out.b = p[0]; out.r = out.l = p[1]; }
+    else if (p.length===3){ out.t = p[0]; out.r = out.l = p[1]; out.b = p[2]; }
+    else if (p.length>=4){ out.t = p[0]; out.r = p[1]; out.b = p[2]; out.l = p[3]; }
+  }
+  [["t","top"],["r","right"],["b","bottom"],["l","left"]].forEach(function(k){
+    const v = docxLen(st[prop+"-"+k[1]]); if (v !== null) out[k[0]] = v;
+  });
+  return out;
+}
+function docxColor(v){
+  if (!v) return null; v = String(v).trim();
+  let m = /^#([0-9a-f]{6})$/i.exec(v); if (m) return m[1].toUpperCase();
+  m = /^#([0-9a-f]{3})$/i.exec(v); if (m) return m[1].split("").map(function(c){ return c+c; }).join("").toUpperCase();
+  m = /^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i.exec(v);
+  if (m) return [m[1],m[2],m[3]].map(function(n){ return ("0"+(+n).toString(16)).slice(-2); }).join("").toUpperCase();
+  return null;
+}
+function docxBorder(v){
+  if (!v) return null;
+  const m = /([\d.]+)\s*(px|pt)\s+\w+\s+(\S+)/i.exec(v); if (!m) return null;
+  const pt = /pt/i.test(m[2]) ? parseFloat(m[1]) : parseFloat(m[1])*0.75;
+  return { sz: Math.max(2, Math.min(96, Math.round(pt*8))), color: docxColor(m[3]) || "808080" };
+}
+function docxRunProps(c){
+  let x = '<w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>';
+  if (c.b) x += "<w:b/>";
+  if (c.i) x += "<w:i/>";
+  if (c.color) x += '<w:color w:val="' + c.color + '"/>';
+  if (c.sz) x += '<w:sz w:val="' + c.sz + '"/><w:szCs w:val="' + c.sz + '"/>';
+  return "<w:rPr>" + x + "</w:rPr>";
+}
+const DOCX_HEAD_SZ = { h1:40, h2:28, h3:26, h4:24, h5:22, h6:22 };
+function docxCtxFor(el, c){
+  const n = Object.assign({}, c);
+  const tag = el.tagName.toLowerCase();
+  const st = docxParseStyle(el);
+  if (DOCX_HEAD_SZ[tag]){ n.b = true; n.sz = DOCX_HEAD_SZ[tag]; }
+  if (tag==="b" || tag==="strong" || tag==="th") n.b = true;
+  if (tag==="i" || tag==="em") n.i = true;
+  if (st["font-weight"] && /bold|[6-9]00/.test(st["font-weight"])) n.b = true;
+  if (st["font-style"] === "italic") n.i = true;
+  const col = docxColor(st.color); if (col) n.color = col;
+  const fs = /^([\d.]+)(pt|px)$/i.exec(st["font-size"] || "");
+  if (fs) n.sz = Math.round((/pt/i.test(fs[2]) ? parseFloat(fs[1]) : parseFloat(fs[1])*0.75) * 2);
+  return n;
+}
+const DOCX_INLINE = { a:1, b:1, strong:1, i:1, em:1, span:1, u:1, sup:1, sub:1, small:1, code:1, br:1, font:1 };
+function docxIsInline(n){ return n.nodeType === 3 || (n.nodeType === 1 && !!DOCX_INLINE[n.tagName.toLowerCase()]); }
+function docxInlineItems(node, c, items){
+  if (node.nodeType === 3){
+    const t = node.nodeValue.replace(/[ \t\r\n]+/g, " ");
+    if (t) items.push({ k:"t", text:t, c:c });
+    return;
+  }
+  if (node.nodeType !== 1) return;
+  const tag = node.tagName.toLowerCase();
+  if (tag === "br"){ items.push({ k:"br" }); return; }
+  const cc = docxCtxFor(node, c);
+  node.childNodes.forEach(function(ch){ docxInlineItems(ch, cc, items); });
+}
+function docxRuns(items){
+  let first = -1, last = -1;
+  items.forEach(function(it, i){ if (it.k==="t" && it.text.trim()){ if (first<0) first = i; last = i; } });
+  let x = "", started = false;
+  items.forEach(function(it, i){
+    if (it.k === "br"){ if (started) x += "<w:r><w:br/></w:r>"; return; }
+    let t = it.text;
+    if (i === first) t = t.replace(/^ +/, "");
+    if (i === last) t = t.replace(/ +$/, "");
+    if (!t) return;
+    if (first < 0) return;
+    started = true;
+    x += "<w:r>" + docxRunProps(it.c) + '<w:t xml:space="preserve">' + docxEsc(t) + "</w:t></w:r>";
+  });
+  return x;
+}
+function docxPara(runs, p){
+  p = p || {};
+  let pPr = "";
+  if (p.numbered) pPr += '<w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr>';
+  if (p.lb || p.bb){
+    pPr += "<w:pBdr>";
+    if (p.lb) pPr += '<w:left w:val="single" w:sz="' + p.lb.sz + '" w:space="8" w:color="' + p.lb.color + '"/>';
+    if (p.bb) pPr += '<w:bottom w:val="single" w:sz="' + p.bb.sz + '" w:space="2" w:color="' + p.bb.color + '"/>';
+    pPr += "</w:pBdr>";
+  }
+  if (p.shade) pPr += '<w:shd w:val="clear" w:color="auto" w:fill="' + p.shade + '"/>';
+  pPr += '<w:spacing w:before="' + (p.spB || 0) + '" w:after="' + (p.spA === undefined || p.spA === null ? 100 : p.spA) + '"/>';
+  const left = (p.numbered ? 720 : 0) + (p.ind || 0);
+  if (left || p.numbered) pPr += '<w:ind w:left="' + left + '"' + (p.numbered ? ' w:hanging="360"' : "") + "/>";
+  if (p.jc === "center") pPr += '<w:jc w:val="center"/>';
+  else if (p.jc === "right") pPr += '<w:jc w:val="right"/>';
+  return "<w:p>" + (pPr ? "<w:pPr>" + pPr + "</w:pPr>" : "") + runs + "</w:p>";
+}
+function docxBoxCtx(st, ctx){
+  const n = Object.assign({}, ctx);
+  const bg = docxColor(st.background || st["background-color"]);
+  const lb = docxBorder(st["border-left"]);
+  if (bg) n.shade = bg;
+  if (lb) n.lb = lb;
+  if (bg || lb){
+    const pad = docxBox(st, "padding").l;
+    n.ind = (ctx.ind || 0) + (pad !== null ? Math.min(pad, 360) : 200);
+  }
+  return n;
+}
+function docxSpacer(after){ return '<w:p><w:pPr><w:spacing w:before="0" w:after="' + (after||0) + '"/></w:pPr><w:r><w:rPr><w:sz w:val="8"/></w:rPr><w:t></w:t></w:r></w:p>'; }
+function docxBlocks(parent, c, ctx){
+  let out = "", buf = [];
+  const flush = function(){
+    if (!buf.length) return;
+    const items = [];
+    buf.forEach(function(n){ docxInlineItems(n, c, items); });
+    const runs = docxRuns(items);
+    if (runs) out += docxPara(runs, Object.assign({}, ctx, { spA: 100 }));
+    buf = [];
+  };
+  parent.childNodes.forEach(function(n){
+    if (docxIsInline(n)){ buf.push(n); return; }
+    if (n.nodeType !== 1) return;
+    flush();
+    out += docxBlock(n, c, ctx);
+  });
+  flush();
+  return out;
+}
+function docxBlock(n, c, ctx){
+  const tag = n.tagName.toLowerCase();
+  const st = docxParseStyle(n);
+  if (tag === "ul" || tag === "ol"){
+    let o = "";
+    n.childNodes.forEach(function(li){
+      if (li.nodeType === 1 && li.tagName.toLowerCase() === "li"){
+        const cc = docxCtxFor(li, c);
+        const items = []; li.childNodes.forEach(function(ch){ docxInlineItems(ch, cc, items); });
+        const m = docxBox(docxParseStyle(li), "margin");
+        o += docxPara(docxRuns(items), Object.assign({}, ctx, { numbered:true, spA: m.b !== null ? Math.min(m.b, 160) : 60 }));
+      }
+    });
+    return o;
+  }
+  if (tag === "table") return docxTable(n, c, ctx);
+  if (/^h[1-6]$/.test(tag) || tag === "p"){
+    const cc = docxCtxFor(n, c);
+    const items = []; n.childNodes.forEach(function(ch){ docxInlineItems(ch, cc, items); });
+    const m = docxBox(st, "margin");
+    const def = { h1:[0,120], h2:[240,100], h3:[200,100], h4:[160,80], h5:[120,80], h6:[120,80], p:[0,140] }[tag];
+    const bx = docxBoxCtx(st, ctx);
+    return docxPara(docxRuns(items), Object.assign({}, bx, {
+      spB: m.t !== null ? Math.min(m.t, 400) : def[0],
+      spA: m.b !== null ? Math.min(m.b, 400) : def[1],
+      bb: docxBorder(st["border-bottom"]),
+      jc: st["text-align"]
+    }));
+  }
+  if (tag === "div" || tag === "section" || tag === "article"){
+    const cc = docxCtxFor(n, c);
+    const m = docxBox(st, "margin");
+    const bx = docxBoxCtx(st, ctx);
+    const inner = docxBlocks(n, cc, bx);
+    const bb = docxBorder(st["border-bottom"]);
+    let out = "";
+    if (m.t !== null && m.t >= 150 && inner) out += docxSpacer(0);
+    out += inner;
+    if (bb) out += docxPara("", Object.assign({}, ctx, { bb:bb, spA: 120 }));
+    if (m.b !== null && m.b >= 150 && inner) out += docxSpacer(0);
+    return out;
+  }
+  return docxBlocks(n, c, ctx);
+}
+function docxTable(t, c, ctx){
+  const rows = [];
+  t.querySelectorAll("tr").forEach(function(tr){ if (tr.closest("table") === t) rows.push(tr); });
+  if (!rows.length) return "";
+  const cellsOf = function(tr){ return Array.prototype.filter.call(tr.children, function(x){ return /^(td|th)$/i.test(x.tagName); }); };
+  const ncol = Math.max.apply(null, rows.map(function(r){ return cellsOf(r).length; }));
+  if (!ncol) return "";
+  const total = 9638;
+  const widths = []; let fixed = 0, free = 0;
+  cellsOf(rows[0]).forEach(function(td){ const w = docxLen(docxParseStyle(td).width); widths.push(w); if (w) fixed += w; else free++; });
+  while (widths.length < ncol){ widths.push(null); free++; }
+  const rest = Math.max(1500, total - fixed);
+  let gw = widths.map(function(w){ return w || Math.floor(rest / Math.max(1, free)); });
+  const sum = gw.reduce(function(a,b){ return a+b; }, 0);
+  if (sum > total) gw = gw.map(function(w){ return Math.floor(w * total / sum); });
+  const hasBorder = /border(?!-collapse|-spacing)/i.test(t.getAttribute("style") || "") || Array.prototype.some.call(t.querySelectorAll("td, th"), function(x){ return /border(?!-collapse|-spacing)/i.test(x.getAttribute("style") || ""); }) || t.getAttribute("border");
+  const bd = hasBorder ? ['top','left','bottom','right','insideH','insideV'].map(function(s){ return '<w:' + s + ' w:val="single" w:sz="4" w:space="0" w:color="BFBFBF"/>'; }).join("") : "";
+  let x = '<w:tbl><w:tblPr><w:tblW w:w="' + gw.reduce(function(a,b){ return a+b; }, 0) + '" w:type="dxa"/><w:tblLayout w:type="fixed"/>' +
+    (bd ? "<w:tblBorders>" + bd + "</w:tblBorders>" : "") +
+    '<w:tblCellMar><w:top w:w="30" w:type="dxa"/><w:left w:w="80" w:type="dxa"/><w:bottom w:w="30" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>' +
+    gw.map(function(w){ return '<w:gridCol w:w="' + w + '"/>'; }).join("") + "</w:tblGrid>";
+  rows.forEach(function(tr){
+    x += "<w:tr>";
+    const cells = cellsOf(tr);
+    for (let i = 0; i < ncol; i++){
+      const td = cells[i];
+      if (!td){ x += '<w:tc><w:tcPr><w:tcW w:w="' + gw[i] + '" w:type="dxa"/></w:tcPr><w:p/></w:tc>'; continue; }
+      const tst = docxParseStyle(td);
+      const bg = docxColor(tst.background || tst["background-color"]);
+      const cc = docxCtxFor(td, c);
+      let inner = docxBlocks(td, cc, {});
+      if (!inner) inner = "<w:p/>";
+      x += '<w:tc><w:tcPr><w:tcW w:w="' + gw[i] + '" w:type="dxa"/>' + (bg ? '<w:shd w:val="clear" w:color="auto" w:fill="' + bg + '"/>' : "") + "</w:tcPr>" + inner + "</w:tc>";
+    }
+    x += "</w:tr>";
+  });
+  return x + "</w:tbl>" + docxSpacer(120);
+}
+function docxDocumentXml(bodyHtml){
+  const doc = new DOMParser().parseFromString("<!doctype html><html><body>" + bodyHtml + "</body></html>", "text/html");
+  const body = docxBlocks(doc.body, { sz:22 }, {});
+  const sect = '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="709" w:footer="709" w:gutter="0"/></w:sectPr>';
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' + body + sect + "</w:body></w:document>";
+}
+function docxCrc32(bytes){
+  if (!docxCrc32.t){
+    const t = [];
+    for (let n = 0; n < 256; n++){ let c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[n] = c >>> 0; }
+    docxCrc32.t = t;
+  }
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) crc = docxCrc32.t[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+function docxZip(files){
+  const enc = new TextEncoder();
+  const u16 = function(n){ return [n & 255, (n >>> 8) & 255]; };
+  const u32 = function(n){ return [n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255]; };
+  const chunks = [], central = []; let offset = 0;
+  files.forEach(function(f){
+    const name = enc.encode(f.name), data = enc.encode(f.text), crc = docxCrc32(data), size = data.length;
+    const local = [0x50,0x4B,0x03,0x04].concat(u16(20), u16(0x0800), u16(0), u16(0), u16(0x21), u32(crc), u32(size), u32(size), u16(name.length), u16(0));
+    chunks.push(Uint8Array.from(local), name, data);
+    central.push(Uint8Array.from([0x50,0x4B,0x01,0x02].concat(u16(20), u16(20), u16(0x0800), u16(0), u16(0), u16(0x21), u32(crc), u32(size), u32(size), u16(name.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(offset))), name);
+    offset += local.length + name.length + size;
+  });
+  let csize = 0; central.forEach(function(p){ csize += p.length; });
+  const end = Uint8Array.from([0x50,0x4B,0x05,0x06].concat(u16(0), u16(0), u16(files.length), u16(files.length), u32(csize), u32(offset), u16(0)));
+  const all = chunks.concat(central, [end]);
+  let total = 0; all.forEach(function(p){ total += p.length; });
+  const out = new Uint8Array(total); let pos = 0;
+  all.forEach(function(p){ out.set(p, pos); pos += p.length; });
+  return out;
+}
+function docxBuildFile(bodyHtml){
+  const W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
+  const H = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  return docxZip([
+    { name:"[Content_Types].xml", text: H + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/></Types>' },
+    { name:"_rels/.rels", text: H + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>' },
+    { name:"word/_rels/document.xml.rels", text: H + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/></Relationships>' },
+    { name:"word/styles.xml", text: H + '<w:styles ' + W + '><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri" w:eastAsia="Calibri"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="fr-FR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="100" w:line="259" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style></w:styles>' },
+    { name:"word/numbering.xml", text: H + '<w:numbering ' + W + '><w:abstractNum w:abstractNumId="0"><w:multiLevelType w:val="hybridMultilevel"/><w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="bullet"/><w:lvlText w:val="•"/><w:lvlJc w:val="left"/><w:pPr><w:ind w:left="720" w:hanging="360"/></w:pPr></w:lvl></w:abstractNum><w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num></w:numbering>' },
+    { name:"word/document.xml", text: docxDocumentXml(bodyHtml) }
+  ]);
+}
+// Télécharge un vrai fichier .docx (ouvrable dans Word, Pages, LibreOffice, Google Docs). Si la
+// génération échouait pour une raison imprévue, on retombe sur l'ancien format HTML (.doc).
 function downloadWordDoc(bodyHtml, filename){
-  const doc = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-<head><meta charset="utf-8"><title>Analyse EIAS</title></head>
-<body style="font-family:Calibri,Arial,sans-serif; font-size:12pt;">${bodyHtml}</body></html>`;
+  let bytes = null;
+  try { bytes = docxBuildFile(bodyHtml); } catch(err){ console.error("Export .docx impossible, repli sur .doc :", err); }
   const a = document.createElement("a");
-  a.href = "data:application/msword;charset=utf-8," + encodeURIComponent(doc);
-  a.download = filename;
+  if (bytes){
+    const blob = new Blob([bytes], { type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    a.href = URL.createObjectURL(blob);
+    a.download = String(filename).replace(/\.docx?$/i, "") + ".docx";
+  } else {
+    const doc = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset=\"utf-8\"><title>CFAR</title></head><body style=\"font-family:Calibri,Arial,sans-serif; font-size:12pt;\">" + bodyHtml + "</body></html>";
+    a.href = "data:application/msword;charset=utf-8," + encodeURIComponent(doc);
+    a.download = String(filename).replace(/\.docx?$/i, "") + ".doc";
+  }
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+  if (bytes) setTimeout(function(){ URL.revokeObjectURL(a.href); }, 3000);
 }
 
 function eiasWordHtml(d, cr){
@@ -5114,7 +5399,7 @@ function attachEiasEvents(){
   if (downloadWordBtn) downloadWordBtn.onclick = ()=>{
     const d = STATE.eiasDraft.synthese;
     const cr = STATE.eiasDraft.critique;
-    const filename = "Analyse_EIAS_" + (d.titre||"sans_titre").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".doc";
+    const filename = "Analyse_EIAS_" + (d.titre||"sans_titre").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".docx";
     downloadWordDoc(eiasWordHtml(d, cr), filename);
     toast("Téléchargement lancé — ouvrable directement dans Word.");
   };
@@ -7399,7 +7684,7 @@ function exportFacturationWord(){
     <p style="font-size:10pt; font-style:italic;">À remplir en correspondance avec la note d'honoraires jointe.</p>
     ${blocks || "<p>Aucune ligne pour cette période.</p>"}
   `;
-  const filename = "Annexe_CFAR_" + (info.numeroFacture||"facture").replace(/[^a-zA-Z0-9]+/g,"_") + ".doc";
+  const filename = "Annexe_CFAR_" + (info.numeroFacture||"facture").replace(/[^a-zA-Z0-9]+/g,"_") + ".docx";
   downloadWordDoc(bodyHtml, filename);
 }
 
