@@ -919,7 +919,7 @@ function renderModeEmploiModal(){
         ${section("🩺 Analyse EIAS", `
           Un mode test existe pour travailler un EIAS sans l'attribuer à un engagé (préparation de RMM, cas personnel...) — rien n'y est conservé d'une session à l'autre.
           <br/><br/>
-          <b>Corriger un EIAS déjà validé, ou demander un complément à l'engagé.</b> Juste après la validation, <i>« ✎ Modifier à nouveau »</i> (en bas à droite de l'analyse) la rouvre. Plus tard, ouvrez la fiche de l'engagé (Gestion des engagés), rubrique <i>« Dossiers EIAS archivés »</i>, dépliez le dossier et cliquez sur <i>« ✎ Rouvrir pour modifier »</i> : corrigez, complétez le champ « Complément de l'expert », puis <i>« ✓ Valider l'analyse »</i> à nouveau — l'EIAS n'est ni recompté ni refacturé. Pour demander des précisions à l'engagé, <i>« ✉️ Demander un complément à l'engagé »</i> (sous les points à compléter, ou sous l'analyse validée) ouvre un mail reprenant ses points forts et les points à compléter ; le texte est modifiable dans Didacticiel → Modèles de courriers.
+          <b>Corriger un EIAS déjà validé, ou demander un complément à l'engagé.</b> Juste après la validation, <i>« ✎ Modifier à nouveau »</i> (en bas à droite de l'analyse) la rouvre. Plus tard, ouvrez la fiche de l'engagé (Gestion des engagés), rubrique <i>« Dossiers EIAS archivés »</i>, dépliez le dossier et cliquez sur <i>« ✎ Rouvrir pour modifier »</i> : corrigez, complétez le champ « Complément de l'expert », puis <i>« ✓ Valider l'analyse »</i> à nouveau — l'EIAS n'est ni recompté ni refacturé. Si l'échange avec l'engagé (mail, téléphone) change le fond : consignez les précisions dans le champ <i>« Précisions issues de l'échange… »</i>, puis <i>« ↻ Réintégrer ces précisions dans la synthèse »</i> copie un prompt (synthèse actuelle + précisions) ; collez-le dans votre IA, puis collez sa réponse dans « Coller une réponse IA » : les précisions sont placées au bon endroit, le reste est conservé. Vous pouvez aussi simplement corriger les champs de la synthèse à la main. Pour demander des précisions à l'engagé, <i>« ✉️ Demander un complément à l'engagé »</i> (sous les points à compléter, ou sous l'analyse validée) ouvre un mail reprenant ses points forts et les points à compléter ; le texte est modifiable dans Didacticiel → Modèles de courriers.
           <br/><br/>
           Renseignez les rubriques demandées (copier-coller aisé depuis le SIAM), cochez le cas échéant <i>« analysé en RMM/CREX/REMED »</i>, puis choisissez : rédiger vous-même l'<i>« Analyse de l'expert »</i>, ou copier le prompt fourni pour le soumettre à une IA de votre choix et coller sa réponse (format JSON) — la même IA peut aussi vous être utile pour reformuler une analyse reçue d'ailleurs. <b>Un contrôle basique des éléments identifiants est effectué dès la copie du prompt</b>, avant toute transmission à une IA externe — pas seulement à la validation finale.
           <br/><br/>
@@ -1128,7 +1128,7 @@ function renderApp(){
         </div>
         <button class="btn secondary block small" id="openModeEmploiBtn" style="margin-bottom:8px;">📖 Mode d'emploi</button>
         <button class="btn secondary block small" id="logoutBtn">Se déconnecter</button>
-        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 09/11/2026 (a)</div>
+        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 09/11/2026 (b)</div>
       </div>
     </div>
     ${STATE.showModeEmploi ? renderModeEmploiModal() : ""}
@@ -4426,8 +4426,12 @@ function renderEias(){
         <button class="btn secondary small" id="askEiasComplementBtn">✉️ Demander un complément à l'engagé</button>
         <span class="muted-small" style="margin-left:6px;">Ouvre un mail avec les points forts et les points à compléter ci-dessus ; à utiliser seulement si vous souhaitez des précisions avant de valider.</span>
       </div>
-      <div class="section-label">Complément de l'expert (réponse apportée aux points ci-dessus)</div>
-      <textarea rows="4" id="f_complementExpert" placeholder="Ce que l'expert ajoute concrètement pour répondre aux points à compléter…" ${STATE.eiasValidated?"disabled":""}>${escapeHtml(cr.complementExpert||"")}</textarea>
+      <div class="section-label">Précisions issues de l'échange avec l'engagé / complément de l'expert (trace — ne modifie pas la synthèse par elle-même)</div>
+      <textarea rows="4" id="f_complementExpert" placeholder="Ex. : Suite à l'échange téléphonique du … : l'engagé précise que … Ces précisions figurent en rubrique 6 du compte-rendu ; pour les intégrer à la synthèse, utilisez le bouton ci-dessous." ${STATE.eiasValidated?"disabled":""}>${escapeHtml(cr.complementExpert||"")}</textarea>
+      <div style="margin:8px 0 4px;">
+        <button class="btn secondary small" id="reintegrateEiasBtn">↻ Réintégrer ces précisions dans la synthèse (prompt pour IA)</button>
+        <span class="muted-small" style="margin-left:6px;">Copie un prompt contenant la synthèse actuelle (avec vos corrections) et vos précisions ; l'IA les place au bon endroit, sans rien refaire d'autre. Vous collez ensuite sa réponse, comme pour le premier prompt.</span>
+      </div>
     </div>`;
 
     if (STATE.eiasValidated){
@@ -5178,6 +5182,32 @@ function attachEiasEvents(){
   const casAnalyseRmm = document.getElementById("casAnalyseRmm");
   if (casAnalyseRmm) casAnalyseRmm.onchange = ()=>{ STATE.eiasInputs.analyseRmm = casAnalyseRmm.checked; if (STATE.eiasDraft) STATE.eiasDraft.synthese.analyseRmm = casAnalyseRmm.checked; };
 
+  const reintegrateEiasBtn = document.getElementById("reintegrateEiasBtn");
+  if (reintegrateEiasBtn) reintegrateEiasBtn.onclick = ()=>{
+    const dr = STATE.eiasDraft;
+    if (!dr) return;
+    const live = (id, fallback)=>{ const el = document.getElementById(id); return el ? el.value : (fallback||""); };
+    const cr = {
+      pointsForts: live("f_pointsForts", dr.critique.pointsForts), pointsAmeliorer: live("f_pointsAmeliorer", dr.critique.pointsAmeliorer),
+      complementExpert: live("f_complementExpert", dr.critique.complementExpert)
+    };
+    if (!cr.complementExpert.trim()){ toast("Renseignez d'abord les précisions dans le champ ci-dessus (échange avec l'engagé)."); return; }
+    const d = Object.assign({}, dr.synthese);
+    [["titre","f_titre"],["description","f_description"],["causeImmediate","f_comment"],["causesProfondes","f_causesProfondes"],["barrieres","f_barrieres"],["axes","f_axes"],["confrontationLitterature","f_confrontation"]].forEach(pr=>{
+      const el = document.getElementById(pr[1]); if (el) d[pr[0]] = el.value;
+    });
+    const hits = scanForIdentifiers([d.titre,d.description,d.causeImmediate,d.causesProfondes,d.barrieres,d.axes,cr.complementExpert].join("\n"));
+    if (hits.length){
+      const proceed = window.confirm("Éléments potentiellement identifiants détectés (avant copie du prompt) :\n\n- " + hits.join("\n- ") + "\n\nCe texte est sur le point d'être copié pour être transmis à une IA de votre choix. Contrôle basique par mots-clés, pas une garantie d'anonymisation.\n\nCopier malgré tout ?");
+      if (!proceed) return;
+    }
+    const { system, userContent } = buildEiasReintegrationPrompt(d, cr);
+    const full = system + "\n\n---\n\n" + userContent;
+    copyTextRobust(full).then(ok=>{ toast(ok ? "Prompt de réintégration copié — collez-le dans votre IA, puis collez sa réponse dans la zone « Coller une réponse IA » en haut de page." : "Copie automatique indisponible — utilisez « Sélectionner tout » dans la zone en haut de page, puis Ctrl+C (PC) ou ⌘+C (Mac).", 9000); });
+    setState({ showEiasPaste:true, eiasPromptText: full });
+    setTimeout(()=>{ const a = document.getElementById("pasteResponseArea"); if (a && a.scrollIntoView) a.scrollIntoView({behavior:"smooth", block:"center"}); }, 150);
+  };
+
   const copyPromptBtn = document.getElementById("copyPromptBtn");
   if (copyPromptBtn) copyPromptBtn.onclick = ()=>{
     const inputs = {
@@ -5697,6 +5727,33 @@ ${jsonFormatRulesBlock()}`;
 
   const userContent = "Données du bilan :\n" + JSON.stringify(facts, null, 1) +
     (activitesEngage.length ? "\n\nActivités signalées par l'expert comme « à développer » pour cet engagé (à mentionner sans détailler) :\n- " + activitesEngage.join("\n- ") : "");
+  return { system, userContent };
+}
+
+// Prompt de réintégration : synthèse actuelle + précisions de l'échange -> même objet JSON,
+// avec les précisions placées au bon endroit et le reste inchangé.
+function buildEiasReintegrationPrompt(d, cr){
+  cr = cr || {};
+  const current = {
+    critique: { pointsForts: cr.pointsForts||"", pointsAmeliorer: cr.pointsAmeliorer||"", complementExpert: cr.complementExpert||"" },
+    synthese: {
+      titre: d.titre||"", description: d.description||"", causeImmediate: d.causeImmediate||"", causesProfondes: d.causesProfondes||"",
+      barrieres: d.barrieres||"", axes: d.axes||"", confrontationLitterature: d.confrontationLitterature||"", motsCles: d.motsCles||[]
+    }
+  };
+  const system = `Tu es l'expert d'Accréditation du CFAR (anesthésie-réanimation). Tu as déjà produit, avec l'expert, l'analyse contradictoire d'un EIAS (méthode ALARM, référentiel HAS) : tu la retrouves ci-dessous au format JSON, avec les corrections manuelles de l'expert. Après un échange avec l'engagé (mail ou téléphone), l'expert a consigné des précisions dans le champ critique.complementExpert.
+
+Ta tâche : réintégrer ces précisions dans la synthèse, au bon endroit, et seulement là où elles apportent quelque chose :
+- cause immédiate, causes profondes (en rattachant à la bonne famille ALARM), barrières, axes d'amélioration, description si c'est un fait clinique, mots-clés si une situation à risque nouvelle apparaît ;
+- ne change RIEN d'autre : conserve le texte existant, les corrections de l'expert et la structure, sauf si une précision le contredit explicitement (dans ce cas, la précision prévaut) ;
+- n'invente rien qui ne figure ni dans la synthèse actuelle ni dans les précisions ;
+- reste concis, factuel, sans avis sur une éventuelle responsabilité ; ne cite aucun nom de personne ou d'établissement ;
+- "critique.pointsForts", "critique.pointsAmeliorer" et "critique.complementExpert" sont à renvoyer STRICTEMENT à l'identique.
+
+Réponds UNIQUEMENT avec un objet JSON valide de la même forme exacte que celui fourni (clés "critique" puis "synthese", "motsCles" restant un tableau de chaînes).
+
+${jsonFormatRulesBlock()}`;
+  const userContent = "Synthèse actuelle et précisions de l'expert (JSON) :\n" + JSON.stringify(current, null, 1);
   return { system, userContent };
 }
 
