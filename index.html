@@ -923,7 +923,9 @@ function renderModeEmploiModal(){
           <br/><br/>
           Renseignez les rubriques demandées (copier-coller aisé depuis le SIAM), cochez le cas échéant <i>« analysé en RMM/CREX/REMED »</i>, puis choisissez : rédiger vous-même l'<i>« Analyse de l'expert »</i>, ou copier le prompt fourni pour le soumettre à une IA de votre choix et coller sa réponse (format JSON) — la même IA peut aussi vous être utile pour reformuler une analyse reçue d'ailleurs. <b>Un contrôle basique des éléments identifiants est effectué dès la copie du prompt</b>, avant toute transmission à une IA externe — pas seulement à la validation finale.
           <br/><br/>
-          Pensez à renseigner le numéro SIAM avant de valider, pour l'import automatique en facturation. <b>Avant toute validation, vérifiez soigneusement l'anonymisation</b> — c'est un engagement personnel de l'expert, rappelé à chaque connexion. Une fois validé, <i>« 📋 Copier le résumé pour le SIAM »</i> ne copie qu'un résumé d'une dizaine de lignes (le compte-rendu complet, détaillé, est à joindre séparément en Word) — inutile de tout recopier deux fois.
+          Pensez à renseigner le numéro SIAM avant de valider, pour l'import automatique en facturation. <b>Avant toute validation, vérifiez soigneusement l'anonymisation</b> — c'est un engagement personnel de l'expert, rappelé à chaque connexion. Une fois validé, un résumé du compte-rendu s'affiche dans une zone <b>modifiable</b> (coupé en fin de phrase, jamais en plein mot) : ajustez-le au besoin, puis <i>« 📋 Copier le résumé pour le SIAM »</i>. Pour tout copier sans coupure : <i>« 📋 Copier le texte complet »</i> ; le compte-rendu détaillé peut aussi être joint en Word.
+          <br/><br/>
+          <b>Réponse d'IA difficile à copier ou à charger (PC, Mac, Safari…).</b> Le prompt demande à l'IA de placer le JSON dans un bloc de code : utilisez le bouton « Copier » de ce bloc, puis collez dans la zone prévue. La lecture est tolérante (réponse coupée, guillemets courbes, retours à la ligne, mise en forme markdown) et signale « attention » si elle a dû deviner : relisez alors chaque rubrique. Si le collage échoue, <i>« ouvrir un fichier .json / .txt »</i> (sous la zone de collage) charge la réponse enregistrée dans un fichier. Si le navigateur bloque la copie automatique, une fenêtre présente le texte déjà sélectionné : Ctrl+C (PC) ou ⌘+C (Mac).
         `)}
 
         ${section("📬 Espace Engagé — faire remplir l'engagé lui-même", `
@@ -1126,7 +1128,7 @@ function renderApp(){
         </div>
         <button class="btn secondary block small" id="openModeEmploiBtn" style="margin-bottom:8px;">📖 Mode d'emploi</button>
         <button class="btn secondary block small" id="logoutBtn">Se déconnecter</button>
-        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 05/11/2026 (a)</div>
+        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 09/11/2026 (a)</div>
       </div>
     </div>
     ${STATE.showModeEmploi ? renderModeEmploiModal() : ""}
@@ -1766,8 +1768,8 @@ function renderEngageDetail(){
           ${syn.confrontationLitterature ? `<div class="muted-small" style="margin-top:8px;"><b>Confrontation littérature :</b> ${escapeHtml(syn.confrontationLitterature)}</div>` : ""}
           ${(cr2.pointsForts||cr2.pointsAmeliorer||cr2.complementExpert) ? `
           <div class="section-label" style="margin-top:10px;">Analyse contradictoire</div>
-          ${cr2.pointsForts?`<div class="muted-small"><b>Points forts :</b> ${escapeHtml(cr2.pointsForts)}</div>`:""}
-          ${cr2.pointsAmeliorer?`<div class="muted-small" style="margin-top:4px;"><b>Points à compléter :</b> ${escapeHtml(cr2.pointsAmeliorer)}</div>`:""}
+          ${cr2.pointsForts?`<div class="muted-small" style="white-space:pre-wrap;"><b>Points forts :</b> ${escapeHtml(cr2.pointsForts)}</div>`:""}
+          ${cr2.pointsAmeliorer?`<div class="muted-small" style="margin-top:4px; white-space:pre-wrap;"><b>Points à compléter :</b> ${escapeHtml(cr2.pointsAmeliorer)}</div>`:""}
           ${cr2.complementExpert?`<div class="muted-small" style="margin-top:4px;"><b>Complément de l'expert :</b> ${escapeHtml(cr2.complementExpert)}</div>`:""}
           ` : ""}
           <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
@@ -2761,8 +2763,7 @@ function attachEngagesEvents(){
       const preReq = dos.preReqSnapshot || computeBilanPreReq(e, stagesFor(e).indexOf(dos.etape));
       const preReqTxt = preReq.map(r=> (r.ok?"✓":"✗") + " " + r.label).join("\n");
       const text = "Conformité aux pré-requis :\n" + preReqTxt + "\n\nAppréciation de l'expert :\n" + dos.appreciation + "\n\n(Synthèse complète jointe en pièce jointe Word)";
-      navigator.clipboard && navigator.clipboard.writeText(text).catch(()=>{});
-      toast("Synthèse courte (pré-requis + appréciation) copiée (prête pour collage dans le SIAM).");
+      copyWithToast(text, "Synthèse courte (pré-requis + appréciation) copiée (prête pour collage dans le SIAM).", "Synthèse courte pour le SIAM");
     };
   });
   document.querySelectorAll("[data-download-bilan]").forEach(el=>{
@@ -3510,7 +3511,8 @@ function renderBilan(){
         <div style="margin-top:6px;"><button class="btn secondary small" id="selectBilanPromptBtn">Sélectionner tout (si la copie automatique a échoué)</button></div>
         ` : `<div class="muted-small" style="margin-bottom:6px;">Vous pouvez coller directement ci-dessous la réponse d'une IA (JSON) — sans forcément être passé par « Copier le prompt ».</div>`}
         <div class="muted-small" style="margin:12px 0 6px;">Collez ici la réponse obtenue, au format JSON (texte brut uniquement) :</div>
-        <textarea rows="6" id="bilanPasteResponseArea" placeholder='{"syntheseSiam": "...", "syntheseEngage": "..."}'></textarea>
+        <textarea rows="6" id="bilanPasteResponseArea" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder='{"syntheseSiam": "...", "syntheseEngage": "..."}'></textarea>
+        <div class="muted-small" style="margin-top:4px;">Collage impossible ? <label class="linklike" style="cursor:pointer;">ouvrir un fichier .json / .txt<input type="file" id="bilanPasteFileInput" accept=".json,.txt,text/plain,application/json" style="display:none;" /></label></div>
         <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn small" id="loadBilanPasteBtn">Charger cette réponse (JSON)</button>
         </div>
@@ -3999,11 +4001,7 @@ ${facts.resumeEngage}` : ""}`;
       );
       if (!proceed) return;
     }
-    if (navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(fullPrompt).then(()=>{ toast("Prompt copié dans le presse-papiers."); }).catch(()=>{
-        toast("Copie automatique indisponible ici — utilisez le bouton « Sélectionner tout » ci-dessous.");
-      });
-    }
+    copyTextRobust(fullPrompt).then(ok=>{ toast(ok ? "Prompt copié dans le presse-papiers." : "Copie automatique indisponible ici — utilisez le bouton « Sélectionner tout » ci-dessous, puis Ctrl+C (PC) ou ⌘+C (Mac).", ok ? undefined : 9000); });
     setState({ showBilanPaste:true, bilanPromptText: fullPrompt });
   };
 
@@ -4013,7 +4011,15 @@ ${facts.resumeEngage}` : ""}`;
   const selectBilanPromptBtn = document.getElementById("selectBilanPromptBtn");
   if (selectBilanPromptBtn) selectBilanPromptBtn.onclick = ()=>{
     const ta = document.getElementById("bilanPromptDisplayArea");
-    if (ta){ ta.focus(); ta.select(); }
+    if (ta){ ta.focus(); ta.select(); copyTextRobust(ta.value).then(ok=>{ ta.focus(); ta.select(); toast(ok ? "Prompt copié dans le presse-papiers." : "Texte sélectionné — faites Ctrl+C (PC) ou ⌘+C (Mac).", ok ? undefined : 8000); }); }
+  };
+
+  const bilanFileInp = document.getElementById("bilanPasteFileInput");
+  if (bilanFileInp) bilanFileInp.onchange = ()=>{
+    const f = bilanFileInp.files && bilanFileInp.files[0]; if (!f) return;
+    const fr = new FileReader();
+    fr.onload = ()=>{ const ta = document.getElementById("bilanPasteResponseArea"); if (ta){ ta.value = String(fr.result||""); toast("Fichier lu — cliquez maintenant sur « Charger cette réponse »."); } };
+    fr.readAsText(f, "utf-8");
   };
 
   const loadBilanPasteBtn = document.getElementById("loadBilanPasteBtn");
@@ -4023,18 +4029,17 @@ ${facts.resumeEngage}` : ""}`;
     const raw = document.getElementById("bilanPasteResponseArea").value || "";
     if (!raw.trim()){ toast("Collez d'abord la réponse de l'IA dans la zone de texte."); return; }
     try{
-      const cleaned = sanitizeJsonText(raw);
-      const parsed = JSON.parse(cleaned);
-      const syntheseSiam = parsed.syntheseSiam || "";
-      const syntheseEngage = parsed.syntheseEngage || "";
-      if (!syntheseSiam && !syntheseEngage) throw new Error("le JSON ne contient ni \"syntheseSiam\" ni \"syntheseEngage\"");
+      const parsed = parseBilanResponse(raw);
+      const syntheseSiam = parsed.syntheseSiam;
+      const syntheseEngage = parsed.syntheseEngage;
       setState({ bilanSynthese: syntheseSiam, bilanSyntheseEngage: syntheseEngage, showBilanPaste:false });
       setBilanDraft(e, year, syntheseSiam, syntheseEngage);
       setEngageMsgSnapshot(e, year);
       setBilanDataSnapshot(e, year);
-      toast("Réponse chargée — vous pouvez maintenant relire et modifier ci-dessous.");
+      const w = (parseBilanResponse.lastWarnings||[]);
+      toast("Réponse chargée" + (w.length ? " (attention : " + w.join(" ; ") + ")" : "") + " — vous pouvez maintenant relire et modifier ci-dessous.", w.length ? 9000 : undefined);
     }catch(err){
-      toast("Lecture impossible en JSON (" + err.message + ").", 9000);
+      toast("Lecture impossible (" + err.message + "). Astuce : copiez la réponse de l'IA depuis son bouton « Copier » du bloc de code, ou collez-la d'abord dans un éditeur de texte simple.", 12000);
     }
   };
 
@@ -4073,8 +4078,7 @@ ${facts.resumeEngage}` : ""}`;
     const year = STATE.bilanYear || 0;
     if (!getBilanAppreciation(e, year)){ toast("Aucune appréciation renseignée pour l'instant."); return; }
     const text = buildSiamAppreciationSummary(e, year);
-    navigator.clipboard && navigator.clipboard.writeText(text).catch(()=>{});
-    toast("Synthèse courte (pré-requis + appréciation) copiée — prête pour collage dans le SIAM. La synthèse complète est à joindre séparément (⬇️ Word).");
+    copyWithToast(text, "Synthèse courte (pré-requis + appréciation) copiée — prête pour collage dans le SIAM. La synthèse complète est à joindre séparément (⬇️ Word).", "Synthèse courte pour le SIAM");
   };
 
   const downloadBilanWordBtn = document.getElementById("downloadBilanWordBtn");
@@ -4530,7 +4534,8 @@ function renderEias(){
       <div style="margin-top:6px;"><button class="btn secondary small" id="selectPromptBtn">Sélectionner tout (si la copie automatique a échoué)</button></div>
       ` : `<div class="muted-small" style="margin-bottom:6px;">Vous pouvez coller directement ci-dessous la réponse d'une IA (JSON, ou simple texte si l'IA n'a pas suivi le format) — sans forcément être passé par « Copier le prompt ».</div>`}
       <div class="muted-small" style="margin:12px 0 6px;">Collez ici la réponse obtenue en JSON (texte brut uniquement — pas un fichier .docx/.rtf collé directement depuis Word, qui insère des guillemets et espaces spéciaux ; si besoin, collez d'abord dans un éditeur de texte simple type Bloc-notes avant de recoller ici) :</div>
-      <textarea rows="6" id="pasteResponseArea" placeholder='{"critique": {...}, "synthese": {...}}'></textarea>
+      <textarea rows="6" id="pasteResponseArea" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder='{"critique": {...}, "synthese": {...}}'></textarea>
+      <div class="muted-small" style="margin-top:4px;">Collage impossible ? <label class="linklike" style="cursor:pointer;">ouvrir un fichier .json / .txt<input type="file" id="pasteFileInput" accept=".json,.txt,text/plain,application/json" style="display:none;" /></label></div>
       <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
         <button class="btn small" id="loadPasteBtn">Charger cette réponse (JSON)</button>
         <button class="btn secondary small" id="loadPasteTextBtn">Charger comme texte brut (si ce n'est pas du JSON)</button>
@@ -4684,18 +4689,28 @@ Mots-clés (base commune) : ${kw}`;
 // Résumé court (~10 lignes) destiné au collage direct dans le champ "analyse" du SIAM — le
 // compte-rendu complet, lui, est joint séparément en pièce jointe Word : il est donc inutile
 // (et illisible) de recopier deux fois l'intégralité de l'analyse dans le SIAM.
+// Coupe à la fin d'une phrase (jamais en plein mot) ; ne coupe pas du tout si le texte tient.
+function cutAtSentence(text, max){
+  const t = String(text||"").trim();
+  if (t.length <= max) return t;
+  const head = t.slice(0, max);
+  let idx = Math.max(head.lastIndexOf(". "), head.lastIndexOf(".\n"), head.lastIndexOf("\n"), head.lastIndexOf("; "));
+  if (/[.!?]$/.test(head)) idx = Math.max(idx, head.length - 1);
+  if (idx > max * 0.45) return head.slice(0, idx + 1).trim() + " […]";
+  return head.replace(/\s+\S*$/, "").trim() + " […]";
+}
 function eiasSiamSummary(d, cr){
   cr = cr || {};
   const kw = (d.motsCles||[]).join(", ") || "—";
   const lignes = [
     d.titre || "(sans titre)",
     "",
-    truncateForPrompt(d.description||"", 240),
-    "Cause immédiate : " + truncateForPrompt(d.causeImmediate||"", 160),
+    cutAtSentence(d.description||"", 900),
+    "Cause immédiate : " + cutAtSentence(d.causeImmediate||"", 450),
     "Analysé en RMM/CREX/REMED : " + (d.analyseRmm ? "Oui" : "Non"),
-    "Axes d'amélioration : " + truncateForPrompt(d.axes||"", 220),
+    "Axes d'amélioration : " + cutAtSentence(d.axes||"", 900),
   ];
-  if (cr.pointsAmeliorer) lignes.push("Complément de l'expert : " + truncateForPrompt(cr.pointsAmeliorer, 200));
+  if (cr.pointsAmeliorer) lignes.push("Complément de l'expert : " + cutAtSentence(cr.pointsAmeliorer, 700));
   lignes.push("Mots-clés : " + kw);
   lignes.push("(Compte-rendu complet joint en pièce jointe Word)");
   return lignes.filter(l=> l !== null && l !== undefined).join("\n");
@@ -4753,10 +4768,13 @@ function renderEiasReportCard(d, cr){
     <div class="report-section"><h4>Mots-clés (destinés à la base commune)</h4><div>${kw}</div></div>
 
     <div class="section-label" style="margin-top:18px;">Version texte complète (éditable, pour le document Word)</div>
-    <textarea rows="8" id="eiasSyntheseText">${eiasPlainText(d, cr)}</textarea>
-    <div class="muted-small" style="margin:6px 0;">« Copier pour le SIAM » ne copie pas ce texte complet mais un résumé d'une dizaine de lignes (titre, cause, axes, mots-clés) : le compte-rendu complet ci-dessus est destiné au document Word, à joindre en pièce jointe dans le SIAM — inutile de tout recopier deux fois.</div>
+    <textarea rows="8" id="eiasSyntheseText">${escapeHtml(eiasPlainText(d, cr))}</textarea>
+    <div class="section-label" style="margin-top:14px;">Résumé à coller dans le SIAM (modifiable avant copie)</div>
+    <textarea rows="9" id="eiasSiamText">${escapeHtml(eiasSiamSummary(d, cr))}</textarea>
+    <div class="muted-small" style="margin:6px 0;">Le résumé ci-dessus est coupé en fin de phrase (jamais en plein mot) et reste modifiable : ajustez-le si le champ du SIAM est plus court. Le compte-rendu complet est destiné au document Word, à joindre en pièce jointe — ou à copier intégralement avec le bouton « Copier le texte complet ».</div>
     <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn small" id="copyEiasSiamBtn">📋 Copier le résumé pour le SIAM</button>
+      <button class="btn secondary small" id="copyEiasFullBtn">📋 Copier le texte complet</button>
       <button class="btn secondary small" id="downloadWordBtn">⬇️ Word (.docx)</button>
       <button class="btn secondary small" id="sendEiasEngageBtn">✉️ Envoyer le compte-rendu à l'engagé (didactique)</button>
       <button class="btn secondary small" id="askEiasComplementBtn">✉️ Demander un complément à l'engagé</button>
@@ -5133,9 +5151,9 @@ function eiasWordHtml(d, cr){
   <h3 style="color:#2E5B8A;">5. Axes d'amélioration</h3>${p(d.axes)}
   ${d.confrontationLitterature ? `<p style="background:#E4F4F1; border-left:4px solid #0E7C6E; padding:8px 12px;"><b>Confrontation à la littérature :</b> ${escapeHtml(d.confrontationLitterature)}</p>` : ""}
   ${(cr.pointsForts||cr.pointsAmeliorer||cr.complementExpert) ? `<h3 style="color:#2E5B8A;">6. Analyse contradictoire de l'expert</h3>
-  ${cr.pointsForts?`<p style="margin:0 0 8px;"><b>Points forts :</b> ${escapeHtml(cr.pointsForts)}</p>`:""}
-  ${cr.pointsAmeliorer?`<p style="margin:0 0 8px;"><b>Points complétés par l'expert :</b> ${escapeHtml(cr.pointsAmeliorer)}</p>`:""}
-  ${cr.complementExpert?`<p style="background:#E4F4F1; border-left:4px solid #0E7C6E; padding:8px 12px;"><b>Complément de l'expert :</b> ${escapeHtml(cr.complementExpert)}</p>`:""}` : ""}
+  ${cr.pointsForts?`<p style="margin:0 0 8px;"><b>Points forts :</b><br/>${escapeHtml(cr.pointsForts).replace(/\n/g,"<br/>")}</p>`:""}
+  ${cr.pointsAmeliorer?`<p style="margin:0 0 8px;"><b>Points complétés par l'expert :</b><br/>${escapeHtml(cr.pointsAmeliorer).replace(/\n/g,"<br/>")}</p>`:""}
+  ${cr.complementExpert?`<p style="background:#E4F4F1; border-left:4px solid #0E7C6E; padding:8px 12px;"><b>Complément de l'expert :</b> ${escapeHtml(cr.complementExpert).replace(/\n/g,"<br/>")}</p>`:""}` : ""}
   <h3 style="color:#2E5B8A;">Mots-clés (base commune)</h3>${p(kw)}`;
 }
 
@@ -5184,12 +5202,7 @@ function attachEiasEvents(){
     }
     const { system, userContent } = buildEiasPrompt(inputs);
     const fullPrompt = system + "\n\n---\n\n" + userContent;
-    let copiedOk = false;
-    if (navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(fullPrompt).then(()=>{ toast("Prompt copié dans le presse-papiers."); }).catch(()=>{
-        toast("Copie automatique indisponible ici — utilisez le bouton « Sélectionner tout » ci-dessous.");
-      });
-    }
+    copyTextRobust(fullPrompt).then(ok=>{ toast(ok ? "Prompt copié dans le presse-papiers." : "Copie automatique indisponible ici — utilisez le bouton « Sélectionner tout » ci-dessous, puis Ctrl+C (PC) ou ⌘+C (Mac).", ok ? undefined : 9000); });
     setState({ showEiasPaste:true, eiasPromptText: fullPrompt });
   };
 
@@ -5200,9 +5213,18 @@ function attachEiasEvents(){
   if (selectPromptBtn) selectPromptBtn.onclick = ()=>{
     const ta = document.getElementById("promptDisplayArea");
     ta.focus(); ta.select();
-    navigator.clipboard && navigator.clipboard.writeText(ta.value).catch(()=>{});
-    toast("Texte sélectionné — Ctrl+C (ou Cmd+C) pour copier si ce n'est pas déjà fait.");
+    copyTextRobust(ta.value).then(ok=>{ ta.focus(); ta.select(); toast(ok ? "Prompt copié dans le presse-papiers." : "Texte sélectionné — faites Ctrl+C (PC) ou ⌘+C (Mac).", ok ? undefined : 8000); });
   };
+
+  [["pasteFileInput","pasteResponseArea"],["bilanPasteFileInput","bilanPasteResponseArea"]].forEach(pair=>{
+    const inp = document.getElementById(pair[0]);
+    if (inp) inp.onchange = ()=>{
+      const f = inp.files && inp.files[0]; if (!f) return;
+      const fr = new FileReader();
+      fr.onload = ()=>{ const ta = document.getElementById(pair[1]); if (ta){ ta.value = String(fr.result||""); toast("Fichier lu — cliquez maintenant sur « Charger cette réponse »."); } };
+      fr.readAsText(f, "utf-8");
+    };
+  });
 
   const loadPasteBtn = document.getElementById("loadPasteBtn");
   if (loadPasteBtn) loadPasteBtn.onclick = ()=>{
@@ -5211,9 +5233,10 @@ function attachEiasEvents(){
     try{
       const parsed = carryRecordMarkers(STATE.eiasDraft, parseEiasResponse(raw));
       setState({ eiasDraft: parsed, eiasError:"", showEiasPaste:false, eiasValidated:false });
-      toast("Réponse chargée — vous pouvez maintenant relire et valider.");
+      const w = (parseEiasResponse.lastWarnings||[]);
+      toast("Réponse chargée" + (w.length ? " (attention : " + w.join(" ; ") + ")" : "") + " — vous pouvez maintenant relire et valider.", w.length ? 9000 : undefined);
     }catch(err){
-      toast("Lecture impossible en JSON (" + err.message + "). Essayez « Charger comme texte brut » si ce n'est pas du JSON.", 9000);
+      toast("Lecture impossible (" + err.message + "). Astuce : copiez la réponse de l'IA depuis le bouton « Copier » de son bloc de code, ou essayez « Charger comme texte brut ».", 12000);
     }
   };
 
@@ -5407,9 +5430,15 @@ function attachEiasEvents(){
   const copyEiasSiamBtn = document.getElementById("copyEiasSiamBtn");
   if (copyEiasSiamBtn) copyEiasSiamBtn.onclick = ()=>{
     const d = STATE.eiasDraft.synthese, cr = STATE.eiasDraft.critique;
-    const text = eiasSiamSummary(d, cr);
-    navigator.clipboard && navigator.clipboard.writeText(text).catch(()=>{});
-    toast("Résumé (~10 lignes) copié — prêt pour collage dans le SIAM. Le compte-rendu complet est à joindre séparément (⬇️ Word).");
+    const live = document.getElementById("eiasSiamText");
+    const text = (live && live.value.trim()) ? live.value : eiasSiamSummary(d, cr);
+    copyWithToast(text, "Résumé copié — prêt pour collage dans le SIAM. Le compte-rendu complet est à joindre séparément (⬇️ Word).", "Résumé EIAS pour le SIAM");
+  };
+  const copyEiasFullBtn = document.getElementById("copyEiasFullBtn");
+  if (copyEiasFullBtn) copyEiasFullBtn.onclick = ()=>{
+    const live = document.getElementById("eiasSyntheseText");
+    const text = live ? live.value : eiasPlainText(STATE.eiasDraft.synthese, STATE.eiasDraft.critique);
+    copyWithToast(text, "Texte complet copié (sans aucune coupure).", "Compte-rendu EIAS complet");
   };
 
   const sendEiasEngageBtn = document.getElementById("sendEiasEngageBtn");
@@ -5627,13 +5656,13 @@ function buildBilanFacts(e, year){
 // grand nombre de modèles possible. sanitizeJsonText() reste un filet de sécurité côté
 // application pour les écarts malgré tout, mais ne doit pas être la seule ligne de défense.
 function jsonFormatRulesBlock(){
-  return `Important — format (à respecter impérativement, quel que soit le style de réponse que tu adoptes habituellement par défaut, y compris si ta mise en forme standard est différente) :
-- Ne mets JAMAIS ta réponse dans un bloc de code (pas de \`\`\`, ni \`\`\`json ni aucune autre variante) : uniquement l'objet JSON brut, tel quel.
-- N'ajoute AUCUN texte avant ou après l'objet JSON — ni introduction, ni conclusion, ni note, ni la moindre phrase d'accompagnement.
-- N'utilise QUE des guillemets droits doubles (le caractère ") pour délimiter les clés et les chaînes — jamais de guillemets simples ('), jamais de guillemets typographiques ou courbes (" " ' '), jamais de guillemets français (« »).
-- N'ajoute jamais de virgule après le dernier élément d'un objet ou d'une liste (pas de virgule finale avant \`}\` ou \`]\`).
-- Aucun retour à la ligne littéral à l'intérieur d'une valeur : remplace-le par un espace ou par l'échappement \\n.
-- Le résultat doit être un JSON strictement valide, immédiatement analysable par JSON.parse, sans aucune adaptation.`;
+  return `Important — format (à respecter impérativement, quel que soit le style de réponse que tu adoptes habituellement par défaut) :
+- Place l'objet JSON dans UN SEUL bloc de code (\`\`\`json … \`\`\`) : cela permet de le copier en un clic. N'écris RIEN en dehors de ce bloc — ni introduction, ni conclusion, ni note.
+- Toutes les valeurs sont des chaînes de texte simples, sans mise en forme markdown (pas de **, pas de #, pas de tableau). Seule exception : la liste "motsCles", si elle figure dans le format ci-dessus, est un tableau de chaînes. Pour structurer un texte en plusieurs points, sépare-les par l'échappement \\n en commençant chaque point par "- " — jamais de liste ni d'objet JSON imbriqué pour ces textes.
+- N'utilise QUE des guillemets droits doubles (le caractère ") pour délimiter les clés et les chaînes — jamais de guillemets simples ('), ni de guillemets typographiques ou courbes. À l'intérieur d'un texte, évite les guillemets droits (utilise « » ou l'échappement \\").
+- N'ajoute jamais de virgule après le dernier élément d'un objet ou d'une liste.
+- Aucun retour à la ligne littéral à l'intérieur d'une valeur : utilise un espace ou l'échappement \\n.
+- Le résultat doit être un JSON strictement valide, immédiatement analysable par JSON.parse.`;
 }
 
 function buildBilanPrompt(facts, activitesEngage, isAccreditation){
@@ -5651,7 +5680,7 @@ Rédige DEUX textes distincts :
 2. "syntheseEngage" : un message chaleureux et clair adressé DIRECTEMENT au médecin engagé (vouvoiement), qui valorise l'ensemble du travail accompli sur les 3 années, reprend l'appréciation libre de l'expert si elle est fournie, et amène naturellement (sans les détailler toi-même) les quelques activités signalées comme « à développer » — une liste précise de ressources sera ajoutée après ton texte, contente-toi d'une phrase de transition du type « pour vous accompagner sur les points suivants, vous trouverez ci-dessous quelques ressources utiles ».
 ${concisionRules}
 
-Réponds UNIQUEMENT avec un objet JSON valide (sans balises markdown), en français correctement accentué (encodage UTF-8 — n'omets ni ne remplace aucun accent), de cette forme exacte :
+Réponds UNIQUEMENT avec un objet JSON valide (dans un seul bloc de code \`\`\`json), en français correctement accentué (encodage UTF-8 — n'omets ni ne remplace aucun accent), de cette forme exacte :
 {"syntheseSiam": "...", "syntheseEngage": "..."}
 
 ${jsonFormatRulesBlock()}` : `Tu es l'expert d'Accréditation du CFAR (anesthésie-réanimation) qui rédige la synthèse d'un bilan annuel pour un médecin engagé dans l'Accréditation, à partir de données factuelles déjà établies (ne rien inventer).
@@ -5661,7 +5690,7 @@ Rédige DEUX textes distincts :
 2. "syntheseEngage" : un message chaleureux, clair et personnel adressé DIRECTEMENT au médecin engagé (vouvoiement), qui reprend l'appréciation libre de l'expert si elle est fournie, valorise le travail réalisé sur l'année, et amène naturellement (sans les détailler toi-même) les quelques activités signalées comme « à développer » — une liste précise de ressources sera ajoutée après ton texte, contente-toi d'une phrase de transition du type « pour vous accompagner sur les points suivants, vous trouverez ci-dessous quelques ressources utiles ».
 ${concisionRules}
 
-Réponds UNIQUEMENT avec un objet JSON valide (sans balises markdown), en français correctement accentué (encodage UTF-8 — n'omets ni ne remplace aucun accent), de cette forme exacte :
+Réponds UNIQUEMENT avec un objet JSON valide (dans un seul bloc de code \`\`\`json), en français correctement accentué (encodage UTF-8 — n'omets ni ne remplace aucun accent), de cette forme exacte :
 {"syntheseSiam": "...", "syntheseEngage": "..."}
 
 ${jsonFormatRulesBlock()}`;
@@ -5686,7 +5715,7 @@ La synthèse doit impérativement suivre cet ordre, sans champ « conséquence �
 5. Barrières — prévention/récupération/atténuation, ce qui a marché ou non
 6. Axes d'amélioration — propositions concrètes, en les confrontant si possible à la littérature ou aux recommandations existantes (HAS, SFAR, SRLF...) : cite la recommandation pertinente si tu la connais, ou indique explicitement qu'aucune recommandation spécifique n'est connue à ce jour et qu'il peut s'agir d'une piste à documenter.
 
-Réponds UNIQUEMENT avec un objet JSON valide (sans balises markdown, sans texte autour), en français correctement accentué (encodage UTF-8 — n'omets ni ne remplace aucun accent), avec exactement cette forme :
+Réponds UNIQUEMENT avec un objet JSON valide (dans un seul bloc de code \`\`\`json, sans texte autour), en français correctement accentué (encodage UTF-8 — n'omets ni ne remplace aucun accent), avec exactement cette forme :
 {
   "critique": {
     "pointsForts": "1 à 2 phrases sur ce que l'analyse de l'engagé traite déjà bien",
@@ -5734,10 +5763,229 @@ ${inputs.axes || "(non renseigné)"}`;
   return { system, userContent };
 }
 
+
+/* ===== Copie robuste (PC / Mac / Safari / Firefox) ===== */
+// Essaie l'API moderne, puis la méthode historique (execCommand) ; renvoie une promesse
+// résolue à true UNIQUEMENT si la copie a réellement réussi (plus de faux « copié »).
+function copyTextRobust(text){
+  text = String(text == null ? "" : text);
+  return new Promise(function(resolve){
+    const legacy = function(){
+      let ok = false;
+      try{
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.cssText = "position:fixed;top:0;left:0;width:2px;height:2px;opacity:0;";
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        try{ ta.setSelectionRange(0, text.length); }catch(_){}
+        try{ ok = !!document.execCommand("copy"); }catch(_){ ok = false; }
+        document.body.removeChild(ta);
+      }catch(_){ ok = false; }
+      resolve(ok);
+    };
+    try{
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(function(){ resolve(true); }).catch(legacy);
+        return;
+      }
+    }catch(_){}
+    legacy();
+  });
+}
+// Fenêtre de secours : texte déjà sélectionné, à copier à la main (Ctrl+C ou ⌘+C).
+function showManualCopy(text, title){
+  const old = document.getElementById("manualCopyOverlay");
+  if (old) old.remove();
+  const ov = document.createElement("div");
+  ov.id = "manualCopyOverlay";
+  ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;";
+  ov.innerHTML = '<div style="background:#fff;color:#1d2433;max-width:720px;width:100%;border-radius:10px;padding:16px;box-shadow:0 10px 40px rgba(0,0,0,.35);">' +
+    '<div style="font-weight:600;margin-bottom:6px;">' + escapeHtml(title || "Copie manuelle") + '</div>' +
+    '<div style="font-size:13px;margin-bottom:8px;">La copie automatique est bloquée par votre navigateur. Le texte ci-dessous est déjà sélectionné : faites <b>Ctrl+C</b> (PC) ou <b>⌘+C</b> (Mac), puis fermez.</div>' +
+    '<textarea id="manualCopyTa" rows="10" style="width:100%;box-sizing:border-box;" readonly></textarea>' +
+    '<div style="margin-top:8px;text-align:right;"><button class="btn small" id="manualCopyClose">Fermer</button></div></div>';
+  document.body.appendChild(ov);
+  const ta = document.getElementById("manualCopyTa");
+  ta.value = text;
+  ta.focus(); ta.select();
+  document.getElementById("manualCopyClose").onclick = function(){ ov.remove(); };
+}
+function copyWithToast(text, okMsg, title){
+  return copyTextRobust(text).then(function(ok){
+    if (ok) toast(okMsg);
+    else { showManualCopy(text, title); toast("Copie automatique impossible sur ce navigateur — texte présenté ci-dessus, prêt à copier à la main.", 8000); }
+    return ok;
+  });
+}
+
+/* ===== Lecture tolérante des réponses d'IA (JSON abîmé, coupé, mal mis en forme) ===== */
+function aiKeyNorm(k){ return String(k).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]/g,""); }
+
+// Normalise une valeur textuelle : tableaux -> puces, "\n" littéraux -> vrais retours à la ligne,
+// markdown (gras, titres, puces) -> texte simple. Le résultat s'affiche proprement partout.
+function normAiText(v){
+  if (v === null || v === undefined) return "";
+  if (typeof v === "boolean" || typeof v === "number") return String(v);
+  if (Array.isArray(v)){
+    return v.map(function(x){
+      const t = normAiText(x);
+      return t ? (/^(•|-|\*)\s/.test(t) ? t : "• " + t) : "";
+    }).filter(Boolean).join("\n");
+  }
+  if (typeof v === "object"){
+    return Object.keys(v).map(function(k){
+      const t = normAiText(v[k]);
+      return t ? k + " : " + t : "";
+    }).filter(Boolean).join("\n");
+  }
+  let t = String(v);
+  if (t.indexOf("\n") === -1 && /\\n/.test(t)) t = t.replace(/\\r\\n|\\n|\\r/g, "\n");
+  else t = t.replace(/\\n/g, "\n");
+  t = t.replace(/\\t/g, " ").replace(/\\"/g, '"');
+  t = t.replace(/\\u([0-9a-fA-F]{4})/g, function(_, h){ return String.fromCharCode(parseInt(h, 16)); });
+  t = t.replace(/\r\n?/g, "\n").replace(/<br\s*\/?>/gi, "\n").replace(/[  ]/g, " ");
+  t = t.replace(/\*\*([^*\n]+)\*\*/g, "$1").replace(/__([^_\n]+)__/g, "$1");
+  t = t.replace(/^\s{0,3}#{1,6}\s+/gm, "");
+  t = t.replace(/^\s*[-*•–]\s+/gm, "• ");
+  t = t.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n");
+  return t.trim();
+}
+function normAiList(v){
+  let arr = [];
+  if (Array.isArray(v)) arr = v;
+  else if (typeof v === "string") arr = normAiText(v).split(/[\n;,]+/);
+  else if (v) arr = [String(v)];
+  return arr.map(function(x){ return normAiText(x).replace(/^•\s*/, "").replace(/^["'\s]+|["'\s]+$/g, ""); }).filter(Boolean);
+}
+
+// Referme proprement un JSON coupé net (réponse tronquée par l'IA ou copie incomplète).
+function repairTruncatedJson(str){
+  const stack = [];
+  let inStr = false, esc = false;
+  for (let i = 0; i < str.length; i++){
+    const ch = str[i];
+    if (inStr){ if (esc) esc = false; else if (ch === "\\") esc = true; else if (ch === '"') inStr = false; }
+    else if (ch === '"') inStr = true;
+    else if (ch === "{" || ch === "[") stack.push(ch);
+    else if (ch === "}" || ch === "]") stack.pop();
+  }
+  let out = str;
+  if (inStr){ if (esc) out = out.slice(0, -1); out += '"'; }
+  out = out.replace(/[\s,]+$/, "");
+  if (stack[stack.length-1] === "{"){
+    out = out.replace(/,?\s*"[^"]*"\s*:\s*$/, "");   // clé sans valeur
+    out = out.replace(/,\s*"[^"]*"\s*$/, "");          // clé tronquée sans deux-points
+    out = out.replace(/\{\s*"[^"]*"\s*$/, "{");
+  }
+  out = out.replace(/[\s,]+$/, "");
+  for (let i = stack.length - 1; i >= 0; i--) out += stack[i] === "{" ? "}" : "]";
+  return out;
+}
+
+// Dernier recours : repère les clés connues dans le texte brut et prend ce qui les suit.
+function extractFieldsByKeys(raw, aliasMap){
+  let t = String(raw).replace(/[﻿​‌‍]/g, "")
+    .replace(/[“”„‟]/g, '"').replace(/[  ]/g, " ")
+    .replace(/\\([[\]])/g, "$1");
+  const re = /["']?([A-Za-zÀ-ÿ_ ]{2,40})["']?[*_]*\s*:[*_]*\s*/g;
+  const hits = [];
+  let m;
+  while ((m = re.exec(t))){
+    const canon = aliasMap[aiKeyNorm(m[1])];
+    if (canon) hits.push({ canon: canon, start: m.index, valStart: m.index + m[0].length });
+  }
+  const found = {};
+  for (let i = 0; i < hits.length; i++){
+    const end = i + 1 < hits.length ? hits[i+1].start : t.length;
+    let val = t.slice(hits[i].valStart, end).trim();
+    val = val.replace(/[\s,;}\]`*"']+$/, "");
+    if (val[0] === "["){
+      const inner = val.replace(/^\[/, "").replace(/\]\s*$/, "");
+      const items = []; const r2 = /"((?:[^"\\]|\\.)*)"/g; let mm;
+      while ((mm = r2.exec(inner))) items.push(mm[1]);
+      val = items.length ? items : inner.split(",").map(function(x){ return x.trim(); });
+    } else {
+      val = val.replace(/^["']/, "");
+    }
+    if (found[hits[i].canon] === undefined) found[hits[i].canon] = val;
+  }
+  return found;
+}
+
+// spec = { cleCanonique: ["alias", ...] } -> { found:{cle:valeurBrute}, warnings:[...] }
+function parseAiFields(raw, spec){
+  const aliasMap = {};
+  Object.keys(spec).forEach(function(c){
+    aliasMap[aiKeyNorm(c)] = c;
+    (spec[c]||[]).forEach(function(a){ aliasMap[aiKeyNorm(a)] = c; });
+  });
+  const warnings = [];
+  let obj = null;
+  try{ obj = JSON.parse(sanitizeJsonText(raw)); }catch(_){
+    try{ obj = JSON.parse(repairTruncatedJson(sanitizeJsonText(raw, true))); warnings.push("la réponse semblait coupée : les dernières rubriques peuvent manquer"); }catch(__){ obj = null; }
+  }
+  const found = {};
+  const walk = function(v, depth){
+    if (v === null || v === undefined || depth > 5) return;
+    if (typeof v === "string"){
+      const tt = v.trim();
+      if (depth < 3 && tt[0] === "{") { try{ walk(JSON.parse(tt), depth + 1); }catch(_){} }
+      return;
+    }
+    if (Array.isArray(v)){ v.forEach(function(x){ walk(x, depth + 1); }); return; }
+    if (typeof v === "object"){
+      Object.keys(v).forEach(function(k){
+        const c = aliasMap[aiKeyNorm(k)];
+        if (c){ if (found[c] === undefined) found[c] = v[k]; }
+        else walk(v[k], depth + 1);
+      });
+    }
+  };
+  if (obj !== null) walk(obj, 0);
+  if (!Object.keys(found).length){
+    const f = extractFieldsByKeys(raw, aliasMap);
+    Object.keys(f).forEach(function(k){ found[k] = f[k]; });
+    if (Object.keys(found).length) warnings.push("lecture approximative (JSON non conforme) : relisez chaque rubrique");
+  }
+  return { found: found, warnings: warnings };
+}
+
+const EIAS_FIELD_SPEC = {
+  pointsForts: ["points_forts","pointsfort","pointFort","forces","points positifs"],
+  pointsAmeliorer: ["points_ameliorer","pointsAAmeliorer","pointsACompleter","points a completer","points_a_completer","pointsAApprofondir","axesAmeliorationAnalyse"],
+  complementExpert: ["complement_expert","complement","complementsExpert"],
+  titre: ["title","intitule"],
+  description: ["contexte","recit","descriptionFactuelle"],
+  causeImmediate: ["cause_immediate","commentCaSestPasse","causeImmediateRetenue"],
+  causesProfondes: ["causes_profondes","pourquoi","causesAlarm"],
+  barrieres: ["barrieres_prevention","barrieresPrevention"],
+  axes: ["axesAmelioration","axes_amelioration","axesDAmelioration","axes_d_amelioration"],
+  confrontationLitterature: ["confrontation_litterature","litterature","confrontationALaLitterature"],
+  motsCles: ["mots_cles","motscles","keywords","motsClesLibres"]
+};
+const BILAN_FIELD_SPEC = {
+  syntheseSiam: ["synthese_siam","siam","syntheseSIAM","synthesePourSiam"],
+  syntheseEngage: ["synthese_engage","engage","syntheseEngagé","messageEngage"]
+};
+
 // Corrige les erreurs JSON les plus fréquentes : retours à la ligne bruts dans une chaîne
 // (le JSON strict l'interdit), guillemets "intelligents" introduits par Word/RTF, espaces
 // insécables, et balises de code résiduelles.
-function sanitizeJsonText(raw){
+function sanitizeJsonText(raw, keepTail){
+  raw = String(raw == null ? "" : raw);
+  // Si l'IA a mis sa réponse dans un bloc de code, on ne garde que le contenu du bloc le plus long
+  // (le texte d'introduction éventuel autour est ainsi ignoré, même s'il contient des accolades).
+  const fences = raw.match(/```[a-zA-Z]*\s*\n?[\s\S]*?(?:```|$)/g);
+  if (fences && fences.length){
+    let best = "";
+    fences.forEach(function(f){
+      const inner = f.replace(/^```[a-zA-Z]*\s*\n?/, "").replace(/```$/, "");
+      if (inner.indexOf("{") !== -1 && inner.length > best.length) best = inner;
+    });
+    if (best) raw = best;
+  }
   let t = raw.replace(/```json|```/gi, "").trim();
   // Certaines IA (notamment ChatGPT, même quand on lui a explicitement demandé de ne pas en
   // mettre) ajoutent parfois le mot "json" isolé en première ligne, sans les balises de bloc de
@@ -5749,7 +5997,10 @@ function sanitizeJsonText(raw){
   // Retire un éventuel texte avant/après l'objet JSON (préambule de l'IA)
   const firstBrace = t.indexOf("{");
   const lastBrace = t.lastIndexOf("}");
-  if (firstBrace > 0 || lastBrace < t.length - 1){
+  if (keepTail){
+    // Réponse peut-être coupée : on garde tout ce qui suit la première accolade.
+    if (firstBrace > 0) t = t.slice(firstBrace);
+  } else if (firstBrace > 0 || lastBrace < t.length - 1){
     if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace){
       t = t.slice(firstBrace, lastBrace + 1);
     }
@@ -5822,20 +6073,30 @@ function sanitizeJsonText(raw){
 }
 
 function parseEiasResponse(textBlock){
-  const cleaned = sanitizeJsonText(textBlock);
-  let parsed;
-  try{
-    parsed = JSON.parse(cleaned);
-  }catch(err){
-    const pos = (err.message.match(/position (\d+)/)||[])[1];
-    const snippet = pos ? cleaned.slice(Math.max(0, pos-40), Number(pos)+40) : cleaned.slice(0,120);
-    throw new Error("réponse JSON invalide même après nettoyage — extrait autour de l'erreur : « ..." + snippet + "... »");
+  const r = parseAiFields(textBlock, EIAS_FIELD_SPEC);
+  const f = r.found;
+  const known = ["pointsForts","pointsAmeliorer","titre","description","causeImmediate","causesProfondes","barrieres","axes"];
+  if (!known.some(function(k){ return f[k] !== undefined && normAiText(f[k]); })){
+    const head = String(textBlock).replace(/\s+/g, " ").trim().slice(0, 100);
+    throw new Error("aucune rubrique reconnue dans le texte collé (début : « " + head + " »)");
   }
-  if (!parsed.critique) parsed.critique = { pointsForts:"", pointsAmeliorer:"", complementExpert:"" };
-  if (parsed.critique.complementExpert === undefined) parsed.critique.complementExpert = "";
-  if (!parsed.synthese) parsed.synthese = {};
-  if (!parsed.synthese.motsCles) parsed.synthese.motsCles = [];
-  return parsed;
+  const t = function(k){ return normAiText(f[k]); };
+  parseEiasResponse.lastWarnings = r.warnings;
+  return {
+    critique: { pointsForts: t("pointsForts"), pointsAmeliorer: t("pointsAmeliorer"), complementExpert: t("complementExpert") },
+    synthese: {
+      titre: t("titre").replace(/\n+/g, " "), description: t("description"), causeImmediate: t("causeImmediate"),
+      causesProfondes: t("causesProfondes"), barrieres: t("barrieres"), axes: t("axes"),
+      confrontationLitterature: t("confrontationLitterature"), motsCles: normAiList(f.motsCles)
+    }
+  };
+}
+function parseBilanResponse(textBlock){
+  const r = parseAiFields(textBlock, BILAN_FIELD_SPEC);
+  const a = normAiText(r.found.syntheseSiam), b = normAiText(r.found.syntheseEngage);
+  if (!a && !b) throw new Error("ni « syntheseSiam » ni « syntheseEngage » trouvés dans le texte collé");
+  parseBilanResponse.lastWarnings = r.warnings;
+  return { syntheseSiam: a, syntheseEngage: b };
 }
 
 /* ============================ DIDACTICIEL (apercu) ============================ */
