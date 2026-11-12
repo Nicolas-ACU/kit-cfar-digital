@@ -492,7 +492,7 @@ const COURRIERS_DEFAUT = {
     label: "EIAS — demande de complément (à l'engagé)",
     subject: "Votre EIAS « {{titre}} » : précisions demandées — Accréditation des Médecins",
     body: "Bonjour,\n\nAprès première analyse de votre EIAS « {{titre}} », les points suivants sont retenus :\n\nPoints forts de votre analyse :\n{{points_forts}}\n\nPoints à compléter :\n{{points_a_completer}}\n\n{{avis_expert}}Merci de voir si la pertinence de l'analyse peut être améliorée en répondant aux questions soulevées, et de transmettre vos précisions.\n\nCordialement.\nVotre Expert au CFAR : {{expert}}",
-    vars: { titre:"titre de l'EIAS", points_forts:"points forts de l'analyse de l'engagé", points_a_completer:"points à compléter (grille ALARM, référentiel HAS)", avis_expert:"avis de l'expert (vide si non renseigné)", engage:"nom de l'engagé", expert:"votre nom" },
+    vars: { titre:"titre de l'EIAS", points_forts:"points forts de l'analyse de l'engagé", points_a_completer:"points à compléter (grille ALARM, référentiel HAS)", avis_expert:"complément de l'expert (vide si non renseigné)", engage:"nom de l'engagé", expert:"votre nom" },
     note: "Mail ouvert par le bouton « Demander un complément à l'engagé » de l'onglet EIAS, avant ou après validation de l'analyse."
   },
   eias_retour: {
@@ -921,7 +921,7 @@ function renderModeEmploiModal(){
         ${section("🩺 Analyse EIAS", `
           Un mode test existe pour travailler un EIAS sans l'attribuer à un engagé (préparation de RMM, cas personnel...) — rien n'y est conservé d'une session à l'autre.
           <br/><br/>
-          <b>Corriger un EIAS déjà validé, ou demander un complément à l'engagé.</b> Juste après la validation, <i>« ✎ Modifier à nouveau »</i> (en bas à droite de l'analyse) la rouvre. Plus tard, ouvrez la fiche de l'engagé (Gestion des engagés), rubrique <i>« Dossiers EIAS archivés »</i>, dépliez le dossier et cliquez sur <i>« ✎ Rouvrir pour modifier »</i> : corrigez, complétez le champ « Complément de l'expert », puis <i>« ✓ Valider l'analyse »</i> à nouveau — l'EIAS n'est ni recompté ni refacturé. Quand l'engagé a renvoyé ses corrections : collez-les dans le champ <i>« Corrections / précisions apportées par l'engagé »</i>, puis <i>« ↻ Nouvelle analyse après corrections de l'engagé »</i> copie un prompt (synthèse précédente + corrections, sans l'historique des échanges). Collez-le dans votre IA, puis sa réponse dans « Coller une réponse IA » : vous obtenez la synthèse corrigée et complète (une seule cause immédiate, grille ALARM, exigences HAS), de nouveaux points forts / points à compléter portant sur la dernière version, et un <i>« Avis de l'expert »</i> proposé (félicitations et validation, ou invitation à progresser) que vous pouvez modifier. Cet avis figure dans le compte-rendu Word, le résumé SIAM et les mails à l'engagé. Tant que l'analyse n'est pas acceptable, vous pouvez redemander un complément, puis recommencer. Vous pouvez aussi simplement corriger les champs de la synthèse à la main. Pour demander des précisions à l'engagé, <i>« ✉️ Demander un complément à l'engagé »</i> (sous les points à compléter, ou sous l'analyse validée) ouvre un mail reprenant ses points forts et les points à compléter ; le texte est modifiable dans Didacticiel → Modèles de courriers.
+          <b>Corriger un EIAS déjà validé, ou demander un complément à l'engagé.</b> Juste après la validation, <i>« ✎ Modifier à nouveau »</i> (en bas à droite de l'analyse) la rouvre. Plus tard, ouvrez la fiche de l'engagé (Gestion des engagés), rubrique <i>« Dossiers EIAS archivés »</i>, dépliez le dossier et cliquez sur <i>« ✎ Rouvrir pour modifier »</i> : corrigez, complétez le champ « Complément de l'expert », puis <i>« ✓ Valider l'analyse »</i> à nouveau — l'EIAS n'est ni recompté ni refacturé. Quand l'engagé a renvoyé ses corrections : collez-les dans le champ <i>« Corrections / précisions apportées par l'engagé »</i>, puis <i>« ↻ Nouvelle analyse après corrections de l'engagé »</i> copie un prompt (synthèse précédente + corrections, sans l'historique des échanges). Collez-le dans votre IA, puis sa réponse dans « Coller une réponse IA » : vous obtenez la synthèse corrigée et complète (une seule cause immédiate, grille ALARM, exigences HAS), de nouveaux points forts / points à compléter portant sur la dernière version, et un <i>« Complément de l'expert »</i> (avis) proposé (félicitations et validation, ou invitation à progresser) que vous pouvez modifier. Ce complément (seule note de l'expert reprise) figure dans le compte-rendu Word, le résumé SIAM et les mails à l'engagé. Tant que l'analyse n'est pas acceptable, vous pouvez redemander un complément, puis recommencer. Vous pouvez aussi simplement corriger les champs de la synthèse à la main. Pour demander des précisions à l'engagé, <i>« ✉️ Demander un complément à l'engagé »</i> (sous les points à compléter, ou sous l'analyse validée) ouvre un mail reprenant ses points forts et les points à compléter ; le texte est modifiable dans Didacticiel → Modèles de courriers.
           <br/><br/>
           Renseignez les rubriques demandées (copier-coller aisé depuis le SIAM), cochez le cas échéant <i>« analysé en RMM/CREX/REMED »</i>, puis choisissez : rédiger vous-même l'<i>« Analyse de l'expert »</i>, ou copier le prompt fourni pour le soumettre à une IA de votre choix et coller sa réponse (format JSON) — la même IA peut aussi vous être utile pour reformuler une analyse reçue d'ailleurs. <b>Un contrôle basique des éléments identifiants est effectué dès la copie du prompt</b>, avant toute transmission à une IA externe — pas seulement à la validation finale.
           <br/><br/>
@@ -1130,7 +1130,7 @@ function renderApp(){
         </div>
         <button class="btn secondary block small" id="openModeEmploiBtn" style="margin-bottom:8px;">📖 Mode d'emploi</button>
         <button class="btn secondary block small" id="logoutBtn">Se déconnecter</button>
-        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 12/11/2026 (d)</div>
+        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 12/11/2026 (e)</div>
       </div>
     </div>
     ${STATE.showModeEmploi ? renderModeEmploiModal() : ""}
@@ -1772,8 +1772,7 @@ function renderEngageDetail(){
           <div class="section-label" style="margin-top:10px;">Analyse contradictoire</div>
           ${cr2.pointsForts?`<div class="muted-small" style="white-space:pre-wrap;"><b>Points forts :</b> ${escapeHtml(cr2.pointsForts)}</div>`:""}
           ${cr2.pointsAmeliorer?`<div class="muted-small" style="margin-top:4px; white-space:pre-wrap;"><b>Points à compléter :</b> ${escapeHtml(cr2.pointsAmeliorer)}</div>`:""}
-          ${cr2.avisExpert?`<div class="muted-small" style="margin-top:4px; white-space:pre-wrap;"><b>Avis de l'expert :</b> ${escapeHtml(cr2.avisExpert)}</div>`:""}
-          ${cr2.complementExpert?`<div class="muted-small" style="margin-top:4px;"><b>Complément de l'expert :</b> ${escapeHtml(cr2.complementExpert)}</div>`:""}
+          ${expertNote(cr2)?`<div class="muted-small" style="margin-top:4px; white-space:pre-wrap;"><b>Complément de l'expert :</b> ${escapeHtml(expertNote(cr2))}</div>`:""}
           ` : ""}
           <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn small" data-reopen-eias="${dos.id}" data-engage="${e.id}">✎ Rouvrir pour modifier</button>
@@ -4447,8 +4446,8 @@ function renderEias(){
       <textarea rows="3" id="f_pointsForts" ${STATE.eiasValidated?"disabled":""}>${escapeHtml(cr.pointsForts||"")}</textarea>
       <div class="section-label">Points à compléter (grille ALARM, référentiel HAS)</div>
       <textarea rows="4" id="f_pointsAmeliorer" ${STATE.eiasValidated?"disabled":""}>${escapeHtml(cr.pointsAmeliorer||"")}</textarea>
-      <div class="section-label">Avis de l'expert (félicitations et validation — ou invitation à progresser)</div>
-      <textarea rows="3" id="f_avisExpert" placeholder="Ex. : Analyse validée. Bravo pour … ; pour progresser, … — ou : Analyse à compléter : merci de … Cet avis figure dans le compte-rendu et dans le mail à l'engagé." ${STATE.eiasValidated?"disabled":""}>${escapeHtml(cr.avisExpert||"")}</textarea>
+      <div class="section-label">Complément de l'expert (avis : félicitations et validation — ou invitation à progresser)</div>
+      <textarea rows="3" id="f_avisExpert" placeholder="Ex. : Analyse validée. Bravo pour … ; pour progresser, … — ou : Analyse à compléter : merci de … Ce complément figure dans le compte-rendu, le résumé SIAM et le mail à l'engagé." ${STATE.eiasValidated?"disabled":""}>${escapeHtml(cr.avisExpert||"")}</textarea>
       <div style="margin:8px 0 12px;">
         <button class="btn secondary small" id="askEiasComplementBtn">✉️ Demander un complément à l'engagé</button>
         <span class="muted-small" style="margin-left:6px;">Ouvre un mail avec les points forts et les points à compléter ci-dessus ; à utiliser seulement si vous souhaitez des précisions avant de valider.</span>
@@ -4695,8 +4694,7 @@ function eiasPlainText(d, cr){
 6. Analyse contradictoire de l'expert :
 ${cr.pointsForts ? "Points forts : " + cr.pointsForts : ""}
 ${cr.pointsAmeliorer ? "Points complétés par l'expert : " + cr.pointsAmeliorer : ""}
-${cr.avisExpert ? "Avis de l'expert : " + cr.avisExpert : ""}
-${cr.complementExpert ? "Complément apporté par l'expert : " + cr.complementExpert : ""}` : "";
+${expertNote(cr) ? "Complément de l'expert : " + expertNote(cr) : ""}` : "";
   return `${d.titre||""}
 
 1. Description :
@@ -4721,6 +4719,10 @@ Mots-clés (base commune) : ${kw}`;
 // Résumé court (~10 lignes) destiné au collage direct dans le champ "analyse" du SIAM — le
 // compte-rendu complet, lui, est joint séparément en pièce jointe Word : il est donc inutile
 // (et illisible) de recopier deux fois l'intégralité de l'analyse dans le SIAM.
+// Une seule note d'expert est reprise dans les sorties (Word, SIAM, mails) : le « complément de
+// l'expert » (avis de validation ou invitation à progresser) ; à défaut, l'ancien champ de précisions.
+function expertNote(cr){ cr = cr || {}; return ((cr.avisExpert || cr.complementExpert) || "").trim(); }
+
 // Coupe à la fin d'une phrase (jamais en plein mot) ; ne coupe pas du tout si le texte tient.
 function cutAtSentence(text, max){
   const t = String(text||"").trim();
@@ -4731,19 +4733,46 @@ function cutAtSentence(text, max){
   if (idx > max * 0.45) return head.slice(0, idx + 1).trim() + " […]";
   return head.replace(/\s+\S*$/, "").trim() + " […]";
 }
+// Les n premières phrases (dans la limite de max caractères) ; si la première phrase est déjà
+// trop longue, coupe sur un « ; » ou une virgule, jamais en plein mot.
+function firstSentences(text, n, max){
+  const t = String(text||"").replace(/\s*\n+\s*/g, " ").trim();
+  if (!t) return "";
+  const sents = t.match(/[^.!?]+(?:[.!?]+(?=\s|$)|$)/g) || [t];
+  let out = "";
+  for (let k = 0; k < sents.length && k < n; k++){
+    const cand = (out ? out + " " : "") + sents[k].trim();
+    if (cand.length > max){ if (!out) out = cand; break; }
+    out = cand;
+  }
+  if (out.length > max){
+    const head = out.slice(0, max);
+    let cut = Math.max(head.lastIndexOf("; "), head.lastIndexOf(", "));
+    if (cut <= max * 0.5) cut = head.lastIndexOf(" ");
+    out = head.slice(0, cut > 0 ? cut : max).replace(/[\s,;:]+$/, "") + " […]";
+  }
+  return out;
+}
+// Résumé SIAM : une dizaine de lignes au plus — l'essentiel seulement, le reste est dans le Word joint.
 function eiasSiamSummary(d, cr){
   cr = cr || {};
   const kw = (d.motsCles||[]).join(", ") || "—";
+  const cause = firstSentences(String(d.causeImmediate||"").replace(/^\s*cause\s+(?:immédiate\s+)?retenue(?:\s+à ce stade)?\s*:?\s*/i, ""), 1, 240);
+  // Axes : les 3 premiers, chacun réduit à sa première phrase (sans l'étiquette de famille ALARM finale).
+  const famille = /\s*\((?:[^()]*(?:tâches?|équipe|patient|professionnels?|environnement|organisationnel|systèmes?|institutionnel)[^()]*)\)\s*\.?$/i;
+  let axesItems = String(d.axes||"").split(/\n+/).map(x=> x.replace(/^\s*(?:[-•*–]|\d+[.)])\s*/, "").trim()).filter(Boolean);
+  if (axesItems.length < 2) axesItems = (String(d.axes||"").match(/[^.!?]+[.!?]+(?=\s|$)/g) || axesItems).map(x=> x.trim());
+  const axes = axesItems.slice(0, 3).map((x,k)=> (k+1) + ") " + firstSentences(x.replace(famille, "").replace(/\s*\([^()]*\)/g, ""), 1, 130).replace(/[.\s]+$/, "")).join(" ; ") + (axesItems.length > 3 ? " ; …" : "");
   const lignes = [
     d.titre || "(sans titre)",
     "",
-    cutAtSentence(d.description||"", 900),
-    "Cause immédiate : " + cutAtSentence(d.causeImmediate||"", 450),
+    firstSentences(d.description||"", 1, 260),
+    "Cause immédiate : " + cause,
     "Analysé en RMM/CREX/REMED : " + (d.analyseRmm ? "Oui" : "Non"),
-    "Axes d'amélioration : " + cutAtSentence(d.axes||"", 900),
+    "Axes d'amélioration : " + (axesItems.length ? axes : "—"),
   ];
-  if (cr.pointsAmeliorer) lignes.push("Complément de l'expert : " + cutAtSentence(cr.pointsAmeliorer, 700));
-  if (cr.avisExpert) lignes.push("Avis de l'expert : " + cutAtSentence(cr.avisExpert, 500));
+  const note = expertNote(cr);
+  if (note) lignes.push("Complément de l'expert : " + firstSentences(note, 2, 300));
   lignes.push("Mots-clés : " + kw);
   lignes.push("(Compte-rendu complet joint en pièce jointe Word)");
   return lignes.filter(l=> l !== null && l !== undefined).join("\n");
@@ -4755,10 +4784,9 @@ function eiasSiamSummary(d, cr){
 function buildEiasEngageMailto(e, d, cr){
   cr = cr || {};
   const critiqueTxt = [
-    cr.avisExpert ? "Avis de l'expert : " + cr.avisExpert : "",
+    expertNote(cr) ? "Complément de l'expert : " + expertNote(cr) : "",
     cr.pointsForts ? "Points forts de votre analyse : " + cr.pointsForts : "",
     cr.pointsAmeliorer ? "Points à approfondir : " + cr.pointsAmeliorer : "",
-    cr.complementExpert ? "Complément apporté par l'expert : " + cr.complementExpert : "",
   ].filter(Boolean).join("\n\n") || "—";
   const syntheseTxt = eiasPlainText(d, {});
   const courrier = renderCourrier("eias_retour", { titre: d.titre || "votre EIAS", critique: critiqueTxt, synthese: syntheseTxt, expert: STATE.currentExpert.name, engage: e.nom });
@@ -4795,8 +4823,7 @@ function renderEiasReportCard(d, cr){
       <h4>6. Analyse contradictoire de l'expert</h4>
       ${cr.pointsForts ? `<div style="font-size:13px; margin-bottom:8px;"><b>Points forts de l'analyse de l'engagé :</b> <span style="white-space:pre-wrap;">${escapeHtml(cr.pointsForts)}</span></div>` : ""}
       ${cr.pointsAmeliorer ? `<div style="font-size:13px; margin-bottom:8px;"><b>Points complétés par l'expert :</b> <span style="white-space:pre-wrap;">${escapeHtml(cr.pointsAmeliorer)}</span></div>` : ""}
-      ${cr.avisExpert ? `<div class="conclusion-box" style="white-space:pre-wrap;"><b>Avis de l'expert :</b> ${escapeHtml(cr.avisExpert)}</div>` : ""}
-      ${cr.complementExpert ? `<div class="conclusion-box"><b>Complément apporté par l'expert :</b> ${escapeHtml(cr.complementExpert)}</div>` : ""}
+      ${expertNote(cr) ? `<div class="conclusion-box" style="white-space:pre-wrap;"><b>Complément de l'expert :</b> ${escapeHtml(expertNote(cr))}</div>` : ""}
       ${(!cr.pointsForts && !cr.pointsAmeliorer && !cr.avisExpert && !cr.complementExpert) ? `<div class="muted-small">Aucune critique contradictoire renseignée.</div>` : ""}
     </div>
 
@@ -4806,7 +4833,7 @@ function renderEiasReportCard(d, cr){
     <textarea rows="8" id="eiasSyntheseText">${escapeHtml(eiasPlainText(d, cr))}</textarea>
     <div class="section-label" style="margin-top:14px;">Résumé à coller dans le SIAM (modifiable avant copie)</div>
     <textarea rows="9" id="eiasSiamText">${escapeHtml(eiasSiamSummary(d, cr))}</textarea>
-    <div class="muted-small" style="margin:6px 0;">Le résumé ci-dessus est coupé en fin de phrase (jamais en plein mot) et reste modifiable : ajustez-le si le champ du SIAM est plus court. Le compte-rendu complet est destiné au document Word, à joindre en pièce jointe — ou à copier intégralement avec le bouton « Copier le texte complet ».</div>
+    <div class="muted-small" style="margin:6px 0;">Le résumé ci-dessus (une dizaine de lignes : titre, contexte, cause, 3 axes, complément de l'expert, mots-clés) est volontairement bref, coupé en fin de phrase, et reste modifiable : ajustez-le si le champ du SIAM est plus court. Le compte-rendu complet est destiné au document Word, à joindre en pièce jointe — ou à copier intégralement avec le bouton « Copier le texte complet ».</div>
     <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn small" id="copyEiasSiamBtn">📋 Copier le résumé pour le SIAM</button>
       <button class="btn secondary small" id="copyEiasFullBtn">📋 Copier le texte complet</button>
@@ -5188,8 +5215,7 @@ function eiasWordHtml(d, cr){
   ${(cr.pointsForts||cr.pointsAmeliorer||cr.avisExpert||cr.complementExpert) ? `<h3 style="color:#2E5B8A;">6. Analyse contradictoire de l'expert</h3>
   ${cr.pointsForts?`<p style="margin:0 0 8px;"><b>Points forts :</b><br/>${escapeHtml(cr.pointsForts).replace(/\n/g,"<br/>")}</p>`:""}
   ${cr.pointsAmeliorer?`<p style="margin:0 0 8px;"><b>Points complétés par l'expert :</b><br/>${escapeHtml(cr.pointsAmeliorer).replace(/\n/g,"<br/>")}</p>`:""}
-  ${cr.avisExpert?`<p style="background:#E4F4F1; border-left:4px solid #0E7C6E; padding:8px 12px;"><b>Avis de l'expert :</b> ${escapeHtml(cr.avisExpert).replace(/\n/g,"<br/>")}</p>`:""}
-  ${cr.complementExpert?`<p style="background:#E4F4F1; border-left:4px solid #0E7C6E; padding:8px 12px;"><b>Complément de l'expert :</b> ${escapeHtml(cr.complementExpert).replace(/\n/g,"<br/>")}</p>`:""}` : ""}
+  ${expertNote(cr)?`<p style="background:#E4F4F1; border-left:4px solid #0E7C6E; padding:8px 12px;"><b>Complément de l'expert :</b> ${escapeHtml(expertNote(cr)).replace(/\n/g,"<br/>")}</p>`:""}` : ""}
   <h3 style="color:#2E5B8A;">Mots-clés (base commune)</h3>${p(kw)}`;
 }
 
@@ -5524,7 +5550,7 @@ function attachEiasEvents(){
       titre: (titreEl ? titreEl.value : d.titre) || STATE.eiasInputs.titre || "votre EIAS",
       points_forts: live("f_pointsForts", cr.pointsForts).trim() || "—",
       points_a_completer: live("f_pointsAmeliorer", cr.pointsAmeliorer).trim() || "—",
-      avis_expert: (live("f_avisExpert", cr.avisExpert).trim() ? "Avis de l'expert :\n" + live("f_avisExpert", cr.avisExpert).trim() + "\n\n" : ""),
+      avis_expert: (live("f_avisExpert", cr.avisExpert).trim() ? "Complément de l'expert :\n" + live("f_avisExpert", cr.avisExpert).trim() + "\n\n" : ""),
       engage: e.nom, expert: STATE.currentExpert.name
     });
     if (!resolveMailRecipient(e)) toast("Astuce : renseignez l'adresse mail de l'engagé (ou du référent d'équipe) pour préremplir le destinataire.");
@@ -5789,7 +5815,7 @@ Produis TROIS éléments, qui portent uniquement sur la dernière version (ne me
 1) "critique" — nouvelle analyse contradictoire, positive et exigeante :
 - "pointsForts" : 2 à 4 points précis de la dernière version qui répondent bien aux attendus (récit, démarche diagnostique, familles ALARM bien identifiées, barrières, axes concrets...).
 - "pointsAmeliorer" : ce qui reste perfectible dans la dernière version, même mineur (il en reste presque toujours) : précis, hiérarchisé, rattaché à une famille ALARM ou à une exigence du référentiel HAS. Ne répète pas des lacunes désormais comblées.
-- "avisExpert" : 2 à 4 phrases adressées à l'engagé (vouvoiement), commençant par « Analyse validée. » ou par « Analyse à compléter. ». Si la dernière version répond aux attendus (une cause immédiate unique clairement formulée, causes profondes par familles ALARM pertinentes, barrières cohérentes avec le récit, axes concrets, cohérence d'ensemble), même avec des améliorations mineures : félicite sincèrement, nomme ce qui a été le mieux amélioré, puis conclus que l'analyse est validée. Sinon : reconnais les progrès, indique clairement les 2 ou 3 priorités restantes et invite à compléter, sans valider.
+- "avisExpert" (le « complément de l'expert », seule note de l'expert reprise dans le compte-rendu) : 2 à 4 phrases adressées à l'engagé (vouvoiement), commençant par « Analyse validée. » ou par « Analyse à compléter. ». Si la dernière version répond aux attendus (une cause immédiate unique clairement formulée, causes profondes par familles ALARM pertinentes, barrières cohérentes avec le récit, axes concrets, cohérence d'ensemble), même avec des améliorations mineures : félicite sincèrement, nomme ce qui a été le mieux amélioré, puis conclus que l'analyse est validée. Sinon : reconnais les progrès, indique clairement les 2 ou 3 priorités restantes et invite à compléter, sans valider.
 
 2) "synthese" — version corrigée et COMPLÈTE, prête à être transmise à la HAS, qui intègre fidèlement tous les éléments factuels des corrections de l'engagé et se conforme à l'ordonnancement de la base commune du CFAR :
 - "titre" : court (une ligne), nomme l'évènement et sa conséquence.
