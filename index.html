@@ -1130,7 +1130,7 @@ function renderApp(){
         </div>
         <button class="btn secondary block small" id="openModeEmploiBtn" style="margin-bottom:8px;">📖 Mode d'emploi</button>
         <button class="btn secondary block small" id="logoutBtn">Se déconnecter</button>
-        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 12/11/2026 (c)</div>
+        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 12/11/2026 (d)</div>
       </div>
     </div>
     ${STATE.showModeEmploi ? renderModeEmploiModal() : ""}
@@ -4506,10 +4506,10 @@ function renderEias(){
       ${(()=>{ const hits = scanForIdentifiers(collectEiasFullText(d, cr)); return hits.length ? `<div class="badge warn" style="display:block; margin-top:14px; white-space:normal; padding:10px 12px;">⚠️ Éléments potentiellement identifiants détectés : « ${hits.map(escapeHtml).join(" », « ")} » — vérifiez avant de valider (contrôle basique par mots-clés, pas une garantie d'anonymisation complète ; détection sémantique assistée par IA prévue en V2, cf. spécification §3.2).</div>` : ""; })()}
 
       <div style="margin-top:18px; display:flex; gap:8px; flex-wrap:wrap;">
-        <button class="btn secondary" id="pasteAgainBtn">📋 Coller une autre réponse</button>
+        <button class="btn secondary" id="pasteAgainBtn" title="Utile pour comparer avec une autre IA, ou si la première réponse était décevante. La réponse collée remplace toute l'analyse ci-dessus.">📋 Coller la réponse d'une autre IA</button>
         <button class="btn" id="validateBtn">✓ Valider l'analyse</button>
       </div>
-      <div class="muted-small" style="margin-top:8px;">Valider verrouille cette version (modifiable à nouveau si besoin) et fait apparaître les options d'export (SIAM, Word). Aucune donnée n'est transmise à une base commune sans cette validation explicite (cf. spécification §3.2 et §6.4).</div>
+      <div class="muted-small" style="margin-top:8px;">« Coller la réponse d'une autre IA » sert à obtenir un second avis (autre IA, ou nouvel essai si la première réponse est décevante) : la réponse collée <b>remplace</b> l'analyse ci-dessus (synthèse, critique et avis) — pour intégrer les corrections de l'engagé, utilisez plutôt « Nouvelle analyse après corrections de l'engagé ». Valider verrouille cette version (modifiable à nouveau si besoin) et fait apparaître les options d'export (SIAM, Word). Aucune donnée n'est transmise à une base commune sans cette validation explicite (cf. spécification §3.2 et §6.4).</div>
     </div>`;
     }
   }
@@ -5291,6 +5291,8 @@ function attachEiasEvents(){
     if (!raw.trim()){ toast("Collez d'abord la réponse de l'IA dans la zone de texte."); return; }
     try{
       const parsed = carryRecordMarkers(STATE.eiasDraft, parseEiasResponse(raw));
+      const cur = STATE.eiasDraft && STATE.eiasDraft.synthese;
+      if (cur && (cur.description || cur.causesProfondes || cur.axes) && !window.confirm("Cette réponse va REMPLACER l'analyse actuelle (synthèse, points forts / à compléter, avis de l'expert), y compris vos modifications manuelles.\n\nContinuer ?")) return;
       setState({ eiasDraft: parsed, eiasError:"", showEiasPaste:false, eiasValidated:false });
       const w = (parseEiasResponse.lastWarnings||[]);
       toast("Réponse chargée" + (w.length ? " (attention : " + w.join(" ; ") + ")" : "") + " — vous pouvez maintenant relire et valider.", w.length ? 9000 : undefined);
