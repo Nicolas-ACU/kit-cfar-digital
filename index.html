@@ -891,6 +891,8 @@ function renderModeEmploiModal(){
         `)}
 
         ${section("📋 Bilan annuel", `
+          <b>Bilan d'accréditation (dernière étape) et antériorité.</b> Il reprend les activités des 3 bilans annuels précédents. Dans l'aperçu, chaque activité n'affiche qu'un extrait : cliquez sur <i>« ▸ lire l'intégralité »</i> pour déplier le texte complet, année par année. Le Word du bilan d'accréditation comporte une <i>« Annexe — antériorité détaillée »</i> avec ces textes intégraux. Le prompt de synthèse demande à l'IA un texte volontairement court et de longueur stable (environ 120-200 mots pour un bilan annuel, 200-320 pour l'accréditation) : pré-requis et faits marquants d'abord, détail omis.
+          <br/><br/>
           Deux façons de fonctionner, à votre convenance : coller vous-même le contenu depuis le SIAM pilier par pilier, ou <b>faire remplir l'engagé lui-même</b> via l'espace qui lui est dédié (voir plus bas) — les deux peuvent aussi se combiner.
           <br/><br/>
           Pour chaque activité : cochez son statut, collez ou lisez le contenu, puis <i>« 📝 Générer la synthèse »</i> produit un texte structuré instantanément, sans appel à un service extérieur. Pour une synthèse rédigée par une IA, copiez le prompt fourni et soumettez-le à l'outil de votre choix, puis collez sa réponse — l'application ne transmet elle-même aucune donnée à un tiers. <b>Un contrôle basique des éléments identifiants est effectué au moment même où vous copiez le prompt</b> (pas seulement à la validation), pour éviter de transmettre un texte non anonymisé à une IA externe.
@@ -1128,7 +1130,7 @@ function renderApp(){
         </div>
         <button class="btn secondary block small" id="openModeEmploiBtn" style="margin-bottom:8px;">📖 Mode d'emploi</button>
         <button class="btn secondary block small" id="logoutBtn">Se déconnecter</button>
-        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 09/11/2026 (b)</div>
+        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 12/11/2026 (a)</div>
       </div>
     </div>
     ${STATE.showModeEmploi ? renderModeEmploiModal() : ""}
@@ -3546,7 +3548,13 @@ function renderBilanReport(e, year){
           const label = escapeHtml(o.a.nom.replace(" (OBLIGATOIRE)",""));
           const detail = o.detail ? " — " + escapeHtml(o.detail) : "";
           const anteTxt = o.ante.length ? ` <span style="font-style:italic; color:#5B4B8A;">[antériorité : ${o.ante.map(escapeHtml).join(", ")}]</span>` : "";
-          return "<li" + (!o.enCours ? ' style="font-style:italic; color:#5B4B8A;"' : "") + ">" + label + detail + anteTxt + "</li>";
+          const longCur = o.detailFull && o.detailFull.length > (o.detail||"").length;
+          const hasMore = longCur || (o.anteFull && o.anteFull.length);
+          const liStyle = (!o.enCours ? ' style="font-style:italic; color:#5B4B8A;"' : "");
+          if (!hasMore) return "<li" + liStyle + ">" + label + detail + anteTxt + "</li>";
+          const full = (o.detailFull ? "<div style='margin:4px 0;'><b>" + (o.enCours ? "Année en cours" : "Contenu retenu") + " :</b> <span style='white-space:pre-wrap;'>" + escapeHtml(o.detailFull) + "</span></div>" : "")
+            + (o.anteFull||[]).map(x=> "<div style='margin:4px 0; color:#5B4B8A;'><b>" + escapeHtml(x.label) + " :</b> <span style='white-space:pre-wrap;'>" + escapeHtml(x.texte) + "</span></div>").join("");
+          return "<li" + liStyle + "><details><summary style='cursor:pointer;'>" + label + detail + anteTxt + " <span style='font-size:11px; color:#2E5B8A; text-decoration:underline;'>▸ lire l'intégralité</span></summary><div style='margin:6px 0 4px 8px; padding:6px 10px; border-left:3px solid #C9D3E3; font-size:12.5px;'>" + full + "</div></details></li>";
         }).join("") + "</ul>"
       : `<div class="none">aucune activité complémentaire retenue à ce stade</div>`;
     return `<div class="report-pilier"><div class="pnom">${p.nom}</div>${list}</div>`;
@@ -3686,6 +3694,22 @@ function bilanWordHtml(e, year, syntheseText, appreciation, resumeEngage, archiv
     return `<p style="font-size:11pt; font-weight:bold; color:#2E5B8A; margin:10px 0 2px;">${escapeHtml(p.nom)}</p><ul style="margin:0 0 6px; font-size:10.5pt;">${list}</ul>`;
   }).join("");
 
+  // Annexe (bilan d'accréditation uniquement) : contenu intégral, année par année, des activités
+  // dont l'antériorité est reprise — le corps du document reste synthétique.
+  let anteAnnexeWord = "";
+  if (isAccreditationStage(e, year)){
+    const blocs = PILIERS.map(p=>{
+      const its = activitesRetenuesPilier(e, year, p).filter(o=> (o.anteFull && o.anteFull.length) || (o.detailFull && o.detailFull.length > (o.detail||"").length));
+      if (!its.length) return "";
+      return `<p style="font-size:11pt; font-weight:bold; color:#2E5B8A; margin:10px 0 2px;">${escapeHtml(p.nom)}</p>` + its.map(o=>
+        `<p style="margin:4px 0 2px; font-size:10.5pt;"><b>${escapeHtml(o.a.nom.replace(" (OBLIGATOIRE)",""))}</b></p>` +
+        (o.detailFull ? `<p style="margin:0 0 2px 14px; font-size:10pt;">${o.enCours ? "Année en cours" : "Contenu retenu"} : ${escapeHtml(o.detailFull).replace(/\n/g,"<br/>")}</p>` : "") +
+        o.anteFull.map(x=> `<p style="margin:0 0 2px 14px; font-size:10pt; color:#5B4B8A;">${escapeHtml(x.label)} : ${escapeHtml(x.texte).replace(/\n/g,"<br/>")}</p>`).join("")
+      ).join("");
+    }).join("");
+    if (blocs) anteAnnexeWord = `<h3 style="color:#2E5B8A; margin-top:18px;">Annexe — antériorité détaillée (texte intégral)</h3>` + blocs;
+  }
+
   const dossiersAffichesWord = isAccreditationStage(e, year)
     ? compiledYearsForAccreditation(e, year).reduce((acc,y)=> acc.concat(dossiersEiasDeAnnee(e, y)), [])
     : dossiersEiasDeAnnee(e, year);
@@ -3768,7 +3792,7 @@ ${suiviPropositionsSectionWord}
   <div style="margin-bottom:24px;">${eiasRows}</div>
 
   <h2 style="color:#2E5B8A; font-size:14pt; margin:0 0 8px;">Activités par pilier</h2>
-  <div style="margin-bottom:24px;">${pilierRows}</div>
+  <div style="margin-bottom:24px;">${pilierRows}</div>${anteAnnexeWord}
 
   <div style="height:8px;"></div>
   ${resumeEngage ? `<div style="background:#EFF3FA; border-left:4px solid #1F3864; padding:14px 18px; margin-top:10px; page-break-inside:avoid;">
@@ -5547,7 +5571,8 @@ function antecedentsActivite(e, year, key){
     const s = getBilanStatuts(e, y)[key];
     if (s==="realise" || s==="en_cours"){
       const c = getBilanContenus(e, y)[key];
-      out.push({ y, label: stages[y], statut: s, contenu: truncateForPrompt((c && (c.simplifie || c.texte)) || "", 220) });
+      const full = ((c && (c.simplifie || c.texte)) || "").trim();
+      out.push({ y, label: stages[y], statut: s, contenu: truncateForPrompt(full, 220), contenuFull: full });
     }
   });
   return out;
@@ -5567,7 +5592,9 @@ function activitesRetenuesPilier(e, year, p){
     const c = contenus[key];
     let detail = truncateForPrompt((c && (c.simplifie || c.texte)) || "");
     if (!detail) { const withC = ante.filter(x=>x.contenu); if (withC.length) detail = withC[withC.length-1].contenu; }
-    out.push({ a, key, enCours, ante: ante.map(x=>x.label), detail });
+    const detailFull = ((c && (c.simplifie || c.texte)) || "").trim();
+    out.push({ a, key, enCours, ante: ante.map(x=>x.label), detail, detailFull,
+      anteFull: ante.filter(x=>x.contenuFull).map(x=>({ label: x.label, texte: x.contenuFull })) });
   });
   return out;
 }
@@ -5609,7 +5636,7 @@ function buildBilanFactsAccreditation(e, year){
           if (!parActivite[nom]) parActivite[nom] = { annees:[], contenu:"" };
           parActivite[nom].annees.push(stages[y]);
           const c = contenus[key];
-          const detail = truncateForPrompt(c && (c.simplifie||c.texte));
+          const detail = truncateForPrompt(c && (c.simplifie||c.texte), 150);
           if (detail && !parActivite[nom].contenu) parActivite[nom].contenu = detail;
         }
       });
@@ -5696,17 +5723,24 @@ function jsonFormatRulesBlock(){
 }
 
 function buildBilanPrompt(facts, activitesEngage, isAccreditation){
-  const concisionRules = `
+  const concisionRules = isAccreditation ? `
 
 Contraintes impératives de forme, à respecter strictement :
-- "syntheseSiam" : entre 120 et 220 mots. Phrases courtes et factuelles. Aucune formule administrative creuse ("il convient de noter que", "il est à souligner que"...). Aucune activité ni donnée non présente dans les données fournies : ne rien inventer, ne rien généraliser au-delà de ce qui est donné.
-- "syntheseEngage" : entre 80 et 150 mots, ton chaleureux mais direct — pas de tournures ampoulées.
+- "syntheseSiam" : entre 200 et 320 mots AU MAXIMUM, quelle que soit la quantité de données fournies : il s'agit d'une synthèse, pas d'un inventaire. Structure : (1) les pré-requis sur la période (RMM, check-list, formation, EIAS cumulés réalisés/attendus), en 2 à 3 phrases ; (2) pour chaque pilier, 1 à 2 phrases qui dégagent les activités structurantes et la continuité du parcours (en citant les années), en REGROUPANT les activités voisines et en omettant le détail des contenus ; (3) les EIAS : nombre et thèmes principaux, sans détailler chaque cas ; (4) une conclusion de 2 phrases. Le détail intégral des activités reste consultable dans le dossier, il n'a pas à figurer ici.
+- Les éléments principaux et la réponse aux pré-requis passent avant tout : si un choix s'impose, supprime le détail, jamais un pré-requis.
+- Phrases courtes et factuelles.` : `
+
+Contraintes impératives de forme, à respecter strictement :
+- "syntheseSiam" : entre 120 et 200 mots AU MAXIMUM, quelle que soit la quantité de données fournies, et sans jamais s'allonger d'une année à l'autre. Structure : (1) les pré-requis de l'année (RMM, check-list, formation, EIAS réalisés/attendus), en 2 phrases ; (2) ce qui est nouveau ou significatif cette année, pilier par pilier, en regroupant les activités voisines et en omettant le détail des contenus ; (3) les EIAS en une phrase. Ne refais pas l'historique des années précédentes : il sera repris dans le bilan d'accréditation.
+- Les éléments principaux et la réponse aux pré-requis passent avant tout : si un choix s'impose, supprime le détail, jamais un pré-requis.
+- Phrases courtes et factuelles. Aucune formule administrative creuse ("il convient de noter que", "il est à souligner que"...). Aucune activité ni donnée non présente dans les données fournies : ne rien inventer, ne rien généraliser au-delà de ce qui est donné.
+- "syntheseEngage" : entre 80 et 130 mots, ton chaleureux mais direct — pas de tournures ampoulées.
 - Précision : reprends les chiffres exacts fournis (EIAS réalisés/attendus, nombre de médecins…) sans les arrondir ni les reformuler approximativement.
 - Pas de liste à puces dans "syntheseSiam" : uniquement des paragraphes rédigés.`;
   const system = isAccreditation ? `Tu es l'expert d'Accréditation du CFAR (anesthésie-réanimation) qui rédige la synthèse du BILAN D'ACCRÉDITATION d'un médecin engagé — c'est précisément ce bilan qui est examiné par la HAS et qui délivre ou renouvelle l'accréditation pour les années à venir. À la différence d'un bilan annuel, il compile les 3 bilans annuels précédents (${facts.periodeCouverte.join(", ")}), pas seulement la dernière année, à partir de données factuelles déjà établies (ne rien inventer).
 
 Rédige DEUX textes distincts :
-1. "syntheseSiam" : synthèse complète et fluide, dans un style professionnel, destinée à la HAS. Reprend, pilier par pilier, la CONTINUITÉ du parcours sur l'ensemble de la période (pas seulement la dernière année) — mentionne dans quelles années chaque activité a été menée si cela éclaire la régularité de l'engagement. Mentionne les EIAS réalisés sur la période. Si "resumeEngage" est fourni (résumé rédigé par l'engagé/le référent lui-même), appuie-toi sur ces éléments factuels pour enrichir ta synthèse, sans le citer ni le paraphraser littéralement. Termine par une conclusion explicite sur le fait que le parcours justifie le renouvellement de l'accréditation, ou signale sans détour les points qui pourraient faire obstacle si des pré-requis manquent. N'inclus PAS l'appréciation libre de l'expert dans ce texte : elle est présentée séparément, dans un encart dédié, juste après ta synthèse — la répéter ferait doublon.
+1. "syntheseSiam" : synthèse complète et fluide, dans un style professionnel, destinée à la HAS. Dégage, pilier par pilier, la CONTINUITÉ du parcours sur l'ensemble de la période (pas seulement la dernière année) — mentionne les années seulement si cela éclaire la régularité de l'engagement ; ne détaille pas chaque activité. Mentionne les EIAS réalisés sur la période. Si "resumeEngage" est fourni (résumé rédigé par l'engagé/le référent lui-même), appuie-toi sur ces éléments factuels pour enrichir ta synthèse, sans le citer ni le paraphraser littéralement. Termine par une conclusion explicite sur le fait que le parcours justifie le renouvellement de l'accréditation, ou signale sans détour les points qui pourraient faire obstacle si des pré-requis manquent. N'inclus PAS l'appréciation libre de l'expert dans ce texte : elle est présentée séparément, dans un encart dédié, juste après ta synthèse — la répéter ferait doublon.
 2. "syntheseEngage" : un message chaleureux et clair adressé DIRECTEMENT au médecin engagé (vouvoiement), qui valorise l'ensemble du travail accompli sur les 3 années, reprend l'appréciation libre de l'expert si elle est fournie, et amène naturellement (sans les détailler toi-même) les quelques activités signalées comme « à développer » — une liste précise de ressources sera ajoutée après ton texte, contente-toi d'une phrase de transition du type « pour vous accompagner sur les points suivants, vous trouverez ci-dessous quelques ressources utiles ».
 ${concisionRules}
 
@@ -5716,7 +5750,7 @@ Réponds UNIQUEMENT avec un objet JSON valide (dans un seul bloc de code \`\`\`j
 ${jsonFormatRulesBlock()}` : `Tu es l'expert d'Accréditation du CFAR (anesthésie-réanimation) qui rédige la synthèse d'un bilan annuel pour un médecin engagé dans l'Accréditation, à partir de données factuelles déjà établies (ne rien inventer).
 
 Rédige DEUX textes distincts :
-1. "syntheseSiam" : synthèse complète et fluide, dans un style professionnel et agréable à lire, destinée au dossier/SIAM. Reprend tous les éléments factuels fournis (composition, pré-requis, EIAS, valence, activités par pilier) mais sous forme de paragraphes bien écrits — surtout pas un simple listing à puces des activités, qui est rébarbatif à lire. Si "resumeEngage" est fourni (résumé rédigé par l'engagé/le référent lui-même, points positifs et à améliorer), appuie-toi sur ces éléments factuels pour enrichir ta synthèse, sans le citer ni le paraphraser littéralement. N'inclus PAS l'appréciation libre de l'expert dans ce texte : elle est présentée séparément, dans un encart dédié, juste après ta synthèse — la répéter ferait doublon.
+1. "syntheseSiam" : synthèse complète et fluide, dans un style professionnel et agréable à lire, destinée au dossier/SIAM. Retiens l'essentiel des éléments fournis (pré-requis, EIAS, valence, faits marquants par pilier) sous forme de courts paragraphes rédigés — pas de listing à puces des activités, et pas de reprise exhaustive des contenus. Si "resumeEngage" est fourni (résumé rédigé par l'engagé/le référent lui-même, points positifs et à améliorer), appuie-toi sur ces éléments factuels pour enrichir ta synthèse, sans le citer ni le paraphraser littéralement. N'inclus PAS l'appréciation libre de l'expert dans ce texte : elle est présentée séparément, dans un encart dédié, juste après ta synthèse — la répéter ferait doublon.
 2. "syntheseEngage" : un message chaleureux, clair et personnel adressé DIRECTEMENT au médecin engagé (vouvoiement), qui reprend l'appréciation libre de l'expert si elle est fournie, valorise le travail réalisé sur l'année, et amène naturellement (sans les détailler toi-même) les quelques activités signalées comme « à développer » — une liste précise de ressources sera ajoutée après ton texte, contente-toi d'une phrase de transition du type « pour vous accompagner sur les points suivants, vous trouverez ci-dessous quelques ressources utiles ».
 ${concisionRules}
 
