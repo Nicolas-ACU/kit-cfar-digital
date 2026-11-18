@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Grille de maturité des revues de morbi-mortalité (RMM), auto-évaluation individuelle ou collective.">
-<title>Grille de maturité des RMM – Version 16</title>
+<title>Grille de maturité des RMM – Version 21</title>
 <style>
 :root{--ink:#183047;--muted:#607386;--line:#d9e2ea;--soft:#f3f7fa;--blue:#176b87;--blue2:#e8f3f7;--green:#287a57;--white:#fff;--shadow:0 8px 28px #16324a12}
 *{box-sizing:border-box}body{margin:0;background:#f7f9fb;color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -109,21 +109,16 @@ footer{text-align:center;color:var(--muted);padding:22px;font-size:.85rem}
 <h2>Comment remplir la grille ?</h2>
 <p>Cette grille est un outil d’auto-évaluation destiné à accompagner les médecins et les équipes engagés dans une démarche d’accréditation. Pour chaque critère, choisissez le niveau qui correspond le mieux à votre pratique actuelle.</p>
 <div class="statement">La RMM est une démarche collective, structurée, anonymisée et déculpabilisante, qui transforme l'expérience des professionnels et des patients en apprentissages partagés et en améliorations effectives de la sécurité des soins.</div>
-<div class="levels">
-<div class="level"><b>1 – Initial</b><span class="small">Pratique absente, occasionnelle ou peu structurée.</span></div>
-<div class="level"><b>2 – Intermédiaire</b><span class="small">Pratique engagée, mais irrégulière ou partiellement formalisée.</span></div>
-<div class="level"><b>3 – Avancé</b><span class="small">Pratique structurée, régulière et formalisée.</span></div>
-<div class="level"><b>4 – Expert</b><span class="small">Pratique intégrée à une culture durable d’apprentissage et d’amélioration.</span></div>
-</div>
-<p class="muted small">Chaque critère est évalué indépendamment. Il n’y a ni moyenne ni score global : le radar présente un profil de maturité, pas une note ou un classement.</p>
+<p><strong>Vous pouvez générer un pdf qui peut être ajouté en pièce jointe dans le SIAM dans le pilier « SECURITE DES PATIENTS » de votre bilan pour votre accréditation.</strong></p>
+
 </section>
 
 <section id="choice" class="panel">
 <h2>Choisir le type d’évaluation</h2>
-<p class="muted">Sélectionnez le cadre correspondant à votre démarche. La grille comporte toujours 10 critères communs et 4 critères complémentaires adaptés au choix.</p>
+<p class="muted">Sélectionnez le cadre correspondant à votre démarche. La grille comporte toujours 11 critères communs et 4 critères complémentaires adaptés au choix.</p>
 <div class="choices">
-<button class="choice" id="individual" type="button"><span>👤</span><strong>Évaluation individuelle</strong><span class="count">10 critères communs + 4 critères individuels = 14</span></button>
-<button class="choice" id="team" type="button"><span>👥</span><strong>Évaluation en équipe</strong><span class="count">10 critères communs + 4 critères d’équipe = 14</span></button>
+<button class="choice" id="individual" type="button"><span>👤</span><strong>Évaluation individuelle</strong><span class="count">11 critères communs + 4 critères individuels = 15</span></button>
+<button class="choice" id="team" type="button"><span>👥</span><strong>Évaluation en équipe</strong><span class="count">11 critères communs + 4 critères d’équipe = 15</span></button>
 </div>
 </section>
 
@@ -146,7 +141,7 @@ footer{text-align:center;color:var(--muted);padding:22px;font-size:.85rem}
 </div>
 <p class="muted small">L’année en cours est présélectionnée automatiquement. Les six années proposées couvrent l’année actuelle et les cinq suivantes. Les évaluations antérieures restent conservées dans l’historique.</p>
 <div class="toolbar">
-<div style="flex:1;min-width:200px"><div class="progress"><span id="progressBar"></span></div><div class="small muted" id="progressText">0 / 14 critères renseignés</div></div>
+<div style="flex:1;min-width:200px"><div class="progress"><span id="progressBar"></span></div><div class="small muted" id="progressText">0 / 15 critères renseignés</div></div>
 </div>
 </div>
 <div id="criteria"></div>
@@ -177,34 +172,40 @@ footer{text-align:center;color:var(--muted);padding:22px;font-size:.85rem}
 <script>
 const common = [
 ["Organisation et régularité des RMM",[
-"Absence de RMM ou réunions très occasionnelles, sans calendrier ni organisation définie.",
+"Absence de RMM ou réunions très occasionnelles.",
 "RMM organisées de façon ponctuelle et irrégulière.",
-"RMM programmées à une fréquence définie, avec un référent identifié.",
-"Organisation pérenne : calendrier annuel anticipé, continuité de la démarche, charte ou procédure connue et évaluation régulière du fonctionnement des RMM."
+"RMM organisées selon une fréquence définie et connue des participants.",
+"RMM organisées selon un calendrier régulier et pérenne."
+]],
+["Modalités d’organisation et de choix des RMM / Charte",[
+"Absence de charte ou de modalités écrites. Pas de référent clairement désigné ; périodicité, préparation, sélection des cas et traçabilité ne sont pas définies.",
+"Organisation partiellement définie : référent identifié et réunions programmées, mais périodicité ou durée, information préalable, préparation, participants ou critères de sélection des cas restent incomplets ou irréguliers.",
+"Charte ou procédure formalisée précisant le référent chargé de préparer et d’animer les réunions, leur périodicité et leur durée, l’information préalable des participants (méthode et résumé anonymisé), la préparation des cas et les critères de sélection concertés avec les médecins selon la gravité et l’évitabilité des événements. Les personnes invitées et les modalités de réunion sont définies.",
+"Charte connue et appliquée : réunions régulières (par exemple 1 h 30 tous les quatre mois), documents préparatoires transmis environ 15 jours avant, méthode et canevas d’analyse communiqués. Le choix des cas est concerté avec les médecins selon la gravité et l’évitabilité. Les modalités de traçabilité et d’archivage hors dossier patient sont définies ; une fiche de suivi des actions et un bilan annuel (réunions, présents, cas examinés, actions et suivi) sont réalisés."
 ]],
 ["Pluridisciplinarité et multiprofessionnalité",[
-"Analyse principalement mono-disciplinaire et mono-professionnelle.",
-"Participation d’autres disciplines ou professions de façon ponctuelle.",
-"Participation des professionnels concernés par l’événement, selon une approche pluridisciplinaire et multiprofessionnelle.",
-"Approche transversale associant les spécialités, professions et fonctions support concernées ; analyse des interfaces lorsque cela est pertinent."
+"Analyse principalement mono-disciplinaire et mono-professionnelle, sans sollicitation des acteurs concernés.",
+"Participation d’autres disciplines ou professions de façon ponctuelle. La direction qualité n’est pas associée ou l’association reste informelle.",
+"Participation des professionnels concernés par l’événement selon une approche pluridisciplinaire et multiprofessionnelle. La direction qualité peut participer à la RMM à l’invitation du référent.",
+"Approche transversale associant les spécialités, professions et fonctions support concernées ; la direction qualité participe à la RMM à l’invitation du référent. Une participation inter-établissements est organisée lorsque l’histoire clinique implique des avis ou transferts vers des tiers."
 ]],
 ["Méthode d’analyse et qualité de l’analyse systémique",[
-"Présentation descriptive de l’événement, sans méthode identifiée ; recherche principalement centrée sur l’erreur ou la responsabilité individuelle.",
-"Utilisation occasionnelle d’une méthode (ALARM, ALARM-E, ORION, REMED ou autre méthode structurée adaptée) ; identification partielle des causes immédiates et facteurs contributifs.",
-"Utilisation structurée d’une méthode adaptée à l’événement ; analyse de la chronologie, des causes immédiates et profondes, des facteurs humains, organisationnels, techniques et environnementaux, ainsi que des barrières de sécurité.",
-"Maîtrise et choix pertinent de la méthode ; préparation en amont, implication des professionnels concernés, intégration du récit du patient ou de ses proches lorsque pertinent, enseignements partagés et actions définies."
+"Présentation descriptive de l’événement, sans méthode identifiée ; recherche principalement centrée sur l’erreur ou la responsabilité individuelle. Les barrières de sécurité et les actions correctives ne sont pas identifiées.",
+"Utilisation occasionnelle d’une méthode (ALARM, ALARM-E, ORION, REMED ou autre méthode structurée adaptée) ; identification partielle des causes immédiates et facteurs contributifs. Les barrières ou les actions correctives restent peu explicites.",
+"Utilisation structurée d’une méthode adaptée à l’événement ; analyse de la chronologie, des causes immédiates et profondes, des facteurs humains, organisationnels, techniques et environnementaux. Les barrières de sécurité et les actions correctives sont clairement identifiées.",
+"Maîtrise et choix pertinent de la méthode ; préparation en amont, implication des professionnels concernés, intégration du récit du patient ou de ses proches lorsque pertinent. Les barrières de sécurité, leurs défaillances et les actions correctives sont clairement reliées aux enseignements de l’analyse."
 ]],
 ["Anonymisation et confidentialité des présentations et des comptes rendus",[
-"Présence de noms ou de données directement identifiantes dans les présentations ou documents ; absence de règles de confidentialité.",
-"Anonymisation ou pseudonymisation partielle ; des éléments indirectement identifiants peuvent subsister.",
-"Pseudonymisation systématique des présentations et comptes rendus ; confidentialité des échanges et des documents respectée.",
-"Pseudonymisation rigoureuse et systématique de l'ensemble des supports et restitutions. Maîtrise des accès, de la conservation, de l'archivage et de la diffusion des documents. Sensibilisation régulière des participants à la confidentialité. La tenue de la RMM est mentionnée dans le dossier patient, en restant strictement limitée à l'existence de la démarche, sans retranscription de l'analyse ni des échanges."
+"Présence de noms ou de données directement identifiantes dans les présentations ou documents ; absence de règles de confidentialité. Toute utilisation d’une IA avant anonymisation des données relève de ce niveau.",
+"Anonymisation incomplète ; des éléments indirectement identifiants peuvent subsister. L’utilisation d’une IA n’est pas encadrée ou son usage après anonymisation n’est pas vérifié.",
+"Anonymisation systématique des présentations et comptes rendus ; confidentialité des échanges et des documents respectée. Toute utilisation éventuelle d’une IA intervient uniquement après anonymisation des données.",
+"Anonymisation rigoureuse et systématique de l'ensemble des supports et restitutions. Toute utilisation éventuelle d’une IA intervient exclusivement après anonymisation complète. Maîtrise des accès, de la conservation, de l'archivage et de la diffusion des documents. Sensibilisation régulière des participants à la confidentialité."
 ]],
 ["Culture de sécurité et climat de confiance",[
-"Échanges marqués par le jugement ou la recherche de responsabilité individuelle ; réticence à s’exprimer.",
-"Volonté affichée d’éviter la culpabilisation, mais échanges parfois défensifs ; culture positive de l’erreur peu développée.",
-"Approche explicitement non punitive et déculpabilisante ; expression respectée et analyse systémique privilégiée.",
-"Culture de sécurité intégrée : expression libre, y compris sur les situations difficiles ; erreurs considérées comme des occasions d’apprentissage et analyses partagées entre professionnels."
+"Échanges marqués par le jugement, les règlements de compte ou la recherche de responsabilité individuelle. Les erreurs sont abordées de façon culpabilisante. Les situations en cours de judiciarisation ne font pas l’objet d’une vigilance particulière.",
+"Volonté affichée d’éviter la culpabilisation, mais échanges parfois défensifs ou insuffisamment bienveillants ; la dimension éducative et non punitive reste inconstante.",
+"Échanges bienveillants, éducatifs et non punitifs, centrés sur les erreurs et les facteurs contributifs plutôt que sur les personnes. Les règlements de compte sont exclus. Une vigilance est portée aux événements en cours de judiciarisation.",
+"Climat de confiance durable : échanges systématiquement bienveillants, éducatifs et non punitifs ; les erreurs sont analysées comme des occasions d’apprentissage. Les règlements de compte sont exclus et les événements en cours de judiciarisation font l’objet d’une vigilance adaptée."
 ]],
 ["Recueil et intégration de l’expérience patient",[
 "Expérience du patient ou de ses proches non prise en compte.",
@@ -213,22 +214,22 @@ const common = [
 "Point de vue du patient ou de ses proches intégré de façon structurée lorsque cela est approprié, dans le respect de leurs droits et de la confidentialité ; expérience utilisée pour concevoir et évaluer les actions."
 ]],
 ["Formalisation du compte rendu et partage des enseignements",[
-"Absence de compte rendu.",
-"Compte rendu ou retranscription intégrale de l’analyse des causes dans le compte rendu diffusé, risquant d’altérer la liberté des échanges.",
-"Compte rendu existant avec les conclusions mais actions restituées de façon partielle ; distinction peu claire entre document de travail (analyse de cause partagée en réunion) et compte rendu.",
-"Compte rendu synthétique et pseudonymisé centré sur les enseignements et les actions. L’analyse complète des causes est comprise comme un outil de réflexion collective ne devant pas figurer dans le compte rendu diffusé. Les enseignements sont partagés avec les professionnels."
+"Absence de fiche de synthèse communicable ou compte rendu comportant la partie analytique (analyse des causes). Le dossier patient ne mentionne pas la réalisation de la RMM.",
+"Fiche de synthèse réalisée, mais elle n’est pas clairement séparée de l’analyse des causes, ou comporte des éléments analytiques. La traçabilité, l’archivage ou la communication restent incomplets.",
+"Fiche de synthèse distincte, seule destinée à être communiquée, limitée à la caractérisation du cas et aux actions correctives. Le compte rendu global anonymisé et les éléments analytiques sont archivés séparément par le référent hors du dossier patient ou détruits. La traçabilité et la communication de la fiche sont organisées.",
+"Fiche de synthèse communicable strictement limitée à la caractérisation du cas et aux actions correctives ; sa traçabilité et sa diffusion sont formalisées. Le compte rendu global anonymisé et les éléments analytiques sont archivés séparément par le référent hors du dossier patient ou détruits. Un bilan annuel récapitule les réunions, participants, cas examinés, actions proposées et leur suivi. Le dossier patient mentionne la réalisation de la RMM, sans retranscription de l’analyse ni des échanges."
 ]],
 ["Formalisation, suivi et évaluation de l’efficacité du plan d’action avec la cellule qualité",[
-"Absence de plan d’action formalisé ; propositions essentiellement orales ou non tracées. Aucune vérification de la mise en œuvre des actions.",
-"Actions relevées, mais responsable(s), échéance ou modalités de suivi non systématiques ; implication limitée de la cellule qualité. Vérification ponctuelle de la mise en œuvre, sans évaluation de l’efficacité.",
-"Plan d’action formalisé avec la cellule qualité. Chaque action comporte un intitulé précis, un ou plusieurs responsables identifiés, une échéance et des modalités de suivi. L’avancement est réexaminé lors des RMM suivantes. Mise en œuvre vérifiée et efficacité évaluée à l’aide d’indicateurs ou de modalités définies.",
-"Collaboration structurée avec la cellule qualité ; actions intégrées si pertinent au programme institutionnel d’amélioration de la qualité et de la sécurité. Suivi jusqu’à réalisation, évaluation régulière de l’efficacité et de la pérennité, ajustement si nécessaire, recherche d’éventuels effets indésirables et partage des résultats."
+"Absence de plan d’action formalisé ou d’indicateur de suivi intégré aux actions correctives. Le contrôle médical de l’envoi à l’ARS d’un EIG déclaré par l’établissement n’est pas réalisé.",
+"Actions relevées, mais responsables, échéances ou modalités de suivi non systématiques ; implication limitée de la cellule qualité. La mise en œuvre est vérifiée ponctuellement, sans évaluation régulière de l’efficacité.",
+"Plan d’action formalisé avec la cellule qualité. Chaque action comporte un responsable, une échéance et des modalités de suivi ; l’avancement et l’efficacité sont évalués. Un indicateur de suivi est défini lorsque cela est pertinent.",
+"Plan d’action structuré avec la cellule qualité, comportant un indicateur de suivi intégré aux actions correctives (EPP). L’efficacité et la pérennité sont évaluées. L’envoi à l’ARS d’un EIG déclaré par l’établissement est contrôlé par les médecins."
 ]],
 ["Retour aux participants sur le déroulement et les résultats du plan d’action",[
-"Absence de retour aux participants sur les actions décidées.",
-"Retours occasionnels, sans suivi régulier de l’avancement.",
-"Retour organisé lors de la RMM suivante : actions réalisées, en cours, retardées ou abandonnées, avec explication des raisons.",
-"Retour systématique et documenté sur l’avancement, les résultats et l’efficacité ; difficultés, réussites et ajustements partagés avec les participants."
+"Absence de retour aux participants sur les actions décidées ; les actions correctives ne sont pas diffusées.",
+"Retours occasionnels, sans suivi régulier de l’avancement ; diffusion limitée des actions correctives.",
+"Retour organisé lors de la RMM suivante : actions réalisées, en cours, retardées ou abandonnées, avec explication des raisons. Les actions correctives sont diffusées aux professionnels concernés.",
+"Retour systématique et documenté sur l’avancement, les résultats et l’efficacité ; les actions correctives et les enseignements sont largement diffusés auprès des équipes concernées."
 ]],
 ["Promotion des RMM dans l’établissement",[
 "RMM peu connues ou non promues dans l’établissement.",
@@ -306,7 +307,7 @@ function loadStore(){
   for(const [year,record] of Object.entries(source)){
    if(!/^\d{4}$/.test(String(year))||!record||typeof record!=="object") continue;
    const clean={};
-   for(let i=0;i<14;i++){
+   for(let i=0;i<15;i++){
     const value=Number(record[i]);
     if(Number.isInteger(value)&&value>=1&&value<=4) clean[i]=value;
    }
@@ -326,7 +327,7 @@ function showMode(m){
  mode=m;loadStore();$("choice").classList.add("hidden");$("workspace").classList.remove("hidden");
  $("gridTitle").textContent=m==="individual"?"Évaluation individuelle":"Évaluation en équipe";
  $("backChoice").textContent=m==="individual"?"Basculer vers l’évaluation en équipe":"Basculer vers l’évaluation individuelle";
- $("gridSubtitle").textContent="14 critères : 10 communs et 4 "+(m==="individual"?"individuels":"d’équipe")+".";
+ $("gridSubtitle").textContent="15 critères : 11 communs et 4 "+(m==="individual"?"individuels":"d’équipe")+".";
  $("identityLabel").textContent=m==="individual"?"Nom et prénom":"Nom de l’équipe";
  $("identityInput").placeholder=m==="individual"?"Nom et prénom":"Nom de l’équipe";
  currentYear=new Date().getFullYear();
@@ -353,7 +354,7 @@ function renderCriteria(){
  criteria().forEach((c,i)=>{
   const tr=document.createElement("tr");
   const th=document.createElement("th");th.scope="row";
-  th.innerHTML=`<strong>${i+1}. ${escapeHtml(c[0])}</strong><div class="muted small" style="font-weight:400;margin-top:5px">${i<10?"Critère commun":mode==="individual"?"Critère individuel":"Critère d’équipe"}</div>`;
+  th.innerHTML=`<strong>${i+1}. ${escapeHtml(c[0])}</strong><div class="muted small" style="font-weight:400;margin-top:5px">${i<11?"Critère commun":mode==="individual"?"Critère individuel":"Critère d’équipe"}</div>`;
   tr.append(th);
   c[1].forEach((desc,j)=>{
    const td=document.createElement("td");
@@ -369,7 +370,7 @@ function renderCriteria(){
  table.append(tbody);tableWrap.append(table);root.append(tableWrap);
 }
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function updateProgress(){const n=Object.keys(answers).filter(k=>answers[k]>=1&&answers[k]<=4).length;$("progressBar").style.width=(n/14*100)+"%";$("progressText").textContent=`${n} / 14 critères renseignés`;}
+function updateProgress(){const n=Object.keys(answers).filter(k=>answers[k]>=1&&answers[k]<=4).length;$("progressBar").style.width=(n/15*100)+"%";$("progressText").textContent=`${n} / 15 critères renseignés`;}
 function saveCurrent(){const y=Number($("yearSelect").value);answers._identity=$("identityInput").value.trim();saved[y]={...answers,_completedAt:new Date().toISOString(),_evaluationDate:$("dateInput").value};persist();if(!selectedYears.includes(y)){selectedYears.push(y);selectedYears.sort((a,b)=>a-b);}renderYearChecks();renderRadar();$("status").textContent=`Évaluation ${y} enregistrée sur cet appareil.`;}
 function renderYearChecks(){
  const root=$("yearChecks");root.innerHTML="";
