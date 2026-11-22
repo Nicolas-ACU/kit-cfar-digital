@@ -892,7 +892,7 @@ function renderModeEmploiModal(){
         `)}
 
         ${section("📋 Bilan annuel", `
-          <b>Bilan d'accréditation (dernière étape) et antériorité.</b> Il reprend les activités des 3 bilans annuels précédents. Dans l'aperçu, chaque activité n'affiche qu'un extrait : cliquez sur <i>« ▸ lire l'intégralité »</i> pour déplier le texte complet, année par année. Le Word du bilan d'accréditation comporte une <i>« Annexe — antériorité détaillée »</i> avec ces textes intégraux. Le prompt de synthèse demande à l'IA un texte volontairement court et de longueur stable (environ 120-200 mots pour un bilan annuel, 200-320 pour l'accréditation) : pré-requis et faits marquants d'abord, détail omis.
+          <b>Bilan d'accréditation (dernière étape) et antériorité.</b> Il reprend les activités des 3 bilans annuels précédents et celles de l'année en cours (c'est aussi un bilan annuel). Dans l'aperçu, chaque activité n'affiche qu'un extrait : cliquez sur <i>« ▸ lire l'intégralité »</i> pour déplier le texte complet, année par année. Le Word du bilan d'accréditation comporte une <i>« Annexe — antériorité détaillée »</i> avec ces textes intégraux. Le prompt de synthèse demande à l'IA un texte volontairement court et de longueur stable (environ 120-200 mots pour un bilan annuel, 200-320 pour l'accréditation) : pré-requis et faits marquants d'abord, détail omis.
           <br/><br/>
           Deux façons de fonctionner, à votre convenance : coller vous-même le contenu depuis le SIAM pilier par pilier, ou <b>faire remplir l'engagé lui-même</b> via l'espace qui lui est dédié (voir plus bas) — les deux peuvent aussi se combiner.
           <br/><br/>
@@ -1131,7 +1131,7 @@ function renderApp(){
         </div>
         <button class="btn secondary block small" id="openModeEmploiBtn" style="margin-bottom:8px;">📖 Mode d'emploi</button>
         <button class="btn secondary block small" id="logoutBtn">Se déconnecter</button>
-        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 18/11/2026 (a)</div>
+        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 22/11/2026 (c)</div>
       </div>
     </div>
     ${STATE.showModeEmploi ? renderModeEmploiModal() : ""}
@@ -3286,7 +3286,11 @@ function computePilierConformite(statuts, p){
 function computeBilanPreReq(e, year){
   const statuts = statutsEffectifs(e, year);
   const eiasP = eiasCumulPeriode(e, year);
-  const p1a0 = statuts["p1_0"], p2a0 = statuts["p2_0"], p3a0 = statuts["p3_0"];
+  // RMM et check-list sont exigées CHAQUE année, y compris au bilan d'accréditation (qui est aussi
+  // un bilan annuel) : on regarde donc le statut de l'année elle-même, pas celui de la période.
+  // La formation (12h sur 4 ans) et l'activité par pilier restent évaluées sur la période.
+  const statutsAn = getBilanStatuts(e, year);
+  const p1a0 = statutsAn["p1_0"], p2a0 = statuts["p2_0"], p3a0 = statutsAn["p3_0"];
   const pilierConformite = PILIERS.map(p=> ({ pilier:p, c: computePilierConformite(statuts, p) }));
   const nbPiliersConformes = pilierConformite.filter(x=>x.c.ok).length;
   return [
@@ -3939,7 +3943,7 @@ EIAS sur la période : ${facts.eiasSurLaPeriode}
 
 Thèmes des EIAS : ${themesEias}
 
-Activités par pilier sur les 3 années précédentes :
+Activités par pilier (3 bilans annuels précédents + bilan d'accréditation) :
 ${lignes}${facts.resumeEngage ? `
 
 Résumé du bilan par l'engagé/le référent :
@@ -5633,13 +5637,14 @@ function activitesRetenuesPilier(e, year, p){
   });
   return out;
 }
-// EIAS : par année pour un bilan annuel ; cumulés sur la période (3 bilans annuels + année en
-// cours) pour le bilan d'accréditation, attendu = attendu annuel x nombre d'années compilées.
+// EIAS : par année pour un bilan annuel ; cumulés sur les 4 années du cycle (3 bilans annuels +
+// le bilan d'accréditation, qui est aussi un bilan annuel) pour le bilan d'accréditation,
+// attendu = attendu annuel x 4. Le compteur de chaque année est remis à zéro à chaque bilan.
 function eiasCumulPeriode(e, year){
   const attendu = e.type==="equipe" ? eiasAttendus(e.membres.length) : 1;
   const years = isAccreditationStage(e, year) ? compiledYearsForAccreditation(e, year) : [];
   if (!years.length) return { realises: getEiasRealises(e, year), attendus: attendu, cumul:false };
-  return { realises: years.concat([year]).reduce((s,y)=> s + getEiasRealises(e, y), 0), attendus: attendu * years.length, cumul:true };
+  return { realises: years.concat([year]).reduce((s,y)=> s + getEiasRealises(e, y), 0), attendus: attendu * (years.length + 1), cumul:true };
 }
 
 // Le contenu collé depuis le SIAM peut être long, et un bilan (surtout un bilan
@@ -5659,9 +5664,13 @@ function truncateForPrompt(text, maxLen){
 function buildBilanFactsAccreditation(e, year){
   const stages = stagesFor(e);
   const compiledYears = compiledYearsForAccreditation(e, year);
+  // Les activités à reprendre = celles des 3 bilans annuels précédents ET celles saisies dans le
+  // bilan d'accréditation lui-même (année en cours) : sans cela, un bilan d'accréditation rempli
+  // directement apparaissait « vide » dans le prompt envoyé à l'IA.
+  const anneesActivites = compiledYears.concat([year]);
   const activitesParPilier = PILIERS.map(p=>{
     const parActivite = {};
-    compiledYears.forEach(y=>{
+    anneesActivites.forEach(y=>{
       const statuts = getBilanStatuts(e, y);
       const contenus = getBilanContenus(e, y);
       p.activites.forEach((a,ai)=>{
@@ -5672,7 +5681,7 @@ function buildBilanFactsAccreditation(e, year){
           parActivite[nom].annees.push(stages[y]);
           const c = contenus[key];
           const detail = truncateForPrompt(c && (c.simplifie||c.texte), 150);
-          if (detail && !parActivite[nom].contenu) parActivite[nom].contenu = detail;
+          if (detail) parActivite[nom].contenu = detail; // le plus récent l'emporte
         }
       });
     });
@@ -5682,20 +5691,30 @@ function buildBilanFactsAccreditation(e, year){
     };
   });
   const attendu = e.type==="equipe" ? eiasAttendus(e.membres.length) : 1;
-  const attenduPeriode = attendu * (compiledYears.length || 1);
+  const attenduPeriode = attendu * (compiledYears.length + 1); // 3 bilans annuels + année en cours
   // Cumul EXPLICITE des compteurs annuels des 3 années compilées (et non un total glissant
   // jamais remis à zéro) — chaque année du cycle a son propre compteur, remis à zéro au bilan
   // annuel suivant (voir getEiasRealises / resetBilanCycleWorkingData).
-  const eiasRealisesPeriode = compiledYears.reduce((s,y)=> s + getEiasRealises(e, y), 0);
-  const themesEias = compiledYears
+  const eiasRealisesPeriode = anneesActivites.reduce((s,y)=> s + getEiasRealises(e, y), 0);
+  const statutsAnnee = getBilanStatuts(e, year), statutsPeriode = statutsEffectifs(e, year);
+  const themesEias = anneesActivites
     .reduce((acc,y)=> acc.concat(dossiersEiasDeAnnee(e, y)), [])
     .map(d=> d.titre + (d.motsCles&&d.motsCles.length ? " ("+d.motsCles.join(", ")+")" : ""));
   return {
     etape: stages[year],
     periodeCouverte: compiledYears.map(y=>stages[y]),
-    engage: e.nom,
+    anneeEnCours: stages[year],
     composition: e.type==="equipe" ? e.membres.length+" médecins engagés" : "exercice individuel — "+e.modeExercice,
-    eiasSurLaPeriode: eiasRealisesPeriode + "/" + attenduPeriode + " (cumul des 3 bilans annuels compilés)",
+    eiasSurLaPeriode: eiasRealisesPeriode + "/" + attenduPeriode + " (cumul des 4 années du cycle : 3 bilans annuels + bilan d'accréditation)",
+    preRequisAnneeEnCours: {
+      rmm: statutsAnnee["p1_0"]==="realise", checklist: statutsAnnee["p3_0"]==="realise",
+      eias: getEiasRealises(e, year)+"/"+attendu,
+    },
+    preRequisSurLes4Ans: {
+      rmm: statutsPeriode["p1_0"]==="realise", checklist: statutsPeriode["p3_0"]==="realise",
+      formationGestionDesRisques12h: statutsPeriode["p2_0"]==="realise",
+      eias: eiasRealisesPeriode + "/" + attenduPeriode,
+    },
     themesEias,
     activitesParPilier,
     resumeEngage: getBilanResumeEngage(e, year),
@@ -5725,7 +5744,6 @@ function buildBilanFacts(e, year){
   if (valence.pluriprofessionnelle) valenceLignes.push("pluriprofessionnelle");
   return {
     etape: stagesFor(e)[year],
-    engage: e.nom,
     composition: e.type==="equipe" ? e.membres.length+" médecins engagés" : "exercice individuel — "+e.modeExercice,
     preRequis: {
       rmm: p1a0==="realise", checklist: p3a0==="realise", formation: true,
@@ -5772,10 +5790,10 @@ Contraintes impératives de forme, à respecter strictement :
 - "syntheseEngage" : entre 80 et 130 mots, ton chaleureux mais direct — pas de tournures ampoulées.
 - Précision : reprends les chiffres exacts fournis (EIAS réalisés/attendus, nombre de médecins…) sans les arrondir ni les reformuler approximativement.
 - Pas de liste à puces dans "syntheseSiam" : uniquement des paragraphes rédigés.`;
-  const system = isAccreditation ? `Tu es l'expert d'Accréditation du CFAR (anesthésie-réanimation) qui rédige la synthèse du BILAN D'ACCRÉDITATION d'un médecin engagé — c'est précisément ce bilan qui est examiné par la HAS et qui délivre ou renouvelle l'accréditation pour les années à venir. À la différence d'un bilan annuel, il compile les 3 bilans annuels précédents (${facts.periodeCouverte.join(", ")}), pas seulement la dernière année, à partir de données factuelles déjà établies (ne rien inventer).
+  const system = isAccreditation ? `Tu es l'expert d'Accréditation du CFAR (anesthésie-réanimation) qui rédige la synthèse du BILAN D'ACCRÉDITATION d'un médecin engagé — c'est précisément ce bilan qui est examiné par la HAS et qui délivre ou renouvelle l'accréditation pour les années à venir. À la différence d'un bilan annuel, il compile les 3 bilans annuels précédents (${facts.periodeCouverte.join(", ")}) ainsi que le bilan d'accréditation lui-même (« anneeEnCours »), qui est aussi un bilan annuel : la synthèse porte donc sur 4 années et doit vérifier à la fois les pré-requis de l'année en cours (« preRequisAnneeEnCours ») et les pré-requis sur les 4 ans (« preRequisSurLes4Ans »), à partir de données factuelles déjà établies (ne rien inventer).
 
 Rédige DEUX textes distincts :
-1. "syntheseSiam" : synthèse complète et fluide, dans un style professionnel, destinée à la HAS. Dégage, pilier par pilier, la CONTINUITÉ du parcours sur l'ensemble de la période (pas seulement la dernière année) — mentionne les années seulement si cela éclaire la régularité de l'engagement ; ne détaille pas chaque activité. Mentionne les EIAS réalisés sur la période. Si "resumeEngage" est fourni (résumé rédigé par l'engagé/le référent lui-même), appuie-toi sur ces éléments factuels pour enrichir ta synthèse, sans le citer ni le paraphraser littéralement. Termine par une conclusion explicite sur le fait que le parcours justifie le renouvellement de l'accréditation, ou signale sans détour les points qui pourraient faire obstacle si des pré-requis manquent. N'inclus PAS l'appréciation libre de l'expert dans ce texte : elle est présentée séparément, dans un encart dédié, juste après ta synthèse — la répéter ferait doublon.
+1. "syntheseSiam" : synthèse complète et fluide, dans un style professionnel, destinée à la HAS. Dégage, pilier par pilier, la CONTINUITÉ du parcours sur l'ensemble de la période (pas seulement la dernière année) — mentionne les années seulement si cela éclaire la régularité de l'engagement ; ne détaille pas chaque activité. Mentionne les EIAS réalisés sur les 4 années (cumul) et indique clairement si les pré-requis de l'année en cours et ceux des 4 ans sont satisfaits, sans minimiser ceux qui ne le sont pas (la RMM et la check-list sont exigées chaque année, y compris cette année d'accréditation ; la formation de 12 h et les EIAS se jugent sur les 4 ans) : ce bilan peut être examiné en commission par la HAS. Si "resumeEngage" est fourni (résumé rédigé par l'engagé/le référent lui-même), appuie-toi sur ces éléments factuels pour enrichir ta synthèse, sans le citer ni le paraphraser littéralement. Termine par une conclusion explicite sur le fait que le parcours justifie le renouvellement de l'accréditation, ou signale sans détour les points qui pourraient faire obstacle si des pré-requis manquent. N'inclus PAS l'appréciation libre de l'expert dans ce texte : elle est présentée séparément, dans un encart dédié, juste après ta synthèse — la répéter ferait doublon.
 2. "syntheseEngage" : un message chaleureux et clair adressé DIRECTEMENT au médecin engagé (vouvoiement), qui valorise l'ensemble du travail accompli sur les 3 années, reprend l'appréciation libre de l'expert si elle est fournie, et amène naturellement (sans les détailler toi-même) les quelques activités signalées comme « à développer » — une liste précise de ressources sera ajoutée après ton texte, contente-toi d'une phrase de transition du type « pour vous accompagner sur les points suivants, vous trouverez ci-dessous quelques ressources utiles ».
 ${concisionRules}
 
