@@ -1131,7 +1131,7 @@ function renderApp(){
         </div>
         <button class="btn secondary block small" id="openModeEmploiBtn" style="margin-bottom:8px;">📖 Mode d'emploi</button>
         <button class="btn secondary block small" id="logoutBtn">Se déconnecter</button>
-        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 22/11/2026 (c)</div>
+        <div style="margin-top:8px; text-align:center; opacity:.6; font-size:11px; color:#fff;">Version du 26/11/2026 (b)</div>
       </div>
     </div>
     ${STATE.showModeEmploi ? renderModeEmploiModal() : ""}
@@ -2775,7 +2775,7 @@ function attachEngagesEvents(){
       const dos = e && (e.dossiersBilan||[]).find(d=>d.id===el.getAttribute("data-download-bilan"));
       if (!dos) return;
       const stageIdx = stagesFor(e).indexOf(dos.etape);
-      const filename = "Bilan_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".docx";
+      const filename = bilanWordFileName(e, stageIdx>=0?stageIdx:0);
       downloadWordDoc(bilanWordHtml(e, stageIdx>=0?stageIdx:0, dos.syntheseSiam, dos.appreciation, dos.resumeEngage, true), filename);
       toast("Synthèse téléchargée (Word).");
     };
@@ -3778,8 +3778,7 @@ function bilanWordHtml(e, year, syntheseText, appreciation, resumeEngage, archiv
 
   return `
   <h1 style="color:#1F3864; font-size:20pt; border-bottom:3px solid #1F3864; padding-bottom:10px; margin-bottom:4px;">${escapeHtml(stagesFor(e)[year])}</h1>
-  <p style="color:#1F3864; font-size:14pt; font-weight:bold; margin:6px 0 2px;">${escapeHtml(e.nom)}</p>
-  <p style="color:#8894A3; font-size:10pt; margin:0 0 6px;">CFAR · Accréditation — généré le ${fmtDate(TODAY)} par ${escapeHtml(STATE.currentExpert.name)}</p>
+  <p style="color:#8894A3; font-size:10pt; margin:6px 0 6px;">CFAR · Accréditation — document anonymisé, généré le ${fmtDate(TODAY)}</p>
 
   <table style="width:100%; border-collapse:collapse; margin:10px 0 26px; font-size:11pt;">
     <tr><td style="padding:3px 0; width:230px;"><b>Bilan réalisé en :</b></td><td>${e.type==="equipe" ? "Équipe ("+e.membres.length+" médecins engagés)" : "Individuel"}</td></tr>
@@ -3909,7 +3908,7 @@ function attachBilanEvents(){
       : "aucune analyse EIAS validée archivée pour l'instant";
     const appreciation = getBilanAppreciation(e, year);
     const resumeEngage = getBilanResumeEngage(e, year);
-    return `${stagesFor(e)[year]} — ${e.nom}
+    return `${stagesFor(e)[year]}
 Composition : ${e.type==="equipe" ? e.membres.length+" médecins engagés (mouvements de l'année à préciser)" : "exercice individuel — "+e.modeExercice}
 EIAS : ${getEiasRealises(e, year)} réalisé(s) sur ${attendu} attendu(s)
 ${valenceTxt}
@@ -3936,7 +3935,7 @@ ${resumeEngage}` : ""}`;
       return `${p.pilier} : ${txt}`;
     }).join("\n");
     const themesEias = facts.themesEias.length ? facts.themesEias.join(" ; ") : "aucune analyse EIAS validée archivée pour l'instant";
-    return `${facts.etape} — ${e.nom}
+    return `${facts.etape}
 Période compilée : ${facts.periodeCouverte.join(", ")}
 Composition : ${facts.composition}
 EIAS sur la période : ${facts.eiasSurLaPeriode}
@@ -4121,7 +4120,7 @@ ${facts.resumeEngage}` : ""}`;
     const syntheseText = document.getElementById("syntheseText") ? document.getElementById("syntheseText").value : (STATE.bilanSynthese || "");
     const appreciation = getBilanAppreciation(e, year);
     const resumeEngage = getBilanResumeEngage(e, year);
-    const filename = "Bilan_" + (e.nom||"engage").replace(/[^a-z0-9]+/gi,"_").slice(0,60) + ".docx";
+    const filename = bilanWordFileName(e, year);
     downloadWordDoc(bilanWordHtml(e, year, syntheseText, appreciation, resumeEngage), filename);
     toast("Synthèse téléchargée (Word) — à joindre manuellement au SIAM et/ou au mail (les liens mailto ne permettent pas de joindre un fichier automatiquement).");
   };
@@ -5572,6 +5571,20 @@ function attachEiasEvents(){
 // Le bilan d'accréditation (dernière étape du cycle) n'est pas qu'un bilan de l'année en
 // cours : c'est la compilation des 3 bilans annuels précédents que la HAS examine réellement
 // pour délivrer ou renouveler l'accréditation.
+// Nom du fichier Word du bilan : le SIAM exige un document sans nom de médecin ni d'expert à
+// l'intérieur ; dans le nom du fichier, seul un repère court (3 premières lettres du nom + 3 du
+// prénom, ex. BLANIC) permet de le retrouver, suivi du type de bilan et de la date.
+function bilanWordFileName(e, year){
+  const clean = t => String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z]/gi,"").toUpperCase();
+  let repere;
+  if (e.type==="equipe") repere = clean(e.nom).slice(0,6);
+  else {
+    const np = (e.prenom || e.nomFamille) ? { prenom:e.prenom||"", nomFamille:e.nomFamille||"" } : guessNomPrenom(e.nom);
+    repere = clean(np.nomFamille).slice(0,3) + clean(np.prenom).slice(0,3);
+  }
+  const etape = String(stagesFor(e)[year] || "bilan").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/^bilan\s+/i,"").replace(/[^a-z0-9]+/gi,"_").replace(/^_+|_+$/g,"");
+  return (repere || "ENGAGE") + "_Bilan_" + etape + "_" + TODAY.toISOString().slice(0,10) + ".docx";
+}
 function isAccreditationStage(e, year){
   return year === stagesFor(e).length - 1;
 }
